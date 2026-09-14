@@ -587,17 +587,32 @@ export default function Student({
                       'Build confidence with focused practice.'}
                   </p>
 
-                  <div className="meta">
-                    <span>
-                      {reviewer.settings.selection === 'random'
-                        ? `${reviewer.settings.count} randomized questions`
-                        : 'Fixed question set'}
-                    </span>
-
+                  <div
+                    className="meta"
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
+                      gridTemplateRows: 'auto auto',
+                      gap: '8px 18px',
+                      alignItems: 'start',
+                    }}
+                  >
                     <span>
                       {rules?.time_limit_minutes
                         ? `${rules.time_limit_minutes} min`
                         : 'No time limit'}
+                    </span>
+
+                    <span>
+                      {rules?.due_at
+                        ? `Due ${new Date(rules.due_at).toLocaleDateString()} ${new Date(
+                            rules.due_at,
+                          ).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true,
+                          })}`
+                        : 'No due date'}
                     </span>
 
                     <span>
@@ -611,19 +626,10 @@ export default function Student({
                     </span>
 
                     <span>
-                      {rules?.due_at
-                        ? `Due ${new Date(rules.due_at).toLocaleDateString()} ${new Date(
-                            rules.due_at,
-                          ).toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}`
-                        : 'No due date'}
+                      {rules?.access_code_enabled
+                        ? 'Access code required'
+                        : 'No access code'}
                     </span>
-
-                    {rules?.access_code_enabled && (
-                      <span>Access code required</span>
-                    )}
                   </div>
 
                   <button
