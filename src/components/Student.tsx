@@ -587,49 +587,44 @@ export default function Student({
                       'Build confidence with focused practice.'}
                   </p>
 
-                  <div className="review-card-info-grid">
-                    <div className="review-card-info-item">
-                      <span className="review-card-info-label">Question Type</span>
-                      <strong>
-                        {reviewer.settings.selection === 'random'
-                          ? 'Randomized'
-                          : 'Fixed'}
-                      </strong>
-                    </div>
+                  <div className="meta">
+                    <span>
+                      {reviewer.settings.selection === 'random'
+                        ? `${reviewer.settings.count} randomized questions`
+                        : 'Fixed question set'}
+                    </span>
 
-                    <div className="review-card-info-item">
-                      <span className="review-card-info-label">Time Limit</span>
-                      <strong>
-                        {rules?.time_limit_minutes
-                          ? `${rules.time_limit_minutes} minutes`
-                          : 'No limit'}
-                      </strong>
-                    </div>
+                    <span>
+                      {rules?.time_limit_minutes
+                        ? `${rules.time_limit_minutes} min`
+                        : 'No time limit'}
+                    </span>
 
-                    <div className="review-card-info-item">
-                      <span className="review-card-info-label">Allowed Attempt/s</span>
-                      <strong>
-                        {reviewer.settings.max_attempts === null
-                          ? 'Unlimited'
-                          : reviewer.settings.max_attempts}
-                      </strong>
-                    </div>
+                    <span>
+                      {reviewer.settings.max_attempts === null
+                        ? 'Unlimited attempts'
+                        : `${reviewer.settings.max_attempts} ${
+                            reviewer.settings.max_attempts === 1
+                              ? 'attempt'
+                              : 'attempts'
+                          }`}
+                    </span>
 
-                    <div className="review-card-info-item">
-                      <span className="review-card-info-label">Due</span>
-                      <strong>
-                        {rules?.due_at
-                          ? new Date(rules.due_at).toLocaleString()
-                          : 'No due date'}
-                      </strong>
-                    </div>
-                  </div>
+                    <span>
+                      {rules?.due_at
+                        ? `Due ${new Date(rules.due_at).toLocaleDateString()} ${new Date(
+                            rules.due_at,
+                          ).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}`
+                        : 'No due date'}
+                    </span>
 
-                  {rules?.access_code_enabled && (
-                    <div className="meta">
+                    {rules?.access_code_enabled && (
                       <span>Access code required</span>
-                    </div>
-                  )}
+                    )}
+                  </div>
 
                   <button
                     disabled={
