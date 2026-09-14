@@ -26,7 +26,7 @@ export const initialBranding: Branding = {
   logo_path: null,
 };
 
-function withTimeout<T>(promise: Promise<T>, ms = 7000): Promise<T> {
+function withTimeout<T>(promise: PromiseLike<T>, ms = 7000): Promise<T> {
   return new Promise((resolve, reject) => {
     const timer = window.setTimeout(
       () => reject(new Error('Connection timed out. Please try again.')),

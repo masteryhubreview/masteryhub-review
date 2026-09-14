@@ -89,7 +89,7 @@ export default function Admin({
   const [quizSection, setQuizSection] = useState<QuizSection>(() =>
     storedSection(
       QUIZ_SECTION_KEY,
-      ['Reviewers', 'Question Bank'] as const,
+      ['Reviewers'] as const,
       'Reviewers',
     ),
   );
