@@ -599,8 +599,8 @@ export default function Student({
                   >
                     <span>
                       {rules?.time_limit_minutes
-                        ? `${rules.time_limit_minutes} min`
-                        : 'No time limit'}
+                        ? `Time limit: ${rules.time_limit_minutes} min`
+                        : 'Time limit: No limit'}
                     </span>
 
                     <span>
