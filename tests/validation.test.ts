@@ -1,0 +1,14 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {validateQuestion,validateStudent,validateSettings} from '../src/lib/validation.ts';
+import {parseCSV,makeCSV} from '../src/lib/csv.ts';
+import {defaultSettings} from '../src/lib/types.ts';
+const q={type:'mc_single',text:'Two plus two?',points:1,choices:[{id:'a',text:'4'},{id:'b',text:'5'}],correct:['a'],accepted:[],strict:false,image_path:null};
+test('valid question',()=>assert.deepEqual(validateQuestion(q),[]));
+test('reject foreign correct ID',()=>assert.ok(validateQuestion({...q,correct:['x']}).length));
+test('multiple blanks require accepted variants',()=>assert.ok(validateQuestion({...q,type:'multi_blank'}).length));
+test('no subjective accepted answers needed',()=>assert.deepEqual(validateQuestion({...q,type:'long_answer',choices:[],correct:[]}),[]));
+test('positive attempt limits',()=>assert.ok(validateSettings({...defaultSettings,max_attempts:0}).length));
+test('student passwords',()=>assert.ok(validateStudent({email:'a@b.com',display_name:'A',password:'short'}).length));
+test('CSV multiline and quote roundtrip',()=>{const rows=[{a:'a,"b"',b:'line\nnext'}];assert.deepEqual(parseCSV(makeCSV(rows)),rows)});
+test('CSV detects malformed rows',()=>assert.throws(()=>parseCSV('a,b\n1')));
+test('CSV neutralizes formula injection',()=>assert.match(makeCSV([{a:'=1+1'}]),/'=1\+1/));

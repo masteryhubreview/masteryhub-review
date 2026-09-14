@@ -1,0 +1,10 @@
+export type QuestionType = 'mc_single'|'mc_multi'|'fill_blank'|'short_answer'|'long_answer'|'multi_blank';
+export type Choice = {id:string;text:string};
+export type QuestionData = {type:QuestionType;text:string;points:number;choices:Choice[];correct:string[];accepted:string[][];strict:boolean;image_path:string|null};
+export type PublicQuestion = {id:string;type:QuestionType;text:string;points:number;choices:Choice[];blanks:number;image_path:string|null;response:string[]|null;awarded:number|null;pending:boolean;correct?:string[];accepted?:string[][];notes?:string};
+export type Settings = {selection:'fixed'|'random';count:number;shuffle_questions:boolean;shuffle_choices:boolean;require_all:boolean;instant:boolean;allow_review:boolean;show_correct:boolean;max_attempts:number|null};
+export const defaultSettings: Settings = {selection:'fixed',count:10,shuffle_questions:false,shuffle_choices:false,require_all:true,instant:false,allow_review:true,show_correct:true,max_attempts:null};
+export type AttemptView = {id:string;title:string;status:string;started_at:string;submitted_at:string|null;score:number;max_score:number;pending:number;settings:Settings;questions:PublicQuestion[]};
+export type Profile = {id:string;display_name:string;email:string;student_number:string|null;role:'admin'|'student';is_active:boolean;term_id:string|null};
+export type Subject = {id:string;name:string;code:string;description:string;is_active:boolean};
+export type Reviewer = {id:string;title:string;description:string;subject_id:string;published:boolean;settings:Settings};

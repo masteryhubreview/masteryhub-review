@@ -1,0 +1,675 @@
+Build a production-ready **Custom Quiz/Reviewer System** for a real client. This is NOT a demo and NOT a generic mockup. Follow the requirements below exactly. Do not remove, simplify, replace, or add major functionality without asking first.
+
+## PROJECT
+
+**Project Type:** Custom Web-Based Quiz/Reviewer System
+
+**Purpose:**  
+Create a mobile-friendly reviewer and quiz platform where an administrator manages students, subjects, enrollments, questionnaires, question banks, attempts, and results. Students have individual accounts and can access only the subjects in which they are enrolled.
+
+This is primarily a REVIEWER system, so students may take questionnaires repeatedly depending on the attempt settings.
+
+## REQUIRED TECH STACK
+
+Use the existing TCL development stack only:
+
+- Next.js
+- TypeScript
+- Supabase
+- Vercel
+- GitHub
+
+Supabase should handle:
+- PostgreSQL database
+- Authentication
+- Storage for question images
+- Appropriate access/security policies
+
+Do NOT add:
+- AI APIs
+- Firebase
+- external quiz platforms
+- separate CMS platforms
+- unnecessary third-party services
+- paid services unless technically required and approved first
+
+The application must be deployable to Vercel.
+
+## USER ROLES
+
+There are only TWO roles for the current scope:
+
+1. ADMIN
+2. STUDENT
+
+Do NOT create a Teacher role or separate teacher accounts.
+
+## AUTHENTICATION
+
+### Admin
+Provide a secure admin login.
+
+Admin must later be able to change:
+- display name
+- email/login
+- password
+
+### Students
+There must NOT be open/public student registration.
+
+Student accounts are created and controlled by the admin.
+
+Admin must be able to:
+- create a student manually
+- bulk import students
+- edit student information
+- activate/deactivate students
+- remove students when appropriate
+- organize students by semester/school year
+- assign students to subjects
+
+Students need:
+- individual login
+- password
+- Forgot Password / Reset Password
+
+The system should initially accommodate approximately 300 students but must NOT have a hard-coded 300-student maximum.
+
+## STUDENT BULK IMPORT
+
+Provide a simple bulk-import workflow so hundreds of student accounts do not need to be manually created one by one.
+
+Validate imported records and clearly report invalid rows.
+
+## SUBJECT MANAGEMENT
+
+Admin must be able to:
+- create subjects
+- edit/rename subjects
+- activate/deactivate subjects
+- manage subjects
+
+Examples:
+- Mathematics
+- English
+- Science
+- General Knowledge
+
+These are only sample subjects and must remain editable.
+
+## SUBJECT ENROLLMENT & ACCESS CONTROL
+
+Admin must be able to assign each student to one or multiple subjects.
+
+This access control is mandatory.
+
+Example:
+
+If Student A is enrolled only in Mathematics:
+- Student A can see Mathematics.
+- Student A can access published Mathematics reviewers.
+- Student A CANNOT access English, Science, or their questionnaires unless enrolled in those subjects.
+
+Do not rely only on hiding UI elements. Enforce this access at the backend/database authorization level as well.
+
+## STUDENT DASHBOARD
+
+After login, students should see:
+- welcome area
+- their enrolled subjects
+- available/published reviewers under those subjects
+- relevant attempt/result information
+
+They must NOT see subjects in which they are not enrolled.
+
+Use temporary editable welcome text during development.
+
+## QUESTION BANK
+
+Build a reusable question-bank system.
+
+Admin must be able to:
+- create questions
+- edit questions
+- delete questions
+- organize questions
+- associate questions with subjects
+- reuse questions in different reviewer sets
+- search/filter questions where useful
+- bulk import questions
+
+The architecture must be suitable for a large question bank.
+
+Expected usage may reach approximately:
+- 100–300 reviewer/questionnaire sets
+- around 100 questions per set
+- potentially around 30,000 stored questions overall
+
+Do NOT hard-code these numbers as limits.
+
+Use pagination/server-side querying where appropriate. Do not load the entire question bank into the browser unnecessarily.
+
+## QUESTION TYPES
+
+The system must NOT be limited to multiple-choice questions.
+
+Support at minimum:
+
+### 1. Multiple Choice — Single Answer
+- Admin creates multiple choices.
+- One correct answer.
+- Automatically scoreable.
+
+### 2. Choose All That Apply / Multiple Answers
+- Multiple choices.
+- More than one answer can be correct.
+- Student may select multiple answers.
+- Automatically scoreable according to the defined correct-answer set.
+
+### 3. Fill in the Blank
+- Student types an answer.
+- Admin can define the correct answer.
+- Allow multiple accepted answer variations where appropriate.
+- Normalize reasonable differences such as surrounding spaces/capitalization unless the quiz setting requires otherwise.
+
+### 4. Short Answer / Text Box
+- Student enters a short text response.
+- Can be automatically checked only when the admin has provided defined accepted answers.
+- Otherwise allow admin/manual checking.
+
+### 5. Long Answer / Paragraph
+- Student can enter a longer response.
+- Allow admin/manual checking/scoring.
+
+### 6. Multiple Typed Answers / Multiple Blanks
+Support a question that requires more than one typed answer.
+
+Example:
+Question contains three required blanks/answer fields.
+
+Store and evaluate each required answer appropriately.
+
+## QUESTION IMAGES
+
+Any applicable question must support an OPTIONAL image.
+
+Admin must be able to:
+- upload a question image
+- preview it
+- replace it
+- remove it
+
+Use Supabase Storage.
+
+Examples include:
+- diagrams
+- anatomy images
+- charts
+- graphs
+- illustrations
+
+An image is an attachment/property of a question, NOT a separate question type.
+
+## BULK QUESTION IMPORT
+
+This is an important requirement because the client may maintain thousands of questions.
+
+Create a structured bulk-import workflow.
+
+The import format must be capable of representing, where applicable:
+- subject
+- question type
+- question text
+- choices
+- correct answer
+- multiple correct answers
+- accepted typed answers
+- other necessary question metadata
+
+Provide:
+1. downloadable import template
+2. upload/import interface
+3. validation
+4. error reporting
+5. preview/review before final import
+6. ability to correct problems before publishing/using imported questions
+
+Do NOT promise or implement bulk image importing unless explicitly approved later.
+
+Images can initially be attached through the normal admin question editor.
+
+## QUIZ / REVIEWER MANAGEMENT
+
+Admin must be able to:
+- create reviewer/questionnaire
+- edit reviewer
+- duplicate reviewer
+- publish/unpublish reviewer
+- associate reviewer with a subject
+- add/select questions
+- configure reviewer settings
+- manage attempts
+- view results
+
+Do not permanently delete important historical records accidentally when a questionnaire is edited.
+
+## FIXED QUESTION SETS
+
+Admin must be able to create a reviewer containing a specific fixed set of questions.
+
+## RANDOM QUESTION SELECTION
+
+Admin must also have the option to create a reviewer from a larger question bank.
+
+Example:
+
+Mathematics question bank = 1,000 questions.
+
+Admin configures reviewer:
+"Questions per attempt: 100"
+
+The system randomly selects 100 eligible questions for the attempt.
+
+Make this configurable ON/OFF.
+
+The system must support BOTH:
+- fixed questionnaires
+- randomized questionnaires
+
+Do not force randomization.
+
+## QUESTION / CHOICE RANDOMIZATION
+
+Where appropriate, provide settings for:
+- randomizing question order
+- randomizing answer-choice order
+
+These should be configurable rather than permanently enabled.
+
+Ensure randomizing choices does not break correct-answer tracking.
+
+## QUIZ EXPERIENCE
+
+Display **ONE QUESTION AT A TIME**.
+
+The interface must work well on:
+- phones
+- tablets
+- laptops
+- desktops
+
+Provide clear navigation/progress such as:
+- current question number
+- total questions
+- next/previous controls where allowed
+- submission state
+
+Prevent accidental loss of an active attempt where reasonably possible.
+
+## ATTEMPT SETTINGS
+
+Admin can configure:
+- specific number of attempts
+OR
+- unlimited attempts
+
+Track attempts separately.
+
+Each attempt must preserve the questions/answers needed for accurate historical review, particularly when randomized question selection is used.
+
+## INSTANT ANSWER FEEDBACK
+
+Provide an admin-configurable ON/OFF setting.
+
+### ON
+After the student answers a question, the system may show:
+- correct/incorrect
+- correct answer where appropriate
+
+Then the student continues.
+
+### OFF
+Do not reveal correctness immediately.
+
+Student continues through the questionnaire and receives results/review according to the final settings.
+
+## UNANSWERED QUESTIONS
+
+Provide an admin-configurable submission setting.
+
+### Require All Answers = ON
+Student cannot submit while required questions remain unanswered.
+
+Clearly notify the student that unanswered questions remain.
+
+### Require All Answers = OFF
+Student may submit with unanswered questions.
+
+Store those questions as unanswered and score them appropriately.
+
+## SCORING
+
+Automatically score objective questions where a correct answer can be reliably defined.
+
+Examples:
+- multiple choice
+- choose all that apply
+- defined fill-in answers
+- defined short answers
+
+Do NOT use AI grading.
+
+For free-text/paragraph responses that cannot be objectively scored:
+- mark them as requiring admin review/manual checking
+- allow admin to assign/update the score where appropriate
+- ensure final score/status can correctly reflect pending manual review if necessary
+
+Do not incorrectly mark subjective answers wrong simply because automatic scoring is unavailable.
+
+## RESULTS
+
+Students should be able to receive/view results according to reviewer settings.
+
+Include:
+- score
+- attempt information
+- completion information
+- answer review where permitted
+
+## ANSWER REVIEW
+
+Allow students to review completed attempts according to admin settings.
+
+Where permitted, review may show:
+- question
+- student's answer
+- correct answer
+- correct/incorrect status
+
+Do not expose correct answers when the applicable reviewer settings say they should remain hidden.
+
+## ATTEMPT HISTORY
+
+Maintain attempt history per student.
+
+Do not overwrite previous attempts when a student retakes a reviewer.
+
+## ADMIN RESULTS
+
+Admin must be able to view:
+- student
+- subject
+- questionnaire
+- attempt
+- answers
+- scores
+- completion status
+- responses requiring manual review
+
+Provide useful filtering/search where appropriate.
+
+## SEMESTER / SCHOOL-YEAR MANAGEMENT
+
+Students may change each semester/school year.
+
+Provide a manageable way to:
+- organize students by semester/school year
+- deactivate previous students
+- add/import new batches
+- preserve/export old records before deletion where needed
+
+Do not automatically delete historical data.
+
+## EXPORT / ARCHIVING
+
+Provide practical export functionality for important student/result records so the admin can archive older data outside the active system.
+
+The recommended workflow is:
+
+EXPORT → VERIFY BACKUP → REMOVE OLD ACTIVE DATA IF DESIRED.
+
+Do not automatically delete records immediately after export.
+
+## ADMIN DASHBOARD
+
+Create a clean admin dashboard with logical areas for at least:
+
+- Dashboard
+- Students
+- Subjects
+- Enrollment
+- Question Bank
+- Quizzes / Reviewers
+- Results / Attempts
+- Settings
+
+The interface should remain usable with hundreds of students and thousands of questions.
+
+Use pagination, filters, and search where appropriate.
+
+## BRANDING / EDITABLE SYSTEM INFORMATION
+
+The client said temporary information can be used initially because they want to edit it later.
+
+Admin must be able to change basic branding without editing source code.
+
+At minimum:
+- system/reviewer name
+- logo
+
+Where reasonable, also allow editable basic student-facing content such as:
+- welcome message
+- basic instructions
+
+This is NOT a drag-and-drop website builder.
+
+Do not build a full visual page builder.
+
+## INITIAL PLACEHOLDER BRANDING
+
+Until the client supplies final branding, use:
+
+System Name: ReviewHub
+
+Tagline: Learn. Practice. Improve.
+
+Admin Display Name: Administrator
+
+Sample Subjects:
+- Mathematics
+- English
+- Science
+- General Knowledge
+
+Student Welcome:
+"Welcome to ReviewHub! Select one of your enrolled subjects to start reviewing."
+
+Use a clean, modern, professional academic design.
+
+Do not make the interface look overly AI-generated or like a generic template.
+
+## SECURITY
+
+Security is mandatory.
+
+Implement:
+- Supabase authentication
+- proper server-side authorization
+- Row Level Security where appropriate
+- role checks
+- subject-enrollment access restrictions
+- student data isolation
+- admin-only management actions
+- secure Storage policies for question images
+- input validation
+
+Students must NOT be able to:
+- access another student's private data
+- access admin functions
+- access unauthorized subjects/quizzes
+- manipulate scores/results through client-side requests
+
+Do not rely solely on frontend checks.
+
+## RESPONSIVE DESIGN
+
+Design mobile-first but ensure excellent usability on:
+- phone
+- tablet portrait/landscape
+- desktop/laptop
+
+The student quiz experience is especially important on mobile.
+
+## WEB APPLICATION ONLY
+
+This is a web-based application.
+
+Do NOT build:
+- native iOS app
+- native Android app
+- App Store publishing
+- Google Play publishing
+
+The website may be saved/added to a phone Home Screen for convenient access.
+
+## SYSTEM AVAILABILITY
+
+Published reviewers must remain accessible to students even when the admin is not currently logged in.
+
+Admin presence must not be required for normal student usage.
+
+Internet access is required.
+
+## CLIENT OWNERSHIP
+
+This is a real client project.
+
+Project services should be created under the dedicated client project account where applicable.
+
+The client should ultimately control:
+- project Gmail
+- GitHub
+- Vercel
+- Supabase
+- production system accounts
+
+Do not put credentials/secrets directly in source code.
+
+Use environment variables correctly.
+
+## DATABASE DESIGN
+
+Design the schema before building pages.
+
+At minimum, think through entities/relationships for:
+- profiles/users
+- admin/student role
+- school years/semesters
+- students
+- subjects
+- enrollments
+- question bank
+- questions
+- question choices/options
+- accepted answers
+- questionnaires/reviewers
+- reviewer-question relationships
+- quiz settings
+- attempts
+- attempt questions/snapshots
+- student responses
+- scores/manual review
+- system settings/branding
+
+The schema must preserve historical attempt integrity.
+
+For example, if a question is edited after a student has already completed an attempt, the old attempt should still be reviewable accurately. Use appropriate snapshots/versioning rather than simply reading the latest edited question.
+
+## PERFORMANCE
+
+Design for the expected scale from the beginning.
+
+Do NOT:
+- fetch all 30,000 questions at once
+- render huge unpaginated tables
+- perform unnecessary client-side database operations
+
+Use:
+- pagination
+- database indexes
+- server-side filtering/querying
+- efficient relationships
+- appropriate caching only where safe
+- optimized image handling
+
+## DATA INTEGRITY
+
+Prevent common issues such as:
+- duplicate submissions caused by double clicking
+- score manipulation
+- losing randomized question sets after refresh
+- changing historical attempts when a question is later edited
+- unauthorized enrollment changes
+- incorrect scoring after answer choices are randomized
+
+## DEVELOPMENT APPROACH
+
+This is production work, not a prototype.
+
+Work ONE STEP AT A TIME.
+
+Before creating UI pages:
+
+1. Review the entire specification.
+2. Identify any requirement that is ambiguous or technically conflicting.
+3. Design the architecture/database schema.
+4. Define authentication/authorization.
+5. Define the question model for ALL supported question types.
+6. Define attempt/scoring architecture.
+7. Define bulk-import format.
+8. Only then begin implementation.
+
+Do NOT rebuild working functionality unnecessarily.
+
+When modifying existing files:
+- provide COMPLETE replacement files
+- do not provide partial snippets
+- clearly state the exact path
+- label each file NEW, REPLACE, or DELETE
+
+Preserve existing working functionality.
+
+Do not expose secrets.
+
+## OUT OF SCOPE UNLESS APPROVED LATER
+
+Do NOT add these automatically:
+
+- AI question generation
+- AI answer grading
+- document/PDF-to-quiz AI generation
+- teacher accounts
+- separate teacher dashboards
+- native mobile apps
+- App Store/Google Play publishing
+- full drag-and-drop design builder
+- payments/subscriptions
+- student public self-registration
+- bulk image importing
+- unrelated third-party platforms
+
+If any future requirement appears to require another third-party service, API, recurring charge, or major architectural change, STOP and explain it before implementing it.
+
+## PRIMARY GOAL
+
+The finished system must make it FAST for the administrator to manage a large reviewer library while keeping student access controlled.
+
+The client should be able to:
+
+CREATE/IMPORT STUDENTS → CREATE SUBJECTS → ENROLL STUDENTS → CREATE/IMPORT QUESTIONS → BUILD FIXED OR RANDOMIZED REVIEWERS → PUBLISH → STUDENTS TAKE REVIEWERS → AUTOMATICALLY SCORE APPLICABLE QUESTIONS → MANUALLY REVIEW SUBJECTIVE ANSWERS → VIEW/EXPORT RESULTS.
+
+The student experience should be:
+
+LOGIN → SEE ONLY ENROLLED SUBJECTS → CHOOSE REVIEWER → TAKE ONE QUESTION AT A TIME → SUBMIT → RECEIVE RESULT/FEEDBACK ACCORDING TO SETTINGS → REVIEW ATTEMPT IF ALLOWED.
+
+Build exactly around this workflow.
