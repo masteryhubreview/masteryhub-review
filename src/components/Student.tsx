@@ -150,7 +150,7 @@ export default function Student({
           .from('reviewers')
           .select('*')
           .order('created_at', { ascending: false })
-          .range(page * 12, page * 12 + 11);
+          .range(page * 3, page * 3 + 2);
 
         if (allowedReviewerIds) {
           reviewerQuery = reviewerQuery.in('id', allowedReviewerIds);
@@ -679,32 +679,72 @@ export default function Student({
                       'Build confidence with focused practice.'}
                   </p>
 
-                  <div className="meta">
-                    <span>
-                      {reviewer.settings.selection === 'random'
-                        ? `${reviewer.settings.count} randomized questions`
-                        : 'Fixed question set'}
-                    </span>
-
-                    <span>
-                      {reviewer.settings.max_attempts === null
-                        ? 'Unlimited attempts'
-                        : `${reviewer.settings.max_attempts} attempts`}
-                    </span>
-
-                    {rules?.time_limit_minutes && (
-                      <span>{rules.time_limit_minutes} minute limit</span>
-                    )}
-
-                    {rules?.due_at && (
-                      <span>
-                        Due {new Date(rules.due_at).toLocaleString()}
+                  <div
+                    className="meta"
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                      gap: 8,
+                      alignItems: 'stretch',
+                    }}
+                  >
+                    {rules?.time_limit_minutes ? (
+                      <span
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          minHeight: 38,
+                        }}
+                      >
+                        Time limit: {rules.time_limit_minutes} min
                       </span>
-                    )}
+                    ) : null}
 
-                    {rules?.access_code_enabled && (
-                      <span>Access code required</span>
-                    )}
+                    {rules?.due_at ? (
+                      <span
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          minHeight: 38,
+                        }}
+                      >
+                        Due:{' '}
+                        {new Date(rules.due_at).toLocaleDateString([], {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })}{' '}
+                        {new Date(rules.due_at).toLocaleTimeString([], {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                    ) : null}
+
+                    <span
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        minHeight: 38,
+                      }}
+                    >
+                      Allowed attempts:{' '}
+                      {reviewer.settings.max_attempts === null
+                        ? 'Unlimited'
+                        : reviewer.settings.max_attempts}
+                    </span>
+
+                    {rules?.access_code_enabled ? (
+                      <span
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          minHeight: 38,
+                        }}
+                      >
+                        Access code needed
+                      </span>
+                    ) : null}
                   </div>
 
                   <button
@@ -737,7 +777,7 @@ export default function Student({
           <Pager
             page={page}
             setPage={setPage}
-            more={reviewers.length === 12}
+            more={reviewers.length === 3}
           />
         </>
       ) : (
@@ -789,11 +829,18 @@ export default function Student({
                       </span>
                     </td>
                     <td>
-                      {item.status === 'in_progress'
-                        ? 'Not submitted'
-                        : item.pending
-                          ? 'Pending review'
-                          : `${item.score} / ${item.max_score}`}
+                      {item.status === 'in_progress' ? (
+                        'Not submitted'
+                      ) : (
+                        <span>
+                          <strong>{item.score} / {item.max_score}</strong>
+                          {!!item.pending && (
+                            <small style={{ display: 'block', marginTop: 2 }}>
+                              Pending review
+                            </small>
+                          )}
+                        </span>
+                      )}
                     </td>
                     <td>
                       <button
