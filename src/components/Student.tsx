@@ -864,9 +864,23 @@ export default function Student({
                     </td>
                     <td style={{ fontSize: 12, padding: '9px 8px' }}>
                       <button
-                        className="ghost"
-                        style={{ fontSize: 11, padding: '7px 9px', whiteSpace: 'nowrap' }}
+                        type="button"
                         onClick={() => setAttempt(item.id)}
+                        style={{
+                          appearance: 'none',
+                          background: 'transparent',
+                          border: 0,
+                          boxShadow: 'none',
+                          padding: 0,
+                          margin: 0,
+                          font: 'inherit',
+                          fontSize: 11,
+                          fontWeight: 600,
+                          textDecoration: 'underline',
+                          textUnderlineOffset: 3,
+                          cursor: 'pointer',
+                          whiteSpace: 'nowrap',
+                        }}
                       >
                         {item.status === 'in_progress' ? 'Resume' : 'Review'}
                       </button>
