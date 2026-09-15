@@ -92,6 +92,7 @@ export default function Student({
   const [codeReviewer, setCodeReviewer] = useState<Reviewer | null>(null);
   const [accessCode, setAccessCode] = useState('');
   const [accessCodeError, setAccessCodeError] = useState('');
+  const [retryReviewer, setRetryReviewer] = useState<Reviewer | null>(null);
 
   useEffect(() => {
     setPage(0);
@@ -258,22 +259,24 @@ export default function Student({
   function reviewerAttemptState(reviewer: Reviewer) {
     const status = attemptStatuses[reviewer.id];
     const maxAttempts = reviewer.settings.max_attempts;
+    const completedAttempts = status?.attempt_count || 0;
 
     if (status?.in_progress_id) {
       return {
         exhausted: false,
         inProgressId: status.in_progress_id,
+        completedAttempts,
+        nextAttemptNumber: completedAttempts + 1,
         label: 'Resume reviewer',
       };
     }
 
-    if (
-      maxAttempts !== null &&
-      (status?.attempt_count || 0) >= maxAttempts
-    ) {
+    if (maxAttempts !== null && completedAttempts >= maxAttempts) {
       return {
         exhausted: true,
         inProgressId: null,
+        completedAttempts,
+        nextAttemptNumber: completedAttempts + 1,
         label: 'Attempt limit reached',
       };
     }
@@ -281,7 +284,12 @@ export default function Student({
     return {
       exhausted: false,
       inProgressId: null,
-      label: 'Start reviewer',
+      completedAttempts,
+      nextAttemptNumber: completedAttempts + 1,
+      label:
+        completedAttempts > 0
+          ? `Take Attempt ${completedAttempts + 1}`
+          : 'Start reviewer',
     };
   }
 
@@ -333,6 +341,30 @@ export default function Student({
       return;
     }
 
+    // A completed attempt must never silently create the next attempt.
+    if (attemptState.completedAttempts > 0) {
+      setRetryReviewer(reviewer);
+      return;
+    }
+
+    if (rules?.access_code_enabled) {
+      setAccessCode('');
+      setAccessCodeError('');
+      setCodeReviewer(reviewer);
+      return;
+    }
+
+    await beginReviewer(reviewer, null);
+  }
+
+  async function confirmNextAttempt() {
+    if (!retryReviewer || busy) return;
+
+    const reviewer = retryReviewer;
+    const rules = reviewerRules[reviewer.id];
+
+    setRetryReviewer(null);
+
     if (rules?.access_code_enabled) {
       setAccessCode('');
       setAccessCodeError('');
@@ -360,6 +392,65 @@ export default function Student({
   return (
     <>
       <Notice message={message} />
+
+      {retryReviewer && (
+        <div
+          className="reviewer-code-backdrop"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target !== event.currentTarget || busy) return;
+            setRetryReviewer(null);
+          }}
+        >
+          <div
+            className="reviewer-code-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="reviewer-retry-title"
+          >
+            <div className="reviewer-code-heading">
+              <div>
+                <span className="eyebrow">ANOTHER ATTEMPT</span>
+                <h2 id="reviewer-retry-title">Start another attempt?</h2>
+                <p>{retryReviewer.title}</p>
+              </div>
+              <span
+                role="button"
+                tabIndex={0}
+                className="reviewer-code-close"
+                aria-label="Close"
+                onClick={() => !busy && setRetryReviewer(null)}
+              >
+                ×
+              </span>
+            </div>
+
+            <p style={{ marginTop: 12 }}>
+              You already completed Attempt {attemptStatuses[retryReviewer.id]?.attempt_count || 1}.
+              Starting again will create Attempt {(attemptStatuses[retryReviewer.id]?.attempt_count || 1) + 1}.
+              Your latest submitted attempt will be used as your final graded attempt.
+            </p>
+
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 18 }}>
+              <button
+                type="button"
+                className="ghost"
+                disabled={busy}
+                onClick={() => setRetryReviewer(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => void confirmNextAttempt()}
+              >
+                {busy ? 'Starting…' : `Start Attempt ${(attemptStatuses[retryReviewer.id]?.attempt_count || 1) + 1}`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {codeReviewer && (
         <div
@@ -664,19 +755,33 @@ export default function Student({
               <thead>
                 <tr>
                   <th>Reviewer</th>
-                  <th>Attempt</th>
+                  <th>Latest Attempt</th>
                   <th>Started</th>
                   <th>Status</th>
-                  <th>Score</th>
+                  <th>Final / Latest Score</th>
                   <th>Details</th>
                 </tr>
               </thead>
 
               <tbody>
-                {history.map((item) => (
+                {Array.from(
+                  history.reduce((map, item) => {
+                    const current = map.get(item.title);
+                    if (
+                      !current ||
+                      item.attempt_number > current.attempt_number ||
+                      (item.attempt_number === current.attempt_number &&
+                        new Date(item.started_at).getTime() >
+                          new Date(current.started_at).getTime())
+                    ) {
+                      map.set(item.title, item);
+                    }
+                    return map;
+                  }, new Map<string, History>()).values(),
+                ).map((item) => (
                   <tr key={item.id}>
                     <td>{item.title}</td>
-                    <td>{item.attempt_number}</td>
+                    <td>Attempt {item.attempt_number}</td>
                     <td>{new Date(item.started_at).toLocaleString()}</td>
                     <td>
                       <span className="pill">
@@ -695,9 +800,7 @@ export default function Student({
                         className="ghost"
                         onClick={() => setAttempt(item.id)}
                       >
-                        {item.status === 'in_progress'
-                          ? 'Resume'
-                          : 'Review'}
+                        {item.status === 'in_progress' ? 'Resume' : 'Review'}
                       </button>
                     </td>
                   </tr>
