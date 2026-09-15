@@ -799,8 +799,7 @@ export default function Student({
                   <th>Reviewer</th>
                   <th>Latest Attempt</th>
                   <th>Started</th>
-                  <th>Status</th>
-                  <th>Final / Latest Score</th>
+                  <th>Score</th>
                   <th>Details</th>
                 </tr>
               </thead>
@@ -826,25 +825,20 @@ export default function Student({
                     <td>Attempt {item.attempt_number}</td>
                     <td>{new Date(item.started_at).toLocaleString()}</td>
                     <td>
-                      <span className="pill">
-                        {item.status.replaceAll('_', ' ')}
-                      </span>
-                    </td>
-                    <td>
-                      <span>
-                        <strong>
-                          {Number(item.score ?? 0)} / {Number(item.max_score ?? 0)}
-                        </strong>
-                        {item.status === 'in_progress' ? (
-                          <small style={{ display: 'block', marginTop: 2 }}>
-                            In progress
-                          </small>
-                        ) : !!item.pending ? (
-                          <small style={{ display: 'block', marginTop: 2 }}>
-                            Pending review
-                          </small>
-                        ) : null}
-                      </span>
+                      {item.status === 'in_progress' ? (
+                        <span>In progress</span>
+                      ) : (
+                        <span>
+                          <strong>
+                            {Number(item.score ?? 0)} / {Number(item.max_score ?? 0)}
+                          </strong>
+                          {!!item.pending && (
+                            <small style={{ display: 'block', marginTop: 2 }}>
+                              Pending review
+                            </small>
+                          )}
+                        </span>
+                      )}
                     </td>
                     <td>
                       <button
