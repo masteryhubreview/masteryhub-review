@@ -576,7 +576,67 @@ export default function Quiz({
         <div className="empty">Answer review is not enabled for this attempt.</div>
       ) : (
         <>
-          <section className="question-panel quiz-reference-card">
+          <section
+            className="question-panel quiz-reference-card"
+            style={{
+              overflow: 'hidden',
+              padding: 0,
+              borderRadius: 22,
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 16,
+                padding: '12px 18px',
+                borderBottom: '1px solid rgba(74, 48, 83, 0.10)',
+                background: 'rgba(255,255,255,0.72)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                <img
+                  src="/masteryhub-review-logo.png"
+                  alt="MasteryHub Review"
+                  draggable={false}
+                  style={{
+                    width: 34,
+                    height: 34,
+                    objectFit: 'contain',
+                    flex: '0 0 auto',
+                    userSelect: 'none',
+                    pointerEvents: 'none',
+                  }}
+                />
+                <div style={{ minWidth: 0 }}>
+                  <strong
+                    style={{
+                      display: 'block',
+                      fontSize: 12,
+                      letterSpacing: '0.08em',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    MasteryHub Review
+                  </strong>
+                  <small style={{ opacity: 0.68 }}>Review • Practice • Progress</small>
+                </div>
+              </div>
+
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  opacity: 0.55,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {admin ? 'ADMIN REVIEW' : 'STUDENT QUIZ'}
+              </span>
+            </div>
+
+            <div style={{ padding: '18px 22px 22px' }}>
             <div className="quiz-question-topline">
               <div>
                 <span className="quiz-question-count">
@@ -599,8 +659,20 @@ export default function Quiz({
               <span style={{ width: `${progressPercent}%` }} />
             </div>
 
-            <h2 className="question-text quiz-reference-question">{q.text}</h2>
-            <p className="quiz-question-instruction">{questionInstruction(q.type)}</p>
+            <div style={{ marginTop: 18, marginBottom: 16 }}>
+              <h2
+                className="question-text quiz-reference-question"
+                style={{ marginBottom: 6, lineHeight: 1.35 }}
+              >
+                {q.text}
+              </h2>
+              <p
+                className="quiz-question-instruction"
+                style={{ margin: 0, opacity: 0.72 }}
+              >
+                {questionInstruction(q.type)}
+              </p>
+            </div>
 
             <ImageAttachment path={q.image_path} />
 
@@ -782,6 +854,33 @@ export default function Quiz({
                 (q.type === 'short_answer' && q.accepted?.length === 0)) && (
                 <GradeForm key={q.id} q={q} id={id} onSave={refresh} />
               )}
+
+            <div
+              aria-hidden="true"
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                alignItems: 'center',
+                gap: 7,
+                marginTop: 18,
+                paddingTop: 12,
+                borderTop: '1px solid rgba(74, 48, 83, 0.08)',
+                opacity: 0.34,
+                userSelect: 'none',
+                pointerEvents: 'none',
+              }}
+            >
+              <img
+                src="/masteryhub-review-logo.png"
+                alt=""
+                draggable={false}
+                style={{ width: 20, height: 20, objectFit: 'contain' }}
+              />
+              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.05em' }}>
+                MASTERYHUB REVIEW
+              </span>
+            </div>
+            </div>
           </section>
 
           <div className="quiz-actions quiz-reference-actions">
