@@ -684,8 +684,10 @@ export default function Student({
                     style={{
                       display: 'grid',
                       gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-                      gap: 8,
+                      gap: 6,
                       alignItems: 'stretch',
+                      marginTop: 8,
+                      marginBottom: 10,
                     }}
                   >
                     {rules?.time_limit_minutes ? (
@@ -693,7 +695,7 @@ export default function Student({
                         style={{
                           display: 'flex',
                           alignItems: 'center',
-                          minHeight: 38,
+                          minHeight: 30,
                         }}
                       >
                         Time limit: {rules.time_limit_minutes} min
@@ -705,7 +707,7 @@ export default function Student({
                         style={{
                           display: 'flex',
                           alignItems: 'center',
-                          minHeight: 38,
+                          minHeight: 30,
                         }}
                       >
                         Due:{' '}
@@ -725,7 +727,7 @@ export default function Student({
                       style={{
                         display: 'flex',
                         alignItems: 'center',
-                        minHeight: 38,
+                        minHeight: 30,
                       }}
                     >
                       Allowed attempts:{' '}
@@ -739,7 +741,7 @@ export default function Student({
                         style={{
                           display: 'flex',
                           alignItems: 'center',
-                          minHeight: 38,
+                          minHeight: 30,
                         }}
                       >
                         Access code needed
@@ -829,18 +831,20 @@ export default function Student({
                       </span>
                     </td>
                     <td>
-                      {item.status === 'in_progress' ? (
-                        'Not submitted'
-                      ) : (
-                        <span>
-                          <strong>{item.score} / {item.max_score}</strong>
-                          {!!item.pending && (
-                            <small style={{ display: 'block', marginTop: 2 }}>
-                              Pending review
-                            </small>
-                          )}
-                        </span>
-                      )}
+                      <span>
+                        <strong>
+                          {Number(item.score ?? 0)} / {Number(item.max_score ?? 0)}
+                        </strong>
+                        {item.status === 'in_progress' ? (
+                          <small style={{ display: 'block', marginTop: 2 }}>
+                            In progress
+                          </small>
+                        ) : !!item.pending ? (
+                          <small style={{ display: 'block', marginTop: 2 }}>
+                            Pending review
+                          </small>
+                        ) : null}
+                      </span>
                     </td>
                     <td>
                       <button
