@@ -784,56 +784,7 @@ export default function Quiz({
               </span>
             </div>
 
-            {!admin && watermarkIdentity && (
-              <div
-                aria-hidden="true"
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  overflow: 'hidden',
-                  pointerEvents: 'none',
-                  userSelect: 'none',
-                  zIndex: 0,
-                }}
-              >
-                <div
-                  style={{
-                    position: 'absolute',
-                    inset: '-20%',
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(2, minmax(220px, 1fr))',
-                    alignContent: 'space-around',
-                    gap: '48px 28px',
-                    transform: 'rotate(-18deg)',
-                    opacity: 0.075,
-                  }}
-                >
-                  {Array.from({ length: 14 }, (_, watermarkIndex) => (
-                    <span
-                      key={watermarkIndex}
-                      style={{
-                        color: '#352d39',
-                        fontSize: 11,
-                        fontWeight: 800,
-                        letterSpacing: '0.06em',
-                        textAlign: 'center',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {watermarkIdentity}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div
-              style={{
-                padding: '18px 22px 22px',
-                position: 'relative',
-                zIndex: 1,
-              }}
-            >
+            <div style={{ padding: '18px 22px 22px' }}>
             <div className="quiz-question-topline">
               <div>
                 <span className="quiz-question-count">
@@ -1120,22 +1071,6 @@ export default function Quiz({
               <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.05em' }}>
                 MASTERYHUB REVIEW
               </span>
-              {!admin && watermarkIdentity && (
-                <span
-                  style={{
-                    fontSize: 9,
-                    fontWeight: 700,
-                    marginLeft: 5,
-                    maxWidth: '58%',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                  title={watermarkIdentity}
-                >
-                  • {watermarkIdentity}
-                </span>
-              )}
             </div>
             </div>
           </section>
