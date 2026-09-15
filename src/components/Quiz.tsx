@@ -106,15 +106,12 @@ function studentWatermark(current: AttemptView | null) {
   };
 
   const profile = data.profiles || data.profile;
-  const name = profile?.display_name || data.student_name || '';
-  const number = profile?.student_number || data.student_number || '';
-  const email = profile?.email || '';
+  const studentNumber = profile?.student_number || data.student_number || '';
 
-  const identity = [name, number].filter(Boolean).join(' • ');
-  if (identity) return identity;
-  if (email) return email;
-  if (data.student_id) return `Student • ${data.student_id.slice(0, 8)}`;
-  return 'Authenticated student';
+  if (studentNumber) return `STUDENT ID • ${studentNumber}`;
+  if (data.student_id) return `STUDENT ID • ${data.student_id.slice(0, 8).toUpperCase()}`;
+
+  return 'STUDENT ID • AUTHENTICATED';
 }
 
 export default function Quiz({
@@ -325,6 +322,58 @@ export default function Quiz({
 
     return () => window.clearInterval(timer);
   }, [attempt?.started_at, attempt?.status, id, admin]);
+
+
+  useEffect(() => {
+    if (admin) return;
+
+    const style = document.createElement('style');
+    style.setAttribute('data-quiz-print-protection', 'true');
+    style.textContent = `
+      @media print {
+        body * {
+          visibility: hidden !important;
+        }
+
+        .quiz-print-protected,
+        .quiz-print-protected * {
+          visibility: visible !important;
+        }
+
+        .quiz-print-protected {
+          display: flex !important;
+          position: fixed !important;
+          inset: 0 !important;
+          width: 100% !important;
+          height: 100% !important;
+          padding: 32px !important;
+          box-sizing: border-box !important;
+          background: #ffffff !important;
+          color: #352d39 !important;
+          align-items: center !important;
+          justify-content: center !important;
+          text-align: center !important;
+          z-index: 2147483647 !important;
+        }
+
+        .quiz-layout,
+        .question-panel,
+        .quiz-reference-card,
+        .quiz-answer-fieldset,
+        .choices,
+        .quiz-reference-choices,
+        .quiz-answer-key,
+        .quiz-answer-explanation,
+        .quiz-inline-feedback,
+        .result-banner {
+          display: none !important;
+        }
+      }
+    `;
+
+    document.head.appendChild(style);
+    return () => style.remove();
+  }, [admin]);
 
   const q = attempt?.questions[index];
   const active =
@@ -557,7 +606,35 @@ export default function Quiz({
   const watermarkIdentity = !admin ? studentWatermark(attempt) : '';
 
   return (
-    <div className="quiz-layout quiz-reference-layout">
+    <>
+      {!admin && (
+        <div
+          className="quiz-print-protected"
+          style={{ display: 'none' }}
+          aria-hidden="true"
+        >
+          <div>
+            <div
+              style={{
+                fontSize: 13,
+                fontWeight: 800,
+                letterSpacing: '0.12em',
+                marginBottom: 12,
+              }}
+            >
+              MASTERYHUB REVIEW
+            </div>
+            <h1 style={{ margin: '0 0 10px' }}>Protected Quiz Content</h1>
+            <p style={{ margin: '0 0 14px', lineHeight: 1.6 }}>
+              Questions, choices, answers, explanations, images, and results
+              are masked and unavailable in print or PDF output.
+            </p>
+            <strong>{watermarkIdentity}</strong>
+          </div>
+        </div>
+      )}
+
+      <div className="quiz-layout quiz-reference-layout">
       <button className="text-button quiz-workspace-back" onClick={closeQuiz}>
         ← Back to workspace
       </button>
@@ -713,34 +790,34 @@ export default function Quiz({
                 style={{
                   position: 'absolute',
                   inset: 0,
-                  zIndex: 0,
                   overflow: 'hidden',
                   pointerEvents: 'none',
                   userSelect: 'none',
+                  zIndex: 0,
                 }}
               >
                 <div
                   style={{
                     position: 'absolute',
-                    inset: '-18% -20%',
+                    inset: '-20%',
                     display: 'grid',
                     gridTemplateColumns: 'repeat(2, minmax(220px, 1fr))',
                     alignContent: 'space-around',
-                    gap: '46px 26px',
+                    gap: '48px 28px',
                     transform: 'rotate(-18deg)',
                     opacity: 0.075,
                   }}
                 >
-                  {Array.from({ length: 12 }, (_, watermarkIndex) => (
+                  {Array.from({ length: 14 }, (_, watermarkIndex) => (
                     <span
                       key={watermarkIndex}
                       style={{
-                        fontSize: 11,
-                        fontWeight: 700,
-                        letterSpacing: '0.04em',
                         color: '#352d39',
-                        whiteSpace: 'nowrap',
+                        fontSize: 11,
+                        fontWeight: 800,
+                        letterSpacing: '0.06em',
                         textAlign: 'center',
+                        whiteSpace: 'nowrap',
                       }}
                     >
                       {watermarkIdentity}
@@ -1047,9 +1124,9 @@ export default function Quiz({
                 <span
                   style={{
                     fontSize: 9,
-                    fontWeight: 600,
+                    fontWeight: 700,
                     marginLeft: 5,
-                    maxWidth: '55%',
+                    maxWidth: '58%',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
@@ -1098,7 +1175,8 @@ export default function Quiz({
           </p>
         </>
       )}
-    </div>
+      </div>
+    </>
   );
 }
 
