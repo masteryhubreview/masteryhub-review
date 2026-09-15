@@ -792,15 +792,31 @@ export default function Student({
             </div>
           </div>
 
-          <div className="panel table-wrap">
-            <table>
+          <div
+            className="panel table-wrap"
+            style={{ overflowX: 'auto' }}
+          >
+            <table
+              style={{
+                width: '100%',
+                tableLayout: 'fixed',
+                fontSize: 12,
+              }}
+            >
+              <colgroup>
+                <col style={{ width: '28%' }} />
+                <col style={{ width: '17%' }} />
+                <col style={{ width: '25%' }} />
+                <col style={{ width: '15%' }} />
+                <col style={{ width: '15%' }} />
+              </colgroup>
               <thead>
                 <tr>
-                  <th>Reviewer</th>
-                  <th>Latest Attempt</th>
-                  <th>Started</th>
-                  <th>Score</th>
-                  <th>Details</th>
+                  <th style={{ fontSize: 11, padding: '9px 8px' }}>Reviewer</th>
+                  <th style={{ fontSize: 11, padding: '9px 8px' }}>Latest Attempt</th>
+                  <th style={{ fontSize: 11, padding: '9px 8px' }}>Started</th>
+                  <th style={{ fontSize: 11, padding: '9px 8px' }}>Score</th>
+                  <th style={{ fontSize: 11, padding: '9px 8px' }}>Details</th>
                 </tr>
               </thead>
 
@@ -821,10 +837,16 @@ export default function Student({
                   }, new Map<string, History>()).values(),
                 ).map((item) => (
                   <tr key={item.id}>
-                    <td>{item.title}</td>
-                    <td>Attempt {item.attempt_number}</td>
-                    <td>{new Date(item.started_at).toLocaleString()}</td>
-                    <td>
+                    <td style={{ fontSize: 12, padding: '9px 8px', overflowWrap: 'anywhere' }}>
+                      {item.title}
+                    </td>
+                    <td style={{ fontSize: 12, padding: '9px 8px' }}>
+                      Attempt {item.attempt_number}
+                    </td>
+                    <td style={{ fontSize: 11, padding: '9px 8px', lineHeight: 1.35 }}>
+                      {new Date(item.started_at).toLocaleString()}
+                    </td>
+                    <td style={{ fontSize: 12, padding: '9px 8px' }}>
                       {item.status === 'in_progress' ? (
                         <span>In progress</span>
                       ) : (
@@ -840,9 +862,10 @@ export default function Student({
                         </span>
                       )}
                     </td>
-                    <td>
+                    <td style={{ fontSize: 12, padding: '9px 8px' }}>
                       <button
                         className="ghost"
+                        style={{ fontSize: 11, padding: '7px 9px', whiteSpace: 'nowrap' }}
                         onClick={() => setAttempt(item.id)}
                       >
                         {item.status === 'in_progress' ? 'Resume' : 'Review'}
