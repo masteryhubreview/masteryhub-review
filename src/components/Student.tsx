@@ -863,27 +863,37 @@ export default function Student({
                       )}
                     </td>
                     <td style={{ fontSize: 12, padding: '9px 8px' }}>
-                      <button
-                        type="button"
+                      <span
+                        role="button"
+                        tabIndex={0}
                         onClick={() => setAttempt(item.id)}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            setAttempt(item.id);
+                          }
+                        }}
                         style={{
-                          appearance: 'none',
-                          background: 'transparent',
-                          border: 0,
-                          boxShadow: 'none',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 4,
                           padding: 0,
                           margin: 0,
-                          font: 'inherit',
+                          color: '#352d39',
                           fontSize: 11,
                           fontWeight: 600,
-                          textDecoration: 'underline',
-                          textUnderlineOffset: 3,
+                          lineHeight: 1.2,
                           cursor: 'pointer',
                           whiteSpace: 'nowrap',
                         }}
                       >
-                        {item.status === 'in_progress' ? 'Resume' : 'Review'}
-                      </button>
+                        <span>
+                          {item.status === 'in_progress' ? 'Resume' : 'Review'}
+                        </span>
+                        <span aria-hidden="true" style={{ fontSize: 12 }}>
+                          →
+                        </span>
+                      </span>
                     </td>
                   </tr>
                 ))}
