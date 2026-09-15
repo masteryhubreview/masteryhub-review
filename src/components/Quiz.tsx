@@ -528,26 +528,58 @@ export default function Quiz({
         ← Back to workspace
       </button>
 
-      <div className="page-heading quiz-page-heading">
-        <div>
-          <span className="eyebrow">
-            {attempt.status === 'in_progress' ? 'FOCUS MODE' : 'ATTEMPT REVIEW'}
-          </span>
-          <h1>{attempt.title}</h1>
-          <p>
-            Started {new Date(attempt.started_at).toLocaleString()}
-            {remainingSeconds !== null && (
-              <span className="quiz-time-remaining">
-                Time remaining: {formatRemaining(remainingSeconds)}
-              </span>
-            )}
-            {attempt.submitted_at
-              ? ` / Completed ${new Date(attempt.submitted_at).toLocaleString()}`
-              : ''}
-          </p>
-        </div>
+      <div
+        className="page-heading quiz-page-heading"
+        style={{
+          display: 'block',
+          marginBottom: 14,
+        }}
+      >
+        <h1 style={{ marginBottom: 6 }}>{attempt.title}</h1>
 
-        <span className="pill">{attempt.status.replaceAll('_', ' ')}</span>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '6px 14px',
+            fontSize: 13,
+            opacity: 0.78,
+          }}
+        >
+          <span>
+            <b>Time started:</b>{' '}
+            {new Date(attempt.started_at).toLocaleTimeString([], {
+              hour: 'numeric',
+              minute: '2-digit',
+            })}
+          </span>
+
+          <span aria-hidden="true">•</span>
+
+          <span>
+            <b>Time limit:</b>{' '}
+            {remainingSeconds !== null
+              ? formatRemaining(remainingSeconds)
+              : (
+                  attempt.settings as AttemptView['settings'] & {
+                    time_limit_minutes?: number | null;
+                  }
+                ).time_limit_minutes
+                ? `${(
+                    attempt.settings as AttemptView['settings'] & {
+                      time_limit_minutes?: number | null;
+                    }
+                  ).time_limit_minutes} min`
+                : 'No limit'}
+          </span>
+
+          <span aria-hidden="true">•</span>
+
+          <span>
+            <b>Status:</b> {attempt.status.replaceAll('_', ' ')}
+          </span>
+        </div>
       </div>
 
       <Notice message={message} />
@@ -722,18 +754,62 @@ export default function Quiz({
                           {String.fromCharCode(65 + choiceIndex)}
                         </span>
 
-                        <span className="quiz-choice-content">
-                          <span className="quiz-choice-text">{choice.text}</span>
+                        <span
+                          className="quiz-choice-content"
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            width: '100%',
+                            gap: 12,
+                            minWidth: 0,
+                          }}
+                        >
+                          <span
+                            className="quiz-choice-text"
+                            style={{ flex: '1 1 auto', minWidth: 0 }}
+                          >
+                            {choice.text}
+                          </span>
 
                           {revealed && correctChoice && (
-                            <span className="quiz-answer-badge correct">
-                              ✓ Correct answer
+                            <span
+                              aria-label="Correct answer"
+                              title="Correct answer"
+                              style={{
+                                marginLeft: 'auto',
+                                alignSelf: 'center',
+                                flex: '0 0 auto',
+                                color: '#18864b',
+                                fontSize: 22,
+                                fontWeight: 800,
+                                lineHeight: 1,
+                                background: 'none',
+                                border: 0,
+                                padding: 0,
+                              }}
+                            >
+                              ✓
                             </span>
                           )}
 
                           {wrongSelected && (
-                            <span className="quiz-answer-badge incorrect">
-                              ✕ Your answer
+                            <span
+                              aria-label="Incorrect answer"
+                              title="Your answer is incorrect"
+                              style={{
+                                marginLeft: 'auto',
+                                alignSelf: 'center',
+                                flex: '0 0 auto',
+                                color: '#d53b45',
+                                fontSize: 22,
+                                fontWeight: 800,
+                                lineHeight: 1,
+                                background: 'none',
+                                border: 0,
+                                padding: 0,
+                              }}
+                            >
+                              ×
                             </span>
                           )}
                         </span>
