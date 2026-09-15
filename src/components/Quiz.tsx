@@ -541,38 +541,42 @@ export default function Quiz({
           style={{
             display: 'flex',
             alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '6px 14px',
-            fontSize: 13,
+            flexWrap: 'nowrap',
+            gap: '0 8px',
+            fontSize: 12,
             opacity: 0.78,
+            whiteSpace: 'nowrap',
+            overflowX: 'auto',
+            scrollbarWidth: 'none',
           }}
         >
           <span>
-            <b>Time started:</b>{' '}
+            <b>Started:</b>{' '}
             {new Date(attempt.started_at).toLocaleTimeString([], {
               hour: 'numeric',
               minute: '2-digit',
             })}
           </span>
 
-          <span aria-hidden="true">•</span>
-
-          <span>
-            <b>Time limit:</b>{' '}
-            {remainingSeconds !== null
-              ? formatRemaining(remainingSeconds)
-              : (
-                  attempt.settings as AttemptView['settings'] & {
-                    time_limit_minutes?: number | null;
-                  }
-                ).time_limit_minutes
-                ? `${(
-                    attempt.settings as AttemptView['settings'] & {
-                      time_limit_minutes?: number | null;
-                    }
-                  ).time_limit_minutes} min`
-                : 'No limit'}
-          </span>
+          {!!(
+            attempt.settings as AttemptView['settings'] & {
+              time_limit_minutes?: number | null;
+            }
+          ).time_limit_minutes && (
+            <>
+              <span aria-hidden="true">•</span>
+              <span>
+                <b>Time:</b>{' '}
+                {remainingSeconds !== null
+                  ? formatRemaining(remainingSeconds)
+                  : `${(
+                      attempt.settings as AttemptView['settings'] & {
+                        time_limit_minutes?: number | null;
+                      }
+                    ).time_limit_minutes} min`}
+              </span>
+            </>
+          )}
 
           <span aria-hidden="true">•</span>
 
