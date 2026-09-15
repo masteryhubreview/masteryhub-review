@@ -85,6 +85,38 @@ function questionExplanation(question: PublicQuestion | undefined) {
   )?.explanation?.trim();
 }
 
+
+function studentWatermark(current: AttemptView | null) {
+  if (!current) return '';
+
+  const data = current as AttemptView & {
+    student_id?: string | null;
+    student_number?: string | null;
+    student_name?: string | null;
+    profiles?: {
+      display_name?: string | null;
+      student_number?: string | null;
+      email?: string | null;
+    } | null;
+    profile?: {
+      display_name?: string | null;
+      student_number?: string | null;
+      email?: string | null;
+    } | null;
+  };
+
+  const profile = data.profiles || data.profile;
+  const name = profile?.display_name || data.student_name || '';
+  const number = profile?.student_number || data.student_number || '';
+  const email = profile?.email || '';
+
+  const identity = [name, number].filter(Boolean).join(' • ');
+  if (identity) return identity;
+  if (email) return email;
+  if (data.student_id) return `Student • ${data.student_id.slice(0, 8)}`;
+  return 'Authenticated student';
+}
+
 export default function Quiz({
   id,
   onClose,
@@ -522,6 +554,8 @@ export default function Quiz({
     !!q.correct &&
     (!active || (instant && locked));
 
+  const watermarkIdentity = !admin ? studentWatermark(attempt) : '';
+
   return (
     <div className="quiz-layout quiz-reference-layout">
       <button className="text-button quiz-workspace-back" onClick={closeQuiz}>
@@ -618,6 +652,7 @@ export default function Quiz({
               overflow: 'hidden',
               padding: 0,
               borderRadius: 22,
+              position: 'relative',
             }}
           >
             <div
@@ -672,7 +707,56 @@ export default function Quiz({
               </span>
             </div>
 
-            <div style={{ padding: '18px 22px 22px' }}>
+            {!admin && watermarkIdentity && (
+              <div
+                aria-hidden="true"
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  zIndex: 0,
+                  overflow: 'hidden',
+                  pointerEvents: 'none',
+                  userSelect: 'none',
+                }}
+              >
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: '-18% -20%',
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(2, minmax(220px, 1fr))',
+                    alignContent: 'space-around',
+                    gap: '46px 26px',
+                    transform: 'rotate(-18deg)',
+                    opacity: 0.075,
+                  }}
+                >
+                  {Array.from({ length: 12 }, (_, watermarkIndex) => (
+                    <span
+                      key={watermarkIndex}
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        letterSpacing: '0.04em',
+                        color: '#352d39',
+                        whiteSpace: 'nowrap',
+                        textAlign: 'center',
+                      }}
+                    >
+                      {watermarkIdentity}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div
+              style={{
+                padding: '18px 22px 22px',
+                position: 'relative',
+                zIndex: 1,
+              }}
+            >
             <div className="quiz-question-topline">
               <div>
                 <span className="quiz-question-count">
@@ -959,6 +1043,22 @@ export default function Quiz({
               <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.05em' }}>
                 MASTERYHUB REVIEW
               </span>
+              {!admin && watermarkIdentity && (
+                <span
+                  style={{
+                    fontSize: 9,
+                    fontWeight: 600,
+                    marginLeft: 5,
+                    maxWidth: '55%',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                  title={watermarkIdentity}
+                >
+                  • {watermarkIdentity}
+                </span>
+              )}
             </div>
             </div>
           </section>
