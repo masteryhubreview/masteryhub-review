@@ -497,77 +497,33 @@ export default function Student({
               <div className="student-notification-list">
                 {notifications.slice(0, 5).map((notification) => (
                   <div
-                    className="student-notification-item unread"
+                    className={`student-notification-item ${
+                      notification.read_at ? '' : 'unread'
+                    }`}
                     key={notification.id}
+                    onClick={() => {
+                      if (notification.read_at) return;
+
+                      void rpc('mark_notification_read', {
+                        notification: notification.id,
+                      });
+
+                      setNotifications((current) =>
+                        current.map((item) =>
+                          item.id === notification.id
+                            ? {
+                                ...item,
+                                read_at: new Date().toISOString(),
+                              }
+                            : item,
+                        ),
+                      );
+                    }}
                   >
                     <div>
                       <strong>{notification.title}</strong>
                       <p>{notification.message}</p>
-
-                      <div
-                        style={{
-                          display: 'flex',
-                          gap: '8px',
-                          flexWrap: 'wrap',
-                          marginTop: '8px',
-                        }}
-                      >
-                        <button
-                          type="button"
-                          className="ghost"
-                          style={{
-                            padding: '5px 9px',
-                            minHeight: 'auto',
-                            fontSize: '12px',
-                          }}
-                          onClick={async () => {
-                            try {
-                              await rpc('mark_notification_read', {
-                                notification: notification.id,
-                              });
-
-                              setNotifications((current) =>
-                                current.filter(
-                                  (item) => item.id !== notification.id,
-                                ),
-                              );
-                            } catch (error) {
-                              setMessage(errorText(error));
-                            }
-                          }}
-                        >
-                          Mark as read
-                        </button>
-
-                        <button
-                          type="button"
-                          className="ghost"
-                          style={{
-                            padding: '5px 9px',
-                            minHeight: 'auto',
-                            fontSize: '12px',
-                          }}
-                          onClick={async () => {
-                            try {
-                              await rpc('dismiss_notification', {
-                                notification: notification.id,
-                              });
-
-                              setNotifications((current) =>
-                                current.filter(
-                                  (item) => item.id !== notification.id,
-                                ),
-                              );
-                            } catch (error) {
-                              setMessage(errorText(error));
-                            }
-                          }}
-                        >
-                          Dismiss
-                        </button>
-                      </div>
                     </div>
-
                     <time>
                       {new Date(
                         notification.created_at,
@@ -632,49 +588,32 @@ export default function Student({
                       'Build confidence with focused practice.'}
                   </p>
 
-                  <div
-                    className="meta"
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
-                      gridTemplateRows: 'auto auto',
-                      gap: '8px 18px',
-                      alignItems: 'start',
-                    }}
-                  >
+                  <div className="meta">
                     <span>
-                      {rules?.time_limit_minutes
-                        ? `Time limit: ${rules.time_limit_minutes} min`
-                        : 'Time limit: No limit'}
-                    </span>
-
-                    <span>
-                      {rules?.due_at
-                        ? `Due ${new Date(rules.due_at).toLocaleDateString()} ${new Date(
-                            rules.due_at,
-                          ).toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            hour12: true,
-                          })}`
-                        : 'No due date'}
+                      {reviewer.settings.selection === 'random'
+                        ? `${reviewer.settings.count} randomized questions`
+                        : 'Fixed question set'}
                     </span>
 
                     <span>
                       {reviewer.settings.max_attempts === null
                         ? 'Unlimited attempts'
-                        : `${reviewer.settings.max_attempts} ${
-                            reviewer.settings.max_attempts === 1
-                              ? 'attempt'
-                              : 'attempts'
-                          }`}
+                        : `${reviewer.settings.max_attempts} attempts`}
                     </span>
 
-                    <span>
-                      {rules?.access_code_enabled
-                        ? 'Access code required'
-                        : 'No access code'}
-                    </span>
+                    {rules?.time_limit_minutes && (
+                      <span>{rules.time_limit_minutes} minute limit</span>
+                    )}
+
+                    {rules?.due_at && (
+                      <span>
+                        Due {new Date(rules.due_at).toLocaleString()}
+                      </span>
+                    )}
+
+                    {rules?.access_code_enabled && (
+                      <span>Access code required</span>
+                    )}
                   </div>
 
                   <button
