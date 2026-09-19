@@ -682,24 +682,27 @@ export default function Student({
                   >
                     <button
                       type="button"
-                      className="ghost"
                       aria-label={`Dismiss ${announcement.title}`}
                       title="Dismiss"
                       onClick={() => void dismissAnnouncement(announcement.id)}
                       style={{
                         position: 'absolute',
-                        top: 10,
+                        top: 8,
                         right: 10,
-                        minWidth: 28,
-                        width: 28,
-                        height: 28,
+                        minWidth: 0,
+                        width: 'auto',
+                        height: 'auto',
                         padding: 0,
-                        borderRadius: 999,
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
+                        margin: 0,
+                        border: 0,
+                        borderRadius: 0,
+                        background: 'transparent',
+                        boxShadow: 'none',
+                        color: '#dc2626',
                         fontSize: 18,
+                        fontWeight: 700,
                         lineHeight: 1,
+                        cursor: 'pointer',
                       }}
                     >
                       ×
