@@ -400,6 +400,31 @@ export default function Student({
     await beginReviewer(codeReviewer, code);
   }
 
+  async function dismissAnnouncement(announcementId: string) {
+    const dismissed = announcements.find((item) => item.id === announcementId);
+    setAnnouncements((current) =>
+      current.filter((item) => item.id !== announcementId),
+    );
+
+    try {
+      await rpc('dismiss_announcement', {
+        announcement: announcementId,
+      });
+    } catch (error) {
+      if (dismissed) {
+        setAnnouncements((current) => {
+          if (current.some((item) => item.id === dismissed.id)) return current;
+          return [dismissed, ...current].sort(
+            (a, b) =>
+              new Date(b.published_at).getTime() -
+              new Date(a.published_at).getTime(),
+          );
+        });
+      }
+      setMessage(errorText(error));
+    }
+  }
+
   async function dismissNotification(notificationId: string) {
     // Remove it immediately for a responsive UI, then restore it if persistence fails.
     const dismissed = notifications.find((item) => item.id === notificationId);
@@ -648,12 +673,38 @@ export default function Student({
                   <article
                     key={announcement.id}
                     style={{
+                      position: 'relative',
                       background: '#fff',
                       border: '1px solid #eadde4',
                       borderRadius: 12,
-                      padding: 14,
+                      padding: '14px 46px 14px 14px',
                     }}
                   >
+                    <button
+                      type="button"
+                      className="ghost"
+                      aria-label={`Dismiss ${announcement.title}`}
+                      title="Dismiss"
+                      onClick={() => void dismissAnnouncement(announcement.id)}
+                      style={{
+                        position: 'absolute',
+                        top: 10,
+                        right: 10,
+                        minWidth: 28,
+                        width: 28,
+                        height: 28,
+                        padding: 0,
+                        borderRadius: 999,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 18,
+                        lineHeight: 1,
+                      }}
+                    >
+                      ×
+                    </button>
+
                     <strong>{announcement.title}</strong>
                     <p style={{ margin: '5px 0 8px', whiteSpace: 'pre-wrap' }}>
                       {announcement.message}
