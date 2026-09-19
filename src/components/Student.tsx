@@ -680,33 +680,35 @@ export default function Student({
                       padding: '14px 46px 14px 14px',
                     }}
                   >
-                    <button
-                      type="button"
+                    <span
+                      role="button"
+                      tabIndex={0}
                       aria-label={`Dismiss ${announcement.title}`}
                       title="Dismiss"
                       onClick={() => void dismissAnnouncement(announcement.id)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          void dismissAnnouncement(announcement.id);
+                        }
+                      }}
                       style={{
                         position: 'absolute',
                         top: 8,
                         right: 10,
-                        minWidth: 0,
-                        width: 'auto',
-                        height: 'auto',
+                        display: 'block',
                         padding: 0,
                         margin: 0,
-                        border: 0,
-                        borderRadius: 0,
-                        background: 'transparent',
-                        boxShadow: 'none',
                         color: '#dc2626',
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: 700,
                         lineHeight: 1,
                         cursor: 'pointer',
+                        userSelect: 'none',
                       }}
                     >
                       ×
-                    </button>
+                    </span>
 
                     <strong>{announcement.title}</strong>
                     <p style={{ margin: '5px 0 8px', whiteSpace: 'pre-wrap' }}>
