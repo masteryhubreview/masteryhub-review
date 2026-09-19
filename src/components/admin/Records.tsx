@@ -1870,6 +1870,55 @@ export default function Records({ tab }: { tab: string }) {
                           {isEditing ? 'Close' : 'Edit'}
                         </button>
 
+                        {tab === 'Subjects' && row.id && (
+                          <button
+                            className="danger"
+                            disabled={busy}
+                            type="button"
+                            onClick={async () => {
+                              const subjectName = row.name || 'this subject';
+
+                              if (
+                                !confirm(
+                                  `Delete "${subjectName}"? This will permanently delete this subject and its subject-linked records. Student accounts will remain. This cannot be undone.`,
+                                )
+                              ) {
+                                return;
+                              }
+
+                              setBusy(true);
+                              setMessage('');
+
+                              try {
+                                const { error } = await db().rpc('delete_subject', {
+                                  target_subject_id: row.id,
+                                });
+
+                                if (error) throw error;
+
+                                if (editing?.id === row.id) setEditing(null);
+                                if (expandedSubject === row.id) {
+                                  setExpandedSubject('');
+                                  setSubjectStudents([]);
+                                }
+                                if (expandedSubjectQuestions === row.id) {
+                                  setExpandedSubjectQuestions('');
+                                  setSubjectQuestions([]);
+                                }
+
+                                setMessage(`Subject "${subjectName}" deleted.`);
+                                reload();
+                              } catch (error) {
+                                setMessage(errorText(error));
+                              } finally {
+                                setBusy(false);
+                              }
+                            }}
+                          >
+                            Delete
+                          </button>
+                        )}
+
                         {tab === 'Students' && (
                           <button
                             className="danger"
