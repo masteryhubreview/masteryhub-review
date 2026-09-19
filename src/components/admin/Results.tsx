@@ -38,7 +38,7 @@ export default function Results() {
 
   function query(full = false) {
     let q = db()
-      .from('attempts')
+      .from('official_attempt_results')
       .select(
         full
           ? '*,profiles(display_name,email),subjects(name)'
@@ -70,25 +70,7 @@ export default function Results() {
     };
   }, [status, student, subject, reviewer, page, detail, actionOnly]);
 
-  const latestRows = useMemo(() => {
-    const byStudentReviewer = new Map<string, Result>();
-
-    for (const row of rows) {
-      const key = `${row.student_id}:${row.reviewer_id}`;
-      const current = byStudentReviewer.get(key);
-
-      if (
-        !current ||
-        row.attempt_number > current.attempt_number ||
-        (row.attempt_number === current.attempt_number &&
-          new Date(row.started_at).getTime() > new Date(current.started_at).getTime())
-      ) {
-        byStudentReviewer.set(key, row);
-      }
-    }
-
-    return Array.from(byStudentReviewer.values());
-  }, [rows]);
+  const latestRows = useMemo(() => rows, [rows]);
 
   async function exportData(full: boolean) {
     setBusy(true);
@@ -270,10 +252,6 @@ export default function Results() {
     (row) => row.pending > 0 || row.status === 'pending_review',
   ).length;
   const gradedCount = latestRows.filter((row) => row.status === 'graded').length;
-  const inProgressCount = latestRows.filter(
-    (row) => row.status === 'in_progress',
-  ).length;
-
   return (
     <div className="admin-standard-page">
       <div className="page-heading admin-page-heading">
@@ -305,7 +283,7 @@ export default function Results() {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+          gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
           gap: 10,
           marginBottom: 16,
         }}
@@ -320,12 +298,6 @@ export default function Results() {
           <small>Graded</small>
           <strong style={{ display: 'block', marginTop: 4, fontSize: 18 }}>
             {gradedCount}
-          </strong>
-        </div>
-        <div className="panel" style={{ padding: '12px 14px', minHeight: 0 }}>
-          <small>In Progress</small>
-          <strong style={{ display: 'block', marginTop: 4, fontSize: 18 }}>
-            {inProgressCount}
           </strong>
         </div>
       </div>
@@ -344,7 +316,6 @@ export default function Results() {
           >
             <option value="">Latest results</option>
             <option value="needs_review">Needs review</option>
-            <option value="in_progress">In progress</option>
             <option value="pending_review">Pending review</option>
             <option value="graded">Graded</option>
           </select>
