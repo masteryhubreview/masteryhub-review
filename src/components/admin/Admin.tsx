@@ -87,11 +87,7 @@ export default function Admin({
     ),
   );
   const [quizSection, setQuizSection] = useState<QuizSection>(() =>
-    storedSection(
-      QUIZ_SECTION_KEY,
-      ['Reviewers'] as const,
-      'Reviewers',
-    ),
+    storedSection(QUIZ_SECTION_KEY, ['Reviewers'] as const, 'Reviewers'),
   );
   const [settingsSection, setSettingsSection] = useState<SettingsSection>(() =>
     storedSection(
@@ -279,15 +275,17 @@ export default function Admin({
 
       <section className="panel">
         <span className="eyebrow">YOUR WORKFLOW</span>
-        <h2>From question bank to confident learners.</h2>
+        <h2>Set up, assign & review.</h2>
 
         <div className="workflow">
           {[
-            'Create or import students',
-            'Create subjects & enroll',
-            'Build your question bank',
-            'Create & publish reviewers',
-            'Review results & export',
+            'Set up school term in settings',
+            'Add students accounts',
+            'Create subjects',
+            'Enroll students',
+            'Build reviewer & questions',
+            'Assign reviewer',
+            'Review & grade',
           ].map((step, index) => (
             <div key={step}>
               <b>{String(index + 1).padStart(2, '0')}</b>

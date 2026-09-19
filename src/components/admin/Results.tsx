@@ -105,71 +105,100 @@ export default function Results() {
 
         const workbook = XLSX.utils.book_new();
 
-        const normalize = (value: unknown) => {
+        const prettyHeader = (key: string) =>
+          key
+            .replaceAll('_', ' ')
+            .replace(/\b\w/g, (letter) => letter.toUpperCase());
+
+        const looksLikeDateKey = (key: string) =>
+          key.endsWith('_at') || key.endsWith('_date');
+
+        const displayValue = (key: string, value: unknown) => {
           if (value === null || value === undefined) return '';
-          if (typeof value === 'object') return JSON.stringify(value);
+
+          if (looksLikeDateKey(key) && typeof value === 'string') {
+            const date = new Date(value);
+            if (!Number.isNaN(date.getTime())) return date.toLocaleString();
+          }
+
+          if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+          if (typeof value === 'object') return JSON.stringify(value, null, 2);
           return value;
         };
 
-        const appendSheet = (
+        const appendReadableSheet = (
           name: string,
           records: Record<string, unknown>[],
         ) => {
-          const normalized = records.map((record) =>
-            Object.fromEntries(
-              Object.entries(record).map(([key, value]) => [
-                key,
-                normalize(value),
-              ]),
-            ),
+          if (!records.length) {
+            const empty = XLSX.utils.aoa_to_sheet([
+              [name],
+              ['No records available.'],
+            ]);
+            empty['!cols'] = [{ wch: 42 }];
+            XLSX.utils.book_append_sheet(workbook, empty, name.slice(0, 31));
+            return;
+          }
+
+          const keys = Array.from(
+            new Set(records.flatMap((record) => Object.keys(record))),
           );
 
-          const sheet = XLSX.utils.json_to_sheet(
-            normalized.length ? normalized : [{ info: 'No records' }],
-          );
+          const rows = [
+            keys.map(prettyHeader),
+            ...records.map((record) =>
+              keys.map((key) => displayValue(key, record[key])),
+            ),
+          ];
+
+          const sheet = XLSX.utils.aoa_to_sheet(rows);
 
           if (sheet['!ref']) {
             const range = XLSX.utils.decode_range(sheet['!ref']);
-            sheet['!cols'] = Array.from(
-              { length: range.e.c - range.s.c + 1 },
-              (_, columnIndex) => {
-                let width = 12;
-                for (
-                  let rowIndex = range.s.r;
-                  rowIndex <= Math.min(range.e.r, 200);
-                  rowIndex++
-                ) {
-                  const cell =
-                    sheet[
-                      XLSX.utils.encode_cell({
-                        r: rowIndex,
-                        c: columnIndex,
-                      })
-                    ];
-                  width = Math.max(
-                    width,
-                    Math.min(String(cell?.v ?? '').length + 2, 45),
-                  );
-                }
-                return { wch: width };
-              },
+
+            sheet['!autofilter'] = {
+              ref: XLSX.utils.encode_range({
+                s: { r: 0, c: range.s.c },
+                e: { r: range.e.r, c: range.e.c },
+              }),
+            };
+
+            sheet['!cols'] = keys.map((key, columnIndex) => {
+              let width = Math.max(prettyHeader(key).length + 2, 12);
+
+              for (
+                let rowIndex = 1;
+                rowIndex <= Math.min(range.e.r, 200);
+                rowIndex++
+              ) {
+                const cell =
+                  sheet[
+                    XLSX.utils.encode_cell({
+                      r: rowIndex,
+                      c: columnIndex,
+                    })
+                  ];
+
+                const longest = String(cell?.v ?? '')
+                  .split('\n')
+                  .reduce((max, line) => Math.max(max, line.length), 0);
+
+                width = Math.max(width, Math.min(longest + 2, 40));
+              }
+
+              return { wch: width };
+            });
+
+            sheet['!rows'] = Array.from(
+              { length: Math.min(range.e.r + 1, 501) },
+              (_, rowIndex) => ({ hpt: rowIndex === 0 ? 24 : 20 }),
             );
           }
 
-          XLSX.utils.book_append_sheet(
-            workbook,
-            sheet,
-            name.slice(0, 31),
-          );
+          XLSX.utils.book_append_sheet(workbook, sheet, name.slice(0, 31));
         };
 
-        appendSheet('Backup Info', [
-          {
-            exported_at: new Date().toISOString(),
-            format: 'MasteryHub full system backup',
-            note: 'Keep this file in a secure location.',
-          },
-        ]);
+        const tableData: Record<string, Record<string, unknown>[]> = {};
 
         for (const table of tables) {
           const records: Record<string, unknown>[] = [];
@@ -182,35 +211,311 @@ export default function Results() {
               .range(p * 500, p * 500 + 499);
 
             if (error) {
-              // Some link tables do not have created_at.
               const fallback = await db()
                 .from(table)
                 .select('*')
                 .range(p * 500, p * 500 + 499);
 
               if (fallback.error) throw fallback.error;
+
               records.push(
                 ...((fallback.data || []) as unknown as Record<
                   string,
                   unknown
                 >[]),
               );
+
               if ((fallback.data || []).length < 500) break;
             } else {
               records.push(
                 ...((data || []) as unknown as Record<string, unknown>[]),
               );
+
               if ((data || []).length < 500) break;
             }
           }
 
-          appendSheet(
-            table
-              .split('_')
-              .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-              .join(' '),
-            records,
-          );
+          tableData[table] = records;
+        }
+
+        const profiles = tableData.profiles || [];
+        const terms = tableData.terms || [];
+        const subjects = tableData.subjects || [];
+        const enrollments = tableData.enrollments || [];
+        const questions = tableData.questions || [];
+        const reviewers = tableData.reviewers || [];
+        const reviewerSubjects = tableData.reviewer_subjects || [];
+        const reviewerStudents = tableData.reviewer_students || [];
+        const reviewerQuestions = tableData.reviewer_questions || [];
+        const attempts = tableData.attempts || [];
+        const gradeAudit = tableData.grade_audit || [];
+
+        const byId = (
+          records: Record<string, unknown>[],
+          id: unknown,
+        ): Record<string, unknown> | undefined =>
+          records.find((record) => String(record.id ?? '') === String(id ?? ''));
+
+        const studentLabel = (id: unknown) => {
+          const profile = byId(profiles, id);
+          if (!profile) return String(id ?? '');
+          const number = String(profile.student_number ?? '').trim();
+          const name = String(profile.display_name ?? '').trim();
+          return number ? `${name} (${number})` : name || String(id ?? '');
+        };
+
+        const subjectLabel = (id: unknown) => {
+          const subject = byId(subjects, id);
+          if (!subject) return String(id ?? '');
+          const code = String(subject.code ?? '').trim();
+          const name = String(subject.name ?? '').trim();
+          return code ? `${name} (${code})` : name || String(id ?? '');
+        };
+
+        const termLabel = (id: unknown) =>
+          String(byId(terms, id)?.name ?? id ?? '');
+
+        const reviewerLabel = (id: unknown) =>
+          String(byId(reviewers, id)?.title ?? id ?? '');
+
+        const questionText = (id: unknown) => {
+          const question = byId(questions, id);
+          const data = question?.data;
+          if (
+            data &&
+            typeof data === 'object' &&
+            !Array.isArray(data) &&
+            'text' in data
+          ) {
+            return String((data as Record<string, unknown>).text ?? '');
+          }
+          return String(id ?? '');
+        };
+
+        const questionType = (data: unknown) => {
+          if (!data || typeof data !== 'object' || Array.isArray(data)) return '';
+          const type = String((data as Record<string, unknown>).type ?? '');
+          const labels: Record<string, string> = {
+            mc_single: 'Multiple Choice',
+            mc_multi: 'Multiple Answers',
+            fill_blank: 'Fill in the Blank',
+            multi_blank: 'Multiple Blanks',
+            short_answer: 'Short Answer',
+            long_answer: 'Essay / Long Answer',
+          };
+          return labels[type] || type;
+        };
+
+        const questionField = (data: unknown, key: string) => {
+          if (!data || typeof data !== 'object' || Array.isArray(data)) return '';
+          return (data as Record<string, unknown>)[key];
+        };
+
+        const readableChoices = (data: unknown) => {
+          const value = questionField(data, 'choices');
+          if (!Array.isArray(value)) return '';
+          return value
+            .map((choice, index) => {
+              if (!choice || typeof choice !== 'object') return String(choice);
+              const item = choice as Record<string, unknown>;
+              const label = String.fromCharCode(65 + index);
+              return `${label}. ${String(item.text ?? '')}`;
+            })
+            .join('\n');
+        };
+
+        const readableAnswers = (data: unknown) => {
+          const correct = questionField(data, 'correct');
+          const accepted = questionField(data, 'accepted');
+
+          if (Array.isArray(correct) && correct.length) {
+            return correct.join(', ');
+          }
+
+          if (Array.isArray(accepted) && accepted.length) {
+            return accepted
+              .map((group) =>
+                Array.isArray(group) ? group.join(' | ') : String(group),
+              )
+              .join(' ; ');
+          }
+
+          return 'Manual grading';
+        };
+
+        const scoreText = (attempt: Record<string, unknown>) => {
+          if (String(attempt.status ?? '') === 'in_progress') return 'Not submitted';
+          return `${String(attempt.score ?? 0)} / ${String(attempt.max_score ?? 0)}`;
+        };
+
+        const studentsFriendly = profiles
+          .filter((profile) => String(profile.role ?? '') === 'student')
+          .map((profile) => ({
+            student_name: profile.display_name,
+            student_number: profile.student_number,
+            email: profile.email,
+            term: termLabel(profile.term_id),
+            account_status: profile.is_active ? 'Active' : 'Inactive',
+            created_at: profile.created_at,
+          }));
+
+        const enrollmentsFriendly = enrollments.map((enrollment) => ({
+          student: studentLabel(enrollment.student_id),
+          email: byId(profiles, enrollment.student_id)?.email ?? '',
+          subject: subjectLabel(enrollment.subject_id),
+          term: termLabel(enrollment.term_id),
+          enrollment_status: enrollment.is_active ? 'Active' : 'Inactive',
+          enrolled_at: enrollment.created_at,
+        }));
+
+        const questionsFriendly = questions.map((question) => ({
+          subject: subjectLabel(question.subject_id),
+          question_type: questionType(question.data),
+          question: questionField(question.data, 'text'),
+          choices: readableChoices(question.data),
+          correct_or_accepted_answer: readableAnswers(question.data),
+          points: questionField(question.data, 'points'),
+          explanation: questionField(question.data, 'explanation'),
+          strict_matching: questionField(question.data, 'strict') ? 'Yes' : 'No',
+          status: question.is_active ? 'Active' : 'Inactive',
+          created_at: question.created_at,
+        }));
+
+        const reviewersFriendly = reviewers.map((reviewer) => {
+          const linkedSubjects = reviewerSubjects
+            .filter(
+              (link) =>
+                String(link.reviewer_id ?? '') === String(reviewer.id ?? ''),
+            )
+            .map((link) => subjectLabel(link.subject_id));
+
+          const fallbackSubject = reviewer.subject_id
+            ? [subjectLabel(reviewer.subject_id)]
+            : [];
+
+          const assignedStudents = reviewerStudents.filter(
+            (link) =>
+              String(link.reviewer_id ?? '') === String(reviewer.id ?? ''),
+          ).length;
+
+          const linkedQuestions = reviewerQuestions.filter(
+            (link) =>
+              String(link.reviewer_id ?? '') === String(reviewer.id ?? ''),
+          ).length;
+
+          return {
+            reviewer: reviewer.title,
+            description: reviewer.description,
+            subjects: [...new Set([...linkedSubjects, ...fallbackSubject])].join(
+              ', ',
+            ),
+            published: reviewer.published ? 'Yes' : 'No',
+            question_count: linkedQuestions,
+            individually_assigned_students: assignedStudents,
+            created_at: reviewer.created_at,
+          };
+        });
+
+        const assignmentsFriendly = reviewerStudents.map((assignment) => ({
+          reviewer: reviewerLabel(assignment.reviewer_id),
+          student: studentLabel(assignment.student_id),
+          email: byId(profiles, assignment.student_id)?.email ?? '',
+          subject: assignment.subject_id
+            ? subjectLabel(assignment.subject_id)
+            : '',
+          assigned_at: assignment.created_at,
+        }));
+
+        const attemptsFriendly = attempts.map((attempt) => ({
+          student: studentLabel(attempt.student_id),
+          email: byId(profiles, attempt.student_id)?.email ?? '',
+          reviewer: reviewerLabel(attempt.reviewer_id) || attempt.title,
+          subject: subjectLabel(attempt.subject_id),
+          attempt_number: attempt.attempt_number,
+          status: String(attempt.status ?? '').replaceAll('_', ' '),
+          result: scoreText(attempt),
+          pending_manual_answers: attempt.pending,
+          started_at: attempt.started_at,
+          submitted_at: attempt.submitted_at,
+        }));
+
+        const gradingFriendly = gradeAudit.map((audit) => {
+          const attempt = byId(attempts, audit.attempt_id);
+          const admin = byId(profiles, audit.admin_id);
+          const newGrade =
+            audit.new_grade &&
+            typeof audit.new_grade === 'object' &&
+            !Array.isArray(audit.new_grade)
+              ? (audit.new_grade as Record<string, unknown>)
+              : {};
+
+          return {
+            student: attempt ? studentLabel(attempt.student_id) : '',
+            reviewer: attempt ? reviewerLabel(attempt.reviewer_id) : '',
+            attempt_number: attempt?.attempt_number ?? '',
+            question: questionText(audit.question_id),
+            points_awarded: newGrade.awarded ?? '',
+            notes: newGrade.notes ?? '',
+            graded_by: admin?.display_name ?? admin?.email ?? '',
+            graded_at: audit.created_at,
+          };
+        });
+
+        const backupInfo = XLSX.utils.aoa_to_sheet([
+          ['MASTERYHUB — FULL SYSTEM BACKUP'],
+          ['Readable administrative backup'],
+          [],
+          ['Exported', new Date().toLocaleString()],
+          ['Purpose', 'Client-friendly backup and administrative reference'],
+          [
+            'Note',
+            'The first sheets use names and labels instead of database IDs. Technical source data is retained in the Technical Data sheets at the end of this workbook.',
+          ],
+          [],
+          ['QUICK SUMMARY'],
+          ['Students', studentsFriendly.length],
+          ['Subjects', subjects.length],
+          ['Enrollments', enrollments.length],
+          ['Questions', questions.length],
+          ['Reviewers', reviewers.length],
+          ['Attempts', attempts.length],
+          ['Manual grading records', gradeAudit.length],
+          [],
+          ['READABLE SHEETS'],
+          ['Students', 'Student names, numbers, emails, term and account status'],
+          ['Enrollments', 'Who is enrolled in which subject and term'],
+          ['Questions', 'Readable question bank with choices and answers'],
+          ['Reviewers', 'Reviewer names, subjects, publication and counts'],
+          ['Assignments', 'Reviewer-to-student assignments'],
+          ['Results & Attempts', 'All attempts with names, reviewer, score and status'],
+          ['Manual Grading', 'Manual grading records with student and question details'],
+          [],
+          ['TECHNICAL DATA'],
+          [
+            'Technical sheets',
+            'Original database records are retained for troubleshooting/recovery reference.',
+          ],
+        ]);
+        backupInfo['!cols'] = [{ wch: 28 }, { wch: 82 }];
+        backupInfo['!rows'] = [{ hpt: 30 }, { hpt: 22 }];
+        XLSX.utils.book_append_sheet(workbook, backupInfo, 'Backup Summary');
+
+        appendReadableSheet('Students', studentsFriendly);
+        appendReadableSheet('Enrollments', enrollmentsFriendly);
+        appendReadableSheet('Questions', questionsFriendly);
+        appendReadableSheet('Reviewers', reviewersFriendly);
+        appendReadableSheet('Assignments', assignmentsFriendly);
+        appendReadableSheet('Results & Attempts', attemptsFriendly);
+        appendReadableSheet('Manual Grading', gradingFriendly);
+
+        // Preserve the complete source records after the readable client-facing sheets.
+        for (const table of tables) {
+          const technicalName = `Tech ${table
+            .split('_')
+            .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+            .join(' ')}`;
+
+          appendReadableSheet(technicalName, tableData[table] || []);
         }
 
         const binary = XLSX.write(workbook, {
