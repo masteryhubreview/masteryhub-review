@@ -51,6 +51,14 @@ type StudentNotification = {
   read_at: string | null;
 };
 
+type StudentAnnouncement = {
+  id: string;
+  title: string;
+  message: string;
+  published_at: string;
+  expires_at: string | null;
+};
+
 type History = {
   id: string;
   title: string;
@@ -81,6 +89,7 @@ export default function Student({
     Record<string, ReviewerRuleSummary>
   >({});
   const [notifications, setNotifications] = useState<StudentNotification[]>([]);
+  const [announcements, setAnnouncements] = useState<StudentAnnouncement[]>([]);
   const [attemptStatuses, setAttemptStatuses] = useState<
     Record<string, ReviewerAttemptStatus>
   >({});
@@ -164,10 +173,11 @@ export default function Student({
         const currentReviewers = (reviewerRows || []) as Reviewer[];
         const ids = currentReviewers.map((item) => item.id);
 
-        const [ruleRows, notificationRows, attemptStatusRows] =
+        const [ruleRows, notificationRows, announcementRows, attemptStatusRows] =
           await Promise.all([
             rpc<ReviewerRuleSummary[]>('my_reviewer_rules'),
             rpc<StudentNotification[]>('my_notifications'),
+            rpc<StudentAnnouncement[]>('my_announcements'),
             rpc<ReviewerAttemptStatus[]>(
               'my_reviewer_attempt_statuses',
             ),
@@ -206,6 +216,7 @@ export default function Student({
           setReviewerSubjects(map);
           setReviewerRules(ruleMap);
           setNotifications(notificationRows || []);
+          setAnnouncements(announcementRows || []);
           setAttemptStatuses(attemptMap);
         }
       } catch (error) {
@@ -387,6 +398,32 @@ export default function Student({
 
     setAccessCodeError('');
     await beginReviewer(codeReviewer, code);
+  }
+
+  async function dismissNotification(notificationId: string) {
+    // Remove it immediately for a responsive UI, then restore it if persistence fails.
+    const dismissed = notifications.find((item) => item.id === notificationId);
+    setNotifications((current) =>
+      current.filter((item) => item.id !== notificationId),
+    );
+
+    try {
+      await rpc('dismiss_notification', {
+        notification: notificationId,
+      });
+    } catch (error) {
+      if (dismissed) {
+        setNotifications((current) => {
+          if (current.some((item) => item.id === dismissed.id)) return current;
+          return [dismissed, ...current].sort(
+            (a, b) =>
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime(),
+          );
+        });
+      }
+      setMessage(errorText(error));
+    }
   }
 
   return (
@@ -578,6 +615,58 @@ export default function Student({
             </div>
           </section>
 
+          {!!announcements.length && (
+            <section
+              className="student-announcements"
+              style={{
+                marginBottom: 18,
+                padding: 18,
+                borderRadius: 16,
+                background: '#fff4f8',
+                border: '1px solid #f2d9e4',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 12,
+                  marginBottom: 10,
+                }}
+              >
+                <div>
+                  <span className="eyebrow">ANNOUNCEMENT</span>
+                  <h2 style={{ margin: '3px 0 0' }}>
+                    {announcements.length === 1 ? 'Announcement' : 'Announcements'}
+                  </h2>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gap: 10 }}>
+                {announcements.map((announcement) => (
+                  <article
+                    key={announcement.id}
+                    style={{
+                      background: '#fff',
+                      border: '1px solid #eadde4',
+                      borderRadius: 12,
+                      padding: 14,
+                    }}
+                  >
+                    <strong>{announcement.title}</strong>
+                    <p style={{ margin: '5px 0 8px', whiteSpace: 'pre-wrap' }}>
+                      {announcement.message}
+                    </p>
+                    <time style={{ fontSize: 11, opacity: 0.7 }}>
+                      {new Date(announcement.published_at).toLocaleString()}
+                    </time>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
+
           {!!notifications.length && (
             <section className="student-notifications">
               <div className="student-notifications-heading">
@@ -610,16 +699,52 @@ export default function Student({
                         ),
                       );
                     }}
+                    style={{
+                      position: 'relative',
+                      paddingRight: 42,
+                    }}
                   >
                     <div>
                       <strong>{notification.title}</strong>
                       <p>{notification.message}</p>
                     </div>
-                    <time>
-                      {new Date(
-                        notification.created_at,
-                      ).toLocaleString()}
-                    </time>
+
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                      }}
+                    >
+                      <time>
+                        {new Date(notification.created_at).toLocaleString()}
+                      </time>
+
+                      <button
+                        type="button"
+                        className="ghost"
+                        aria-label={`Dismiss ${notification.title}`}
+                        title="Dismiss"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          void dismissNotification(notification.id);
+                        }}
+                        style={{
+                          minWidth: 28,
+                          width: 28,
+                          height: 28,
+                          padding: 0,
+                          borderRadius: 999,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: 18,
+                          lineHeight: 1,
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

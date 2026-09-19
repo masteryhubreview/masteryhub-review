@@ -1975,10 +1975,10 @@ export default function ReviewerEditorPage({
                       setQuestionImportSubjectId(
                         questionImportSubjectId || selectedSubjects[0] || '',
                       );
-                      setQuestionImportOpen((value) => !value);
+                      setQuestionImportOpen(true);
                     }}
                   >
-                    {questionImportOpen ? 'Close Import' : 'Import Questions'}
+                    Import Questions
                   </button>
 
                   <button
@@ -2010,7 +2010,66 @@ export default function ReviewerEditorPage({
               ) : (
                 <>
                   {questionImportOpen && (
-                    <div className="reviewer-question-import-panel">
+                    <div
+                      role="dialog"
+                      aria-modal="true"
+                      aria-label="Import Questions"
+                      onMouseDown={(event) => {
+                        if (event.target === event.currentTarget) {
+                          setQuestionImportOpen(false);
+                        }
+                      }}
+                      style={{
+                        position: 'fixed',
+                        inset: 0,
+                        zIndex: 10000,
+                        background: 'rgba(35, 24, 39, 0.46)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: 18,
+                        overflowY: 'auto',
+                      }}
+                    >
+                      <div
+                        className="reviewer-question-import-panel"
+                        style={{
+                          width: 'min(760px, 100%)',
+                          maxHeight: 'calc(100vh - 36px)',
+                          overflowY: 'auto',
+                          background: '#fff',
+                          borderRadius: 18,
+                          padding: 20,
+                          boxShadow: '0 24px 70px rgba(35, 24, 39, 0.24)',
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: 12,
+                            marginBottom: 14,
+                          }}
+                        >
+                          <div>
+                            <h3 style={{ margin: 0 }}>Import Questions</h3>
+                            <p style={{ margin: '4px 0 0' }}>
+                              Upload the completed Excel / Google Sheets or Word question template.
+                            </p>
+                          </div>
+
+                          <button
+                            type="button"
+                            className="ghost"
+                            aria-label="Close Import Questions"
+                            onClick={() => setQuestionImportOpen(false)}
+                            style={{ flexShrink: 0 }}
+                          >
+                            ×
+                          </button>
+                        </div>
+
                       {selectedSubjects.length > 1 && (
                         <label className="reviewer-question-import-subject">
                           Import into subject
@@ -2075,6 +2134,7 @@ export default function ReviewerEditorPage({
                           );
                         }}
                       />
+                      </div>
                     </div>
                   )}
 
