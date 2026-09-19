@@ -132,6 +132,7 @@ export default function Quiz({
   const [saved, setSaved] = useState('');
   const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
   const [deviceBlocked, setDeviceBlocked] = useState(false);
+  const [gradingComplete, setGradingComplete] = useState(false);
   const lock = useRef(false);
   const autoSubmitLock = useRef(false);
   const initialPositionLoaded = useRef(false);
@@ -461,6 +462,7 @@ export default function Quiz({
       );
 
       await savePosition(nextIndex);
+      setGradingComplete(false);
       setIndex(nextIndex);
     } catch (error) {
       setMessage(errorText(error));
@@ -539,6 +541,35 @@ export default function Quiz({
       lock.current = false;
       setBusy(false);
     }
+  }
+
+  async function saveGradeAndGoNext(currentQuestionId: string) {
+    const current = await refresh();
+
+    const pendingManualIndexes = current.questions
+      .map((question, questionIndex) => ({ question, questionIndex }))
+      .filter(({ question }) => {
+        const manualType =
+          question.type === 'long_answer' ||
+          (question.type === 'short_answer' && question.accepted?.length === 0);
+
+        return manualType && !!question.pending && question.id !== currentQuestionId;
+      })
+      .map(({ questionIndex }) => questionIndex);
+
+    if (!pendingManualIndexes.length) {
+      setGradingComplete(true);
+      setMessage('Manual grading complete. No responses are waiting for review.');
+      return;
+    }
+
+    const nextAfterCurrent = pendingManualIndexes.find(
+      (questionIndex) => questionIndex > index,
+    );
+
+    setGradingComplete(false);
+    setMessage('');
+    setIndex(nextAfterCurrent ?? pendingManualIndexes[0]);
   }
 
   async function finishAttempt() {
@@ -723,6 +754,21 @@ export default function Quiz({
         <div className="empty">Answer review is not enabled for this attempt.</div>
       ) : (
         <>
+          {admin && gradingComplete && (
+            <div
+              className="notice"
+              style={{
+                marginBottom: 14,
+                padding: '14px 16px',
+                borderRadius: 14,
+              }}
+            >
+              <strong>Manual grading complete</strong>
+              <div style={{ marginTop: 4 }}>
+                No responses in this attempt are waiting for manual review.
+              </div>
+            </div>
+          )}
           <section
             className="question-panel quiz-reference-card"
             style={{
@@ -1044,7 +1090,13 @@ export default function Quiz({
               attempt.status !== 'in_progress' &&
               (q.type === 'long_answer' ||
                 (q.type === 'short_answer' && q.accepted?.length === 0)) && (
-                <GradeForm key={q.id} q={q} id={id} onSave={refresh} />
+                <GradeForm
+                key={q.id}
+                q={q}
+                id={id}
+                onSave={refresh}
+                onSaveNext={() => saveGradeAndGoNext(q.id)}
+              />
               )}
 
             <div
@@ -1119,40 +1171,61 @@ function GradeForm({
   q,
   id,
   onSave,
+  onSaveNext,
 }: {
   q: PublicQuestion;
   id: string;
   onSave: () => Promise<unknown>;
+  onSaveNext: () => Promise<void>;
 }) {
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
+
+  async function submitGrade(
+    formElement: HTMLFormElement,
+    goNext: boolean,
+  ) {
+    const form = new FormData(formElement);
+    setBusy(true);
+    setMessage('');
+
+    try {
+      await rpc('grade_response', {
+        attempt: id,
+        question: q.id,
+        points: Number(form.get('points')),
+        notes: String(form.get('notes')),
+      });
+
+      if (goNext) {
+        await onSaveNext();
+      } else {
+        await onSave();
+        setMessage('Grade saved.');
+      }
+    } catch (error) {
+      setMessage(errorText(error));
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <form
       className="grade-form stack"
       onSubmit={async (event) => {
         event.preventDefault();
-
-        const form = new FormData(event.currentTarget);
-        setBusy(true);
-
-        try {
-          await rpc('grade_response', {
-            attempt: id,
-            question: q.id,
-            points: Number(form.get('points')),
-            notes: String(form.get('notes')),
-          });
-          await onSave();
-          setMessage('Grade saved.');
-        } catch (error) {
-          setMessage(errorText(error));
-        } finally {
-          setBusy(false);
-        }
+        await submitGrade(event.currentTarget, false);
       }}
     >
-      <h3>Manual scoring</h3>
+      <div>
+        <h3 style={{ marginBottom: 4 }}>Manual scoring</h3>
+        {q.pending && (
+          <small style={{ opacity: 0.7 }}>
+            This response is waiting for manual review.
+          </small>
+        )}
+      </div>
 
       <label>
         Points awarded
@@ -1172,7 +1245,33 @@ function GradeForm({
         <textarea name="notes" defaultValue={q.notes || ''} />
       </label>
 
-      <button disabled={busy}>Save grade</button>
+      <div
+        style={{
+          display: 'flex',
+          gap: 10,
+          flexWrap: 'wrap',
+          alignItems: 'center',
+        }}
+      >
+        <button type="submit" className="ghost" disabled={busy}>
+          {busy ? 'Saving…' : 'Save grade'}
+        </button>
+
+        <button
+          type="button"
+          disabled={busy}
+          onClick={async (event) => {
+            const form = event.currentTarget.form;
+            if (!form) return;
+
+            if (!form.reportValidity()) return;
+            await submitGrade(form, true);
+          }}
+        >
+          {busy ? 'Saving…' : 'Save & Next →'}
+        </button>
+      </div>
+
       <Notice message={message} />
     </form>
   );
