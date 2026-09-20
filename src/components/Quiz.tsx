@@ -807,20 +807,22 @@ export default function Quiz({
                   <strong
                     style={{
                       display: 'block',
-                      fontSize: 12,
-                      letterSpacing: '0.08em',
+                      fontSize: 15,
+                      letterSpacing: '0.06em',
                       textTransform: 'uppercase',
                     }}
                   >
                     MasteryHub Review
                   </strong>
-                  <small style={{ opacity: 0.68 }}>Review • Practice • Progress</small>
+                  <small style={{ opacity: 0.68, fontSize: 13 }}>
+                    Review • Practice • Progress
+                  </small>
                 </div>
               </div>
 
               <span
                 style={{
-                  fontSize: 11,
+                  fontSize: 13,
                   fontWeight: 700,
                   opacity: 0.55,
                   whiteSpace: 'nowrap',
@@ -833,13 +835,17 @@ export default function Quiz({
             <div style={{ padding: '18px 22px 22px' }}>
             <div className="quiz-question-topline">
               <div>
-                <span className="quiz-question-count">
+                <span className="quiz-question-count" style={{ fontSize: 15 }}>
                   Question {index + 1} of {totalQuestions}
                 </span>
-                <span className="quiz-question-type">{questionTypeLabel(q.type)}</span>
+                <span className="quiz-question-type" style={{ fontSize: 14 }}>
+                  {questionTypeLabel(q.type)}
+                </span>
               </div>
 
-              <span className="quiz-question-points">{saved || pointLabel(q.points)}</span>
+              <span className="quiz-question-points" style={{ fontSize: 14 }}>
+                {saved || pointLabel(q.points)}
+              </span>
             </div>
 
             <div
