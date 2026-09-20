@@ -856,7 +856,11 @@ export default function Quiz({
             <div style={{ marginTop: 18, marginBottom: 16 }}>
               <h2
                 className="question-text quiz-reference-question"
-                style={{ marginBottom: 6, lineHeight: 1.35 }}
+                style={{
+                  marginBottom: 6,
+                  lineHeight: 1.35,
+                  fontSize: 'clamp(20px, 4.8vw, 25px)',
+                }}
               >
                 {q.text}
               </h2>
@@ -928,7 +932,12 @@ export default function Quiz({
                         >
                           <span
                             className="quiz-choice-text"
-                            style={{ flex: '1 1 auto', minWidth: 0 }}
+                            style={{
+                              flex: '1 1 auto',
+                              minWidth: 0,
+                              fontSize: 'clamp(17px, 4.1vw, 19px)',
+                              lineHeight: 1.45,
+                            }}
                           >
                             {choice.text}
                           </span>
