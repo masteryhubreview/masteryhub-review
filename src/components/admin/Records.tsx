@@ -1962,40 +1962,93 @@ export default function Records({ tab }: { tab: string }) {
                           </button>
                         )}
 
-                        {tab === 'Students' && (
-                          <button
-                            className="danger"
-                            disabled={busy}
-                            type="button"
-                            onClick={async () => {
-                              if (
-                                !confirm(
-                                  'Have you exported and verified a backup? Delete this student only if no attempt history exists.',
-                                )
-                              ) {
-                                return;
-                              }
+                        {tab === 'Students' && row.id && (
+                          <>
+                            <button
+                              className="ghost"
+                              disabled={busy}
+                              type="button"
+                              onClick={async () => {
+                                const studentName = row.display_name || 'this student';
 
-                              setBusy(true);
+                                if (
+                                  !confirm(
+                                    `Reset history for "${studentName}"? This will permanently delete all reviewer attempts, saved answers, scores, grades, and result history for this student. Their account, enrollments, and reviewer assignments will remain. This cannot be undone.`,
+                                  )
+                                ) {
+                                  return;
+                                }
 
-                              try {
-                                await adminAccount({
-                                  action: 'delete',
-                                  id: row.id,
-                                  backup_verified: true,
-                                });
+                                setBusy(true);
+                                setMessage('');
 
-                                reload();
-                                setMessage('Student removed.');
-                              } catch (error) {
-                                setMessage(errorText(error));
-                              } finally {
-                                setBusy(false);
-                              }
-                            }}
-                          >
-                            Remove
-                          </button>
+                                try {
+                                  const { data, error } = await db().rpc(
+                                    'reset_student_history',
+                                    { target_student_id: row.id },
+                                  );
+
+                                  if (error) throw error;
+
+                                  const result = data as { attempts_deleted?: number } | null;
+                                  const deleted = result?.attempts_deleted ?? 0;
+
+                                  setMessage(
+                                    deleted
+                                      ? `History reset for "${studentName}". ${deleted} attempt${deleted === 1 ? '' : 's'} deleted.`
+                                      : `"${studentName}" has no history to reset.`,
+                                  );
+                                } catch (error) {
+                                  setMessage(errorText(error));
+                                } finally {
+                                  setBusy(false);
+                                }
+                              }}
+                            >
+                              Reset History
+                            </button>
+
+                            <button
+                              className="danger"
+                              disabled={busy}
+                              type="button"
+                              onClick={async () => {
+                                const studentName = row.display_name || 'this student';
+
+                                if (
+                                  !confirm(
+                                    `Permanently remove "${studentName}"? This will delete the student account, enrollments, reviewer assignments, attempts, saved answers, scores, grades, and result history. Make sure you have exported and verified a backup first. This cannot be undone.`,
+                                  )
+                                ) {
+                                  return;
+                                }
+
+                                setBusy(true);
+                                setMessage('');
+
+                                try {
+                                  await adminAccount({
+                                    action: 'delete',
+                                    id: row.id,
+                                    backup_verified: true,
+                                  });
+
+                                  if (editing?.id === row.id) {
+                                    setEditing(null);
+                                  }
+
+                                  reload();
+                                  setMessage(`Student "${studentName}" permanently removed.`);
+                                } catch (error) {
+                                  setMessage(errorText(error));
+                                } finally {
+                                  setBusy(false);
+                                }
+                              }}
+                            >
+                              Remove
+                            </button>
+                          </>
                         )}
                       </div>
                     </td>
