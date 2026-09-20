@@ -1870,6 +1870,49 @@ export default function Records({ tab }: { tab: string }) {
                           {isEditing ? 'Close' : 'Edit'}
                         </button>
 
+                        {tab === 'Terms' && row.id && (
+                          <button
+                            className="danger"
+                            disabled={busy}
+                            type="button"
+                            onClick={async () => {
+                              const termName = row.name || 'this school term';
+
+                              if (
+                                !confirm(
+                                  `Delete "${termName}"? This will permanently delete this school term and remove its term assignment from affected student profiles. Student accounts will remain. This cannot be undone.`,
+                                )
+                              ) {
+                                return;
+                              }
+
+                              setBusy(true);
+                              setMessage('');
+
+                              try {
+                                const { error } = await db().rpc('delete_term', {
+                                  target_term_id: row.id,
+                                });
+
+                                if (error) throw error;
+
+                                if (editing?.id === row.id) {
+                                  setEditing(null);
+                                }
+
+                                setMessage(`School term "${termName}" deleted.`);
+                                reload();
+                              } catch (error) {
+                                setMessage(errorText(error));
+                              } finally {
+                                setBusy(false);
+                              }
+                            }}
+                          >
+                            Delete
+                          </button>
+                        )}
+
                         {tab === 'Subjects' && row.id && (
                           <button
                             className="danger"
