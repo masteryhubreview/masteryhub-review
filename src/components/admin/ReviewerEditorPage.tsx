@@ -982,6 +982,34 @@ export default function ReviewerEditorPage({
     }
   }
 
+  async function deleteReviewer() {
+    if (!draft?.id) return;
+
+    const reviewerTitle = draft.title.trim() || 'this reviewer';
+
+    const confirmed = window.confirm(
+      `Delete "${reviewerTitle}"? This will permanently delete this reviewer and its reviewer-specific links. This cannot be undone.`,
+    );
+
+    if (!confirmed) return;
+
+    setBusy(true);
+    setMessage('');
+
+    try {
+      await rpc('delete_reviewer', {
+        target_reviewer_id: draft.id,
+      });
+
+      rememberReviewerWorkspace();
+      router.push('/');
+    } catch (error) {
+      setMessage(reviewerErrorText(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function saveReviewer(publishOverride?: boolean) {
     if (!draft) return;
 
@@ -2502,6 +2530,17 @@ export default function ReviewerEditorPage({
           </div>
 
           <div className="reviewer-save-actions">
+            {draft.id && (
+              <button
+                type="button"
+                className="danger"
+                disabled={busy}
+                onClick={() => void deleteReviewer()}
+              >
+                {busy ? 'Working…' : 'Delete Reviewer'}
+              </button>
+            )}
+
             <button
               type="button"
               className="ghost"
