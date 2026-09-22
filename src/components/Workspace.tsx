@@ -558,12 +558,19 @@ export default function Workspace() {
             aria-label={`${profile.role === 'admin' ? 'Admin' : 'Student'} mobile navigation`}
           >
             <div className="student-mobile-drawer-head">
-              <div>
-                <span className="student-mobile-kicker">MASTERYHUB REVIEW</span>
-                <strong>{profile.display_name}</strong>
-                <small>
-                  {profile.role === 'admin' ? 'Admin workspace' : 'Student workspace'}
-                </small>
+              <div className="student-mobile-drawer-brand">
+                <img
+                  src="/masteryhub-review-logo.png"
+                  alt="MasteryHub Review"
+                  className="student-mobile-drawer-logo"
+                />
+                <div>
+                  <span className="student-mobile-kicker">MASTERYHUB REVIEW</span>
+                  <strong>{profile.display_name}</strong>
+                  <small>
+                    {profile.role === 'admin' ? 'Admin workspace' : 'Student workspace'}
+                  </small>
+                </div>
               </div>
 
               <button

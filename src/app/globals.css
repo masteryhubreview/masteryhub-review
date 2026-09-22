@@ -18521,3 +18521,138 @@ img.public-header-logo {
     white-space: nowrap !important;
   }
 }
+
+
+/* =========================================================
+   STUDENT DASHBOARD — MOBILE REVIEWER FINAL ALIGNMENT
+   Top row: icon / reviewer / compact Start or Resume
+   Second row: Time / Attempts / Status, equal columns
+   ========================================================= */
+@media (max-width: 700px) {
+  .student-reviewer-list-item {
+    display: grid !important;
+    grid-template-columns: 44px minmax(0, 1fr) auto !important;
+    grid-template-rows: auto auto auto !important;
+    grid-template-areas:
+      "icon main action"
+      "time attempts status"
+      "extra extra extra" !important;
+    column-gap: 10px !important;
+    row-gap: 12px !important;
+    align-items: center !important;
+    padding: 14px !important;
+  }
+
+  .student-reviewer-list-item > .subject-icon {
+    grid-area: icon !important;
+  }
+
+  .student-reviewer-main {
+    grid-area: main !important;
+    align-self: center !important;
+  }
+
+  .student-reviewer-action {
+    grid-area: action !important;
+    align-self: center !important;
+    justify-self: end !important;
+    width: auto !important;
+  }
+
+  .student-reviewer-action button {
+    width: auto !important;
+    min-width: 0 !important;
+    min-height: 36px !important;
+    padding: 8px 12px !important;
+    border-radius: 11px !important;
+    font-size: 13px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  .student-reviewer-action button:disabled {
+    background: #d8d5da !important;
+    border-color: #d8d5da !important;
+    color: #8a858d !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+  }
+
+  .student-reviewer-list-item > .student-reviewer-stat:nth-of-type(1) {
+    grid-area: time !important;
+  }
+
+  .student-reviewer-list-item > .student-reviewer-stat:nth-of-type(2) {
+    grid-area: attempts !important;
+  }
+
+  .student-reviewer-list-item > .student-reviewer-stat:nth-of-type(3) {
+    grid-area: status !important;
+  }
+
+  .student-reviewer-list-item > .student-reviewer-stat {
+    grid-row: 2 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 8px 2px 0 !important;
+    border: 0 !important;
+    text-align: center !important;
+    align-self: start !important;
+  }
+
+  .student-reviewer-stat span,
+  .student-reviewer-stat strong {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+  }
+
+  .student-reviewer-stat span {
+    font-size: 9px !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+  }
+
+  .student-reviewer-stat strong {
+    margin-top: 3px !important;
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+    white-space: normal !important;
+  }
+
+  .student-reviewer-extra {
+    grid-area: extra !important;
+    grid-row: 3 !important;
+  }
+}
+
+
+/* =========================================================
+   AUTHENTICATED MOBILE DRAWER — MASTERYHUB LOGO
+   ========================================================= */
+@media (max-width: 700px) {
+  .student-mobile-drawer-brand {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    min-width: 0 !important;
+  }
+
+  .student-mobile-drawer-logo {
+    display: block !important;
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    object-fit: contain !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .student-mobile-drawer-brand > div {
+    display: flex !important;
+    flex-direction: column !important;
+    min-width: 0 !important;
+  }
+}

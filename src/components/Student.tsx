@@ -955,11 +955,7 @@ export default function Student({
                       }
                       onClick={() => void startReviewer(reviewer)}
                     >
-                      {attemptState.exhausted
-                        ? 'Attempt limit reached'
-                        : availability.blocked
-                          ? availability.label
-                          : attemptState.label}{' '}
+                      {attemptState.inProgressId ? 'Resume' : 'Start'}{' '}
                       {!availability.blocked &&
                         !attemptState.exhausted && <span>→</span>}
                     </button>
