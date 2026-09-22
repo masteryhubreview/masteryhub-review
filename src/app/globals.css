@@ -18061,3 +18061,26 @@ img.public-header-logo {
     max-height: 64px !important;
   }
 }
+
+
+/* =========================================================
+   PUBLIC LANDING — MOBILE HERO ORDER
+   Graphic first, then welcome/copy/CTA.
+   Desktop layout remains unchanged.
+   ========================================================= */
+@media (max-width: 900px) {
+  .public-landing-hero {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .public-landing-visual {
+    order: 1 !important;
+    width: 100% !important;
+  }
+
+  .public-landing-copy {
+    order: 2 !important;
+    width: 100% !important;
+  }
+}
