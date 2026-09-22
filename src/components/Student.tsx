@@ -923,27 +923,29 @@ export default function Student({
                     ) : null}
                   </div>
 
-                  <div className="student-reviewer-stat student-reviewer-time">
-                    <span>TIME</span>
-                    <strong>
-                      {rules?.time_limit_minutes
-                        ? `${rules.time_limit_minutes} min`
-                        : 'No limit'}
-                    </strong>
-                  </div>
+                  <div className="student-reviewer-settings">
+                    <div className="student-reviewer-stat student-reviewer-time">
+                      <span>TIME</span>
+                      <strong>
+                        {rules?.time_limit_minutes
+                          ? `${rules.time_limit_minutes} min`
+                          : 'No limit'}
+                      </strong>
+                    </div>
 
-                  <div className="student-reviewer-stat student-reviewer-attempts">
-                    <span>ATTEMPTS</span>
-                    <strong>
-                      {reviewer.settings.max_attempts === null
-                        ? 'Unlimited'
-                        : `${attemptState.completedAttempts}/${reviewer.settings.max_attempts}`}
-                    </strong>
-                  </div>
+                    <div className="student-reviewer-stat student-reviewer-attempts">
+                      <span>ATTEMPTS</span>
+                      <strong>
+                        {reviewer.settings.max_attempts === null
+                          ? 'Unlimited'
+                          : `${attemptState.completedAttempts}/${reviewer.settings.max_attempts}`}
+                      </strong>
+                    </div>
 
-                  <div className="student-reviewer-stat student-reviewer-status">
-                    <span>STATUS</span>
-                    <strong>{statusLabel}</strong>
+                    <div className="student-reviewer-stat student-reviewer-status">
+                      <span>STATUS</span>
+                      <strong>{statusLabel}</strong>
+                    </div>
                   </div>
 
                   <div className="student-reviewer-action">
