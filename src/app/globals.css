@@ -18324,7 +18324,28 @@ img.public-header-logo {
   }
 
   .quiz-brand-logo {
-    display: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    margin: 0 auto 6px !important;
+  }
+
+  .quiz-brand-logo > * {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+  }
+
+  .quiz-brand-logo img {
+    display: block !important;
+    width: auto !important;
+    max-width: 180px !important;
+    height: 68px !important;
+    max-height: 68px !important;
+    margin: 0 auto !important;
+    object-fit: contain !important;
   }
 
   .quiz-brand-copy {
