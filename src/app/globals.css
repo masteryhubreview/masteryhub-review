@@ -1816,7 +1816,7 @@ td .question-cell,
 }
 
 /* =========================================================
-   REVIEWHUB — DETAIL PASS
+   REVIEWHUB â€” DETAIL PASS
    Adds richer visual detail without changing page behavior.
    ========================================================= */
 
@@ -1846,7 +1846,7 @@ body::after {
   background: radial-gradient(circle, rgba(141, 99, 210, 0.10), transparent 68%);
 }
 
-/* Watermark — hard-coded in Workspace.tsx so it is not admin-editable */
+/* Watermark â€” hard-coded in Workspace.tsx so it is not admin-editable */
 .tcl-watermark {
   position: fixed;
   right: 18px;
@@ -1924,7 +1924,7 @@ body::after {
 }
 
 .brand::after {
-  content: "REVIEW • PRACTICE • PROGRESS";
+  content: "REVIEW â€¢ PRACTICE â€¢ PROGRESS";
   position: absolute;
   left: 0;
   top: calc(100% + 11px);
@@ -2079,7 +2079,7 @@ body::after {
 .hero .eyebrow::before,
 .student-hero .eyebrow::before,
 .dashboard-hero .eyebrow::before {
-  content: "✦";
+  content: "âœ¦";
   color: var(--pink-500);
   font-size: 12px;
 }
@@ -2232,7 +2232,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled) {
 
 .pill::before,
 .badge::before {
-  content: "•";
+  content: "â€¢";
   color: var(--pink-500);
   margin-right: 5px;
 }
@@ -2245,7 +2245,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled) {
 
 .quiz-shell::before,
 .quiz-page::before {
-  content: "FOCUS • ONE QUESTION AT A TIME";
+  content: "FOCUS â€¢ ONE QUESTION AT A TIME";
   display: block;
   margin-bottom: 8px;
   color: var(--muted-2);
@@ -2307,7 +2307,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled) {
 }
 
 .auth-story::after {
-  content: "✦";
+  content: "âœ¦";
   position: absolute;
   right: 7%;
   top: 18%;
@@ -2412,7 +2412,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled) {
 
 
 /* =========================================================
-   TCL FOOTER WATERMARK — SIMPLE / CENTERED
+   TCL FOOTER WATERMARK â€” SIMPLE / CENTERED
    ========================================================= */
 
 .tcl-watermark {
@@ -2459,7 +2459,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled) {
 }
 
 
-/* FINAL watermark typography — explicit separate elements */
+/* FINAL watermark typography â€” explicit separate elements */
 .footer-watermark,
 .footer-watermark .footer-powered-by {
   font-weight: 400 !important;
@@ -2470,7 +2470,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled) {
 }
 
 /* =========================================================
-   REVIEWHUB — SOFT MAIN-PAGE CONTRAST
+   REVIEWHUB â€” SOFT MAIN-PAGE CONTRAST
    Keep the existing purple navigation. Balance only the
    workspace/main page so it is neither too bright nor dark.
    ========================================================= */
@@ -2646,7 +2646,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 }
 
 /* =========================================================
-   REVIEWHUB — NAVIGATION CONTRAST + READABILITY
+   REVIEWHUB â€” NAVIGATION CONTRAST + READABILITY
    Keep the purple identity, but separate the nav from the
    workspace and increase text/icon readability.
    ========================================================= */
@@ -2733,7 +2733,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 }
 
 /* =========================================================
-   SIDEBAR POLISH — spacing + alignment fixes
+   SIDEBAR POLISH â€” spacing + alignment fixes
    ========================================================= */
 
 /* More breathing room between brand/header and menu */
@@ -2835,7 +2835,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 }
 
 /* =========================================================
-   SIDEBAR BRAND HEADER — FINAL ALIGNMENT FIX
+   SIDEBAR BRAND HEADER â€” FINAL ALIGNMENT FIX
    ========================================================= */
 
 /* Keep logo and title aligned cleanly */
@@ -2874,7 +2874,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
   line-height: 1.2 !important;
 }
 
-/* REVIEW · PRACTICE · PROGRESS:
+/* REVIEW Â· PRACTICE Â· PROGRESS:
    center it across the full sidebar instead of hugging the left */
 .sidebar .nav-label,
 .sidebar .section-label,
@@ -2927,7 +2927,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
   overflow: hidden !important;
 }
 
-/* Center REVIEW • PRACTICE • PROGRESS across the sidebar */
+/* Center REVIEW â€¢ PRACTICE â€¢ PROGRESS across the sidebar */
 .sidebar .brand::after {
   left: 50% !important;
   right: auto !important;
@@ -2953,7 +2953,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
   color: #bfa7c6 !important;
 }
 
-/* REVIEW • PRACTICE • PROGRESS — dark charcoal-purple */
+/* REVIEW â€¢ PRACTICE â€¢ PROGRESS â€” dark charcoal-purple */
 .sidebar .brand::after,
 .sidebar .nav-label,
 .sidebar .section-label,
@@ -2964,7 +2964,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   LOGIN PAGE — LOGO + STRAY "H" FIX
+   LOGIN PAGE â€” LOGO + STRAY "H" FIX
    ========================================================= */
 
 /* Remove any leftover tiny "h" from the old Rh login mark */
@@ -3015,7 +3015,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   LOGIN LOGO — SIZE + CENTERED BALANCED SPACING
+   LOGIN LOGO â€” SIZE + CENTERED BALANCED SPACING
    ========================================================= */
 
 .auth-logo-wrap {
@@ -3055,7 +3055,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   LOGIN LOGO — LARGER WITHOUT ADDING VERTICAL SPACE
+   LOGIN LOGO â€” LARGER WITHOUT ADDING VERTICAL SPACE
    ========================================================= */
 
 .auth-logo-wrap {
@@ -3090,7 +3090,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   LOGIN LOGO — CROPPED ASSET FINAL SIZE
+   LOGIN LOGO â€” CROPPED ASSET FINAL SIZE
    The previous image had large transparent padding, so CSS
    width changes barely affected the visible logo.
    ========================================================= */
@@ -3298,7 +3298,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   MOBILE AUTH — ONE CONTINUOUS BACKGROUND
+   MOBILE AUTH â€” ONE CONTINUOUS BACKGROUND
    The page owns the background. Cards stay clean/transparent
    from any decorative page-gradient layers.
    ========================================================= */
@@ -3380,7 +3380,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   DESKTOP FOOTER — TRUE VERTICAL CENTER
+   DESKTOP FOOTER â€” TRUE VERTICAL CENTER
    ========================================================= */
 @media (min-width: 701px) {
   .public-auth-footer {
@@ -3411,7 +3411,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   DESKTOP FOOTER — FORCE EXACT VISUAL CENTER
+   DESKTOP FOOTER â€” FORCE EXACT VISUAL CENTER
    ========================================================= */
 @media (min-width: 701px) {
   .public-auth-footer {
@@ -3452,7 +3452,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   DASHBOARD / WORKSPACE — FULL HEIGHT SIDEBAR
+   DASHBOARD / WORKSPACE â€” FULL HEIGHT SIDEBAR
    Keeps mobile behavior unchanged.
    ========================================================= */
 @media (min-width: 701px) {
@@ -3492,7 +3492,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   STUDENT DASHBOARD — MOBILE HEADER + BURGER DRAWER
+   STUDENT DASHBOARD â€” MOBILE HEADER + BURGER DRAWER
    Desktop and admin layouts remain unchanged.
    ========================================================= */
 
@@ -3802,7 +3802,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   STUDENT MOBILE BURGER — ICON VISIBILITY FIX
+   STUDENT MOBILE BURGER â€” ICON VISIBILITY FIX
    ========================================================= */
 @media (max-width: 700px) {
   .student-mobile-burger {
@@ -3822,7 +3822,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   ADMIN — SIMPLIFIED MAIN MENU + INTERNAL SECTION TABS
+   ADMIN â€” SIMPLIFIED MAIN MENU + INTERNAL SECTION TABS
    ========================================================= */
 .admin-section-heading {
   margin: 0 0 18px;
@@ -3919,7 +3919,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   ADMIN RECORD FILTERS — EVEN, ALIGNED CONTROLS
+   ADMIN RECORD FILTERS â€” EVEN, ALIGNED CONTROLS
    ========================================================= */
 @media (min-width: 701px) {
   .filters,
@@ -3957,7 +3957,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   ADMIN — COMPACT DENSITY
+   ADMIN â€” COMPACT DENSITY
    Smaller controls, rows, cards and spacing without
    affecting the public/student layouts.
    ========================================================= */
@@ -4114,7 +4114,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   ADMIN — COMPACT ADD / EDIT FORMS
+   ADMIN â€” COMPACT ADD / EDIT FORMS
    Keeps forms from stretching across the whole workspace.
    ========================================================= */
 @media (min-width: 701px) {
@@ -4210,7 +4210,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   ADMIN — SMALLER / COLLAPSIBLE RECORD EDITOR + ONE-ROW FILTERS
+   ADMIN â€” SMALLER / COLLAPSIBLE RECORD EDITOR + ONE-ROW FILTERS
    ========================================================= */
 @media (min-width: 701px) {
   /* Records filter/search area: one clean aligned row */
@@ -4335,13 +4335,13 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
   }
 
   .admin-workspace details.admin-collapsible[open] > summary::after {
-    content: "−";
+    content: "âˆ’";
   }
 }
 
 
 /* =========================================================
-   RECORDS — TRUE COMPACT EDITOR + SINGLE-ROW STUDENT FILTERS
+   RECORDS â€” TRUE COMPACT EDITOR + SINGLE-ROW STUDENT FILTERS
    ========================================================= */
 @media (min-width: 701px) {
   .admin-workspace .admin-record-heading {
@@ -4602,7 +4602,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   RECORDS — ADD FORM ANCHORED DIRECTLY UNDER ADD BUTTON
+   RECORDS â€” ADD FORM ANCHORED DIRECTLY UNDER ADD BUTTON
    ========================================================= */
 @media (min-width: 701px) {
   .admin-workspace .admin-record-actions {
@@ -4667,7 +4667,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 }
 
 
-/* ADD FORM — MEDIUM WIDTH
+/* ADD FORM â€” MEDIUM WIDTH
    Wider than the small dropdown, but still much smaller than
    the previous large centered editor. */
 @media (min-width: 701px) {
@@ -4695,7 +4695,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   ADD RECORD PANEL — ALIGNED TO FULL ACTION ROW
+   ADD RECORD PANEL â€” ALIGNED TO FULL ACTION ROW
    Starts under Export and ends under Add. Compact height.
    ========================================================= */
 @media (min-width: 701px) {
@@ -4811,7 +4811,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 }
 
 
-/* ADD PANEL — TINY GAP UNDER ACTION BUTTONS */
+/* ADD PANEL â€” TINY GAP UNDER ACTION BUTTONS */
 @media (min-width: 701px) {
   .admin-workspace .admin-add-popover {
     top: calc(100% + 2px) !important;
@@ -4856,7 +4856,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   ADMIN — STANDARD MANAGEMENT ROW
+   ADMIN â€” STANDARD MANAGEMENT ROW
    Internal section tabs stay left; page actions align on the
    same row at the right. Reusable for Students, Quiz, Settings,
    and future management screens.
@@ -4948,7 +4948,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   FIX — KEEP ALIGNED ACTION ROW, RESTORE LAST GOOD ADD FORM
+   FIX â€” KEEP ALIGNED ACTION ROW, RESTORE LAST GOOD ADD FORM
    The form should span neatly under the action group instead
    of shrinking to the width of the Add button.
    ========================================================= */
@@ -5182,7 +5182,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   EDIT RECORD — COMPACT COLLAPSIBLE PANEL
+   EDIT RECORD â€” COMPACT COLLAPSIBLE PANEL
    Keeps editing quick without consuming most of the page.
    ========================================================= */
 @media (min-width: 701px) {
@@ -5300,7 +5300,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   RECORDS — EXPAND EDIT DIRECTLY UNDER THE CLICKED ROW
+   RECORDS â€” EXPAND EDIT DIRECTLY UNDER THE CLICKED ROW
    ========================================================= */
 .admin-workspace .record-row.editing td {
   background: rgba(118, 74, 142, 0.035) !important;
@@ -5427,7 +5427,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   FIX INLINE EDIT ROW — NO HORIZONTAL OVERFLOW
+   FIX INLINE EDIT ROW â€” NO HORIZONTAL OVERFLOW
    Keep the row compact, but allow fields to wrap cleanly.
    ========================================================= */
 @media (min-width: 701px) {
@@ -5569,7 +5569,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   FINAL INLINE EDIT — TRUE TABLE ROW EXPANSION
+   FINAL INLINE EDIT â€” TRUE TABLE ROW EXPANSION
    The original student row stays completely fixed.
    Clicking Edit reveals a second row directly underneath it.
    No floating card, no popover, no detached edit panel.
@@ -5762,7 +5762,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   IMPORTANT FIX — TABLE MUST NOT BECOME A FORM PANEL
+   IMPORTANT FIX â€” TABLE MUST NOT BECOME A FORM PANEL
    Earlier compact-form rules used .panel:has(form), which
    accidentally shrank the entire records table whenever an
    inline edit form opened inside a row.
@@ -5908,7 +5908,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   INLINE EDIT — EXTRA COMPACT DENSITY
+   INLINE EDIT â€” EXTRA COMPACT DENSITY
    Keep the current row-expansion design, only make every
    control smaller and remove unnecessary vertical space.
    ========================================================= */
@@ -6006,7 +6006,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   INLINE STUDENT EDIT — FINAL COMPACT ORDER
+   INLINE STUDENT EDIT â€” FINAL COMPACT ORDER
    Row 1: Display name | Email | Password
    Row 2: Student number | School year / semester | actions
    ========================================================= */
@@ -6092,7 +6092,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   STUDENT RECORD ROW — EXTRA COMPACT
+   STUDENT RECORD ROW â€” EXTRA COMPACT
    Shrink the closed name row, status pill and manage buttons.
    ========================================================= */
 @media (min-width: 701px) {
@@ -6359,7 +6359,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   RECORD TABLE — READABLE TEXT + MINIMAL ACTION BUTTONS
+   RECORD TABLE â€” READABLE TEXT + MINIMAL ACTION BUTTONS
    Restore readable typography. Replace bulky button bubbles
    with compact text-style actions.
    ========================================================= */
@@ -6502,7 +6502,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   FINAL SIZE TUNING — READABLE TEXT, TINY SAVE/CANCEL
+   FINAL SIZE TUNING â€” READABLE TEXT, TINY SAVE/CANCEL
    ========================================================= */
 @media (min-width: 701px) {
   /* Main student row */
@@ -6544,7 +6544,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
     font-size: 10px !important;
   }
 
-  /* Cancel / Save — deliberately tiny physical buttons */
+  /* Cancel / Save â€” deliberately tiny physical buttons */
   .admin-workspace .record-inline-actions {
     height: 21px !important;
     min-height: 21px !important;
@@ -6596,7 +6596,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   CORRECT SCALE — TEXT READABLE, CONTROLS ACTUALLY COMPACT
+   CORRECT SCALE â€” TEXT READABLE, CONTROLS ACTUALLY COMPACT
    ========================================================= */
 @media (min-width: 701px) {
   /* Edit labels + field text */
@@ -6783,7 +6783,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   INLINE EDIT ACTIONS — FORCE SAVE HOVER TO MATCH CANCEL
+   INLINE EDIT ACTIONS â€” FORCE SAVE HOVER TO MATCH CANCEL
    Removes any inherited hover layer / pseudo-element.
    ========================================================= */
 @media (min-width: 701px) {
@@ -6860,7 +6860,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
   gap: 10px !important;
 }
 
-/* Main records pagination only — compact text controls. */
+/* Main records pagination only â€” compact text controls. */
 .admin-workspace .records-pager-space .pager button,
 .admin-workspace .records-pager-space .pager button:hover,
 .admin-workspace .records-pager-space .pager button:focus,
@@ -6927,7 +6927,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 }
 
 /* =========================================================
-   ADMIN MOBILE — SAME BURGER/DRAWER SYSTEM AS STUDENT
+   ADMIN MOBILE â€” SAME BURGER/DRAWER SYSTEM AS STUDENT
    Uses the new simplified admin menu:
    Dashboard / Students / Quiz & Reviewers / Results / Settings
    ========================================================= */
@@ -6989,7 +6989,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   RECORDS PAGE — KEEP PAGINATION LOW ON SHORT TABLES
+   RECORDS PAGE â€” KEEP PAGINATION LOW ON SHORT TABLES
    Structural fix: the records page fills the available view.
    With few rows, pagination sits near the bottom instead of
    floating just under the table. With many rows, it naturally
@@ -7012,7 +7012,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   ADMIN UI STANDARD — APPLY COMPACT DESIGN ACROSS ALL PAGES
+   ADMIN UI STANDARD â€” APPLY COMPACT DESIGN ACROSS ALL PAGES
    Questions, Reviewers, Results, Settings, Imports, tables.
    ========================================================= */
 @media (min-width: 701px) {
@@ -7388,7 +7388,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   MOBILE STUDENTS PAGE — COMPACT ACTIONS + 2-ROW RECORD CARDS
+   MOBILE STUDENTS PAGE â€” COMPACT ACTIONS + 2-ROW RECORD CARDS
    ========================================================= */
 @media (max-width: 700px) {
   /* Top action buttons: Export / Import / Add student */
@@ -7702,7 +7702,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   MOBILE STUDENTS — ACTIONS IN ONE ROW + NO HORIZONTAL SCROLL
+   MOBILE STUDENTS â€” ACTIONS IN ONE ROW + NO HORIZONTAL SCROLL
    ========================================================= */
 @media (max-width: 700px) {
   /* Heading stacks naturally, then all 3 actions share one row */
@@ -7949,7 +7949,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   MOBILE ADD / IMPORT FORMS — COMPACT + MOBILE FRIENDLY
+   MOBILE ADD / IMPORT FORMS â€” COMPACT + MOBILE FRIENDLY
    ========================================================= */
 @media (max-width: 700px) {
   /* Open panels should feel like compact drawers, not long pages */
@@ -8177,7 +8177,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   MOBILE FORMS — HIDE INTERNAL REMOTESELECT PAGINATION
+   MOBILE FORMS â€” HIDE INTERNAL REMOTESELECT PAGINATION
    Main records pagination remains unchanged.
    ========================================================= */
 @media (max-width: 700px) {
@@ -8195,7 +8195,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   MOBILE STUDENTS — FLOATING ACTION PANELS / FULLER WIDTH
+   MOBILE STUDENTS â€” FLOATING ACTION PANELS / FULLER WIDTH
    Keep page size stable when opening Add / Import.
    ========================================================= */
 @media (max-width: 700px) {
@@ -8330,7 +8330,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   MOBILE STUDENTS — SCREEN-ANCHORED FLOATING FORM
+   MOBILE STUDENTS â€” SCREEN-ANCHORED FLOATING FORM
    Uses almost full viewport width with safe edge margins.
    Independent of the clicked button's location.
    ========================================================= */
@@ -8582,7 +8582,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 }
 
 /* =========================================================
-   MOBILE STUDENT FORMS — USE THE AVAILABLE SCREEN
+   MOBILE STUDENT FORMS â€” USE THE AVAILABLE SCREEN
    ========================================================= */
 @media (max-width: 700px) {
   /* Screen-anchored modal remains inside the viewport */
@@ -8825,7 +8825,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   ADD ENROLLMENT — MULTIPLE SUBJECTS + FORM PAGER REMOVAL
+   ADD ENROLLMENT â€” MULTIPLE SUBJECTS + FORM PAGER REMOVAL
    ========================================================= */
 
 /* No pagination is ever shown inside forms/popovers/editors.
@@ -8948,7 +8948,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
   }
 }
 /* =========================================================
-   STUDENT QUIZ — CLIENT REFERENCE REDESIGN
+   STUDENT QUIZ â€” CLIENT REFERENCE REDESIGN
    One-question card, compact answer rows, inline feedback.
    ========================================================= */
 .quiz-reference-layout {
@@ -9465,7 +9465,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   SUBJECT PICKERS — COMPACT ONE-LINE CARDS
+   SUBJECT PICKERS â€” COMPACT ONE-LINE CARDS
    Add/Edit Student + Add/Edit Enrollment
    ========================================================= */
 .admin-workspace .student-subject-picker {
@@ -9592,7 +9592,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   STUDENT SUBJECT PICKERS — NARROWER CARDS
+   STUDENT SUBJECT PICKERS â€” NARROWER CARDS
    ========================================================= */
 @media (min-width: 701px) {
   .admin-workspace .student-subject-grid,
@@ -9613,7 +9613,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 }
 
 /* =========================================================
-   SUBJECT PAGE — CLICK SUBJECT TO VIEW ENROLLED STUDENTS
+   SUBJECT PAGE â€” CLICK SUBJECT TO VIEW ENROLLED STUDENTS
    ========================================================= */
 .admin-workspace .subject-roster-trigger {
   width: auto !important;
@@ -9780,7 +9780,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 }
 
 /* =========================================================
-   QUESTION BANK — SUBJECT-FIRST
+   QUESTION BANK â€” SUBJECT-FIRST
    ========================================================= */
 .admin-workspace .question-subject-selector {
   width: min(100%, 560px);
@@ -9817,7 +9817,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 }
 
 /* =========================================================
-   REVIEWER — MULTI SUBJECT + RANDOMIZED MODE
+   REVIEWER â€” MULTI SUBJECT + RANDOMIZED MODE
    ========================================================= */
 .admin-workspace .reviewer-subject-picker {
   padding: 9px;
@@ -9961,7 +9961,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   SUBJECT PAGE — SOFT PINK CLICKABLE SUBJECT BUTTONS
+   SUBJECT PAGE â€” SOFT PINK CLICKABLE SUBJECT BUTTONS
    Reference: pastel pink card + white text
    ========================================================= */
 .admin-workspace .subject-roster-trigger {
@@ -10091,7 +10091,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   ADMIN READABILITY — MATCH STUDENTS PAGE FONT SIZING
+   ADMIN READABILITY â€” MATCH STUDENTS PAGE FONT SIZING
    Applies consistently across Students, Enrollment, Subjects,
    Question Bank, Reviewers, Results and Settings.
    ========================================================= */
@@ -10269,7 +10269,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   SUBJECT ROSTER — DARK MAROON READABILITY
+   SUBJECT ROSTER â€” DARK MAROON READABILITY
    ========================================================= */
 .admin-workspace .subject-roster-panel,
 .admin-workspace .subject-roster-panel p,
@@ -10299,7 +10299,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   SUBJECT ROSTER — TERM FILTER + REMOVE ENROLLMENT
+   SUBJECT ROSTER â€” TERM FILTER + REMOVE ENROLLMENT
    ========================================================= */
 .admin-workspace .subject-roster-heading {
   align-items: flex-end !important;
@@ -10417,7 +10417,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   SUBJECT ROSTER — COMPACT X REMOVE CONTROL
+   SUBJECT ROSTER â€” COMPACT X REMOVE CONTROL
    ========================================================= */
 .admin-workspace .subject-roster-remove {
   flex: 0 0 24px !important;
@@ -10465,7 +10465,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   STUDENT CARD REMOVE — PLAIN SMALL RED X ONLY
+   STUDENT CARD REMOVE â€” PLAIN SMALL RED X ONLY
    This is the X beside each enrolled student's name/card.
    ========================================================= */
 .admin-workspace .records-page .subject-roster-student button.subject-roster-remove {
@@ -10530,7 +10530,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   STUDENT CARD REMOVE X — TRUE TOP-RIGHT CORNER
+   STUDENT CARD REMOVE X â€” TRUE TOP-RIGHT CORNER
    ========================================================= */
 .admin-workspace .records-page .subject-roster-student {
   position: relative !important;
@@ -10605,7 +10605,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   STUDENT IMPORT — EXCEL / GOOGLE SHEETS NOTE
+   STUDENT IMPORT â€” EXCEL / GOOGLE SHEETS NOTE
    ========================================================= */
 .admin-workspace .admin-import-format-note {
   margin-top: -2px !important;
@@ -10625,7 +10625,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   STUDENT IMPORT — LIVE ACCEPTED TERM / SUBJECT VALUES
+   STUDENT IMPORT â€” LIVE ACCEPTED TERM / SUBJECT VALUES
    ========================================================= */
 .admin-workspace .admin-import-accepted-values {
   display: grid !important;
@@ -10665,7 +10665,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   ADMIN CONTENT — EXTRA BOTTOM BREATHING ROOM
+   ADMIN CONTENT â€” EXTRA BOTTOM BREATHING ROOM
    Prevents long expanded cards/import panels from crowding
    or visually overlapping the footer.
    ========================================================= */
@@ -10711,7 +10711,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   STUDENT IMPORT — VALIDATION WARNING
+   STUDENT IMPORT â€” VALIDATION WARNING
    ========================================================= */
 .admin-workspace .admin-import-validation-warning {
   margin: 0 !important;
@@ -10732,7 +10732,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   STUDENTS — SLIGHTLY WIDER IMPORT CARD
+   STUDENTS â€” SLIGHTLY WIDER IMPORT CARD
    Keep the original layout/setup; only increase width.
    ========================================================= */
 .admin-workspace .records-page .admin-import-panel {
@@ -10749,7 +10749,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   STUDENTS — WIDER IMPORT CARD, ORIGINAL LAYOUT PRESERVED
+   STUDENTS â€” WIDER IMPORT CARD, ORIGINAL LAYOUT PRESERVED
    ========================================================= */
 .admin-workspace .records-page .admin-import-panel {
   width: 100% !important;
@@ -10770,7 +10770,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   FIX — KEEP ORIGINAL IMPORT CARD LAYOUT
+   FIX â€” KEEP ORIGINAL IMPORT CARD LAYOUT
    Only the generated preview/results area scrolls.
    Do NOT cap or clip the whole expandable card.
    ========================================================= */
@@ -10821,7 +10821,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   IMPORT STUDENTS — RESTORE CLEAN VERTICAL SPACING
+   IMPORT STUDENTS â€” RESTORE CLEAN VERTICAL SPACING
    ========================================================= */
 .admin-workspace .records-page .admin-import-panel {
   padding: 12px !important;
@@ -10897,7 +10897,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   ADMIN EXPANDABLE CARDS — UNIVERSAL INTERNAL SCROLL
+   ADMIN EXPANDABLE CARDS â€” UNIVERSAL INTERNAL SCROLL
    Keep expandable cards at a sensible maximum height.
    If content becomes longer, scroll INSIDE the expanded card
    instead of growing the entire page/card.
@@ -11000,7 +11000,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* ---------------------------------------------------------
-   4) SUBJECT → VIEW ENROLLED STUDENTS
+   4) SUBJECT â†’ VIEW ENROLLED STUDENTS
    Heading/filter remains visible; student list scrolls.
    --------------------------------------------------------- */
 .admin-workspace .records-page .subject-roster-panel {
@@ -11092,7 +11092,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   SUBJECTS — QUICK ENROLL EXISTING STUDENTS
+   SUBJECTS â€” QUICK ENROLL EXISTING STUDENTS
    Replaces the need for a separate Enrollment page.
    ========================================================= */
 .admin-workspace .records-page .subject-roster-heading {
@@ -11222,7 +11222,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   ADD / EDIT STUDENT — WIDER CARD + SUBJECT SEARCH
+   ADD / EDIT STUDENT â€” WIDER CARD + SUBJECT SEARCH
    ========================================================= */
 @media (min-width: 901px) {
   .admin-workspace .records-page .admin-add-popover {
@@ -11354,7 +11354,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   ADD SUBJECT — WIDER, CLEANER FORM LAYOUT
+   ADD SUBJECT â€” WIDER, CLEANER FORM LAYOUT
    Match the improved Add Student card proportions.
    ========================================================= */
 @media (min-width: 901px) {
@@ -11437,7 +11437,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   STUDENT SUBJECT SEARCH — LIVE MATCHES + PLAIN RED X
+   STUDENT SUBJECT SEARCH â€” LIVE MATCHES + PLAIN RED X
    ========================================================= */
 .admin-workspace .student-subject-search-picker {
   position: relative !important;
@@ -11569,7 +11569,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   STUDENT SUBJECT SEARCH RESULTS — READABLE LIGHT ROWS
+   STUDENT SUBJECT SEARCH RESULTS â€” READABLE LIGHT ROWS
    Override global dark button styling.
    ========================================================= */
 .admin-workspace .student-subject-search-results,
@@ -11616,7 +11616,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   SUBJECT SEARCH RESULT — BORDER ONLY, NO BACKGROUND
+   SUBJECT SEARCH RESULT â€” BORDER ONLY, NO BACKGROUND
    Final override against global button styles.
    ========================================================= */
 .admin-workspace .student-subject-search-results {
@@ -11734,7 +11734,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
   box-shadow: none !important;
 }
 
-/* Tiny plain red X — completely reset global button appearance */
+/* Tiny plain red X â€” completely reset global button appearance */
 .admin-workspace button.student-subject-remove-x,
 .admin-workspace button.student-subject-remove-x:hover,
 .admin-workspace button.student-subject-remove-x:focus,
@@ -11771,7 +11771,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   STRUCTURAL FIX — NO BUTTON ELEMENTS FOR RESULT / REMOVE X
+   STRUCTURAL FIX â€” NO BUTTON ELEMENTS FOR RESULT / REMOVE X
    This bypasses every global button rule completely.
    ========================================================= */
 .admin-workspace .student-subject-search-results {
@@ -11887,7 +11887,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   REVIEWERS TABLE — MATCH STUDENTS TABLE / KEEP MANAGE VISIBLE
+   REVIEWERS TABLE â€” MATCH STUDENTS TABLE / KEEP MANAGE VISIBLE
    Scoped only to Quiz & Reviewers.
    ========================================================= */
 .admin-workspace .reviewer-table-wrap {
@@ -11972,7 +11972,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   REVIEWERS TABLE — 3 MANAGE BUTTONS IN ONE ROW
+   REVIEWERS TABLE â€” 3 MANAGE BUTTONS IN ONE ROW
    Rebalance Mode / Status / Manage columns only.
    ========================================================= */
 .admin-workspace .reviewer-records-table .reviewer-col-title {
@@ -12042,7 +12042,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   REVIEWER CREATE / EDIT — TRUE SEPARATE ROUTE PAGE
+   REVIEWER CREATE / EDIT â€” TRUE SEPARATE ROUTE PAGE
    ========================================================= */
 .reviewer-route-page {
   min-height: 100vh;
@@ -12084,7 +12084,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   REVIEWER EDITOR — CANVAS-INSPIRED DETAILS / QUESTIONS SETUP
+   REVIEWER EDITOR â€” CANVAS-INSPIRED DETAILS / QUESTIONS SETUP
    MasteryHub styling; uses only existing Reviewer features.
    ========================================================= */
 
@@ -12686,8 +12686,8 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   REVIEWER EDITOR — INDIVIDUAL QUESTION WORKFLOW
-   Inspired by Canvas' Details → Questions → New Question flow.
+   REVIEWER EDITOR â€” INDIVIDUAL QUESTION WORKFLOW
+   Inspired by Canvas' Details â†’ Questions â†’ New Question flow.
    ========================================================= */
 
 .reviewer-canvas-details,
@@ -13019,7 +13019,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   REVIEWER CREATE / EDIT — CANVAS CLASSIC QUIZ VISUAL LAYOUT
+   REVIEWER CREATE / EDIT â€” CANVAS CLASSIC QUIZ VISUAL LAYOUT
    DESIGN ONLY. No reviewer/question behavior is changed.
    ========================================================= */
 
@@ -13754,7 +13754,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   REVIEWER DETAILS — ALIGNMENT / DENSITY CLEANUP
+   REVIEWER DETAILS â€” ALIGNMENT / DENSITY CLEANUP
    Tightens the Canvas-style form so labels, inputs, checks
    and rule groups line up consistently with no dead space.
    ========================================================= */
@@ -14018,7 +14018,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   REVIEWER PAGE — CONTRAST + SUBJECT SEARCH
+   REVIEWER PAGE â€” CONTRAST + SUBJECT SEARCH
    ========================================================= */
 
 .reviewer-route-page {
@@ -14310,7 +14310,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   REVIEWER PAGE — FINAL CONTRAST / ALIGNMENT CLEANUP
+   REVIEWER PAGE â€” FINAL CONTRAST / ALIGNMENT CLEANUP
    Contrast belongs to the page background only.
    Keep the form itself plain and aligned.
    ========================================================= */
@@ -14416,7 +14416,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   REVIEWER QUESTIONS — COMPACT / EXPANDABLE LISTS
+   REVIEWER QUESTIONS â€” COMPACT / EXPANDABLE LISTS
    Applies to both NEW and EDIT reviewer routes.
    Shows about 5 rows before internal scrolling.
    ========================================================= */
@@ -14638,7 +14638,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   QUESTION ROWS — NO FILLED BACKGROUND + INLINE EDITOR
+   QUESTION ROWS â€” NO FILLED BACKGROUND + INLINE EDITOR
    ========================================================= */
 
 /* Remove the dark/filled row background completely */
@@ -14773,7 +14773,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   QUESTION EDITOR — COMPACT FIRST ROW
+   QUESTION EDITOR â€” COMPACT FIRST ROW
    Question Type | Upload | Points
    ========================================================= */
 
@@ -14904,7 +14904,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   REVIEWER → QUESTIONS → IMPORT
+   REVIEWER â†’ QUESTIONS â†’ IMPORT
    ========================================================= */
 
 .reviewer-question-heading-actions {
@@ -14958,7 +14958,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   ADD FROM QUESTION BANK — CLEAN ROW LAYOUT
+   ADD FROM QUESTION BANK â€” CLEAN ROW LAYOUT
    Structural classes intentionally avoid the older
    reviewer-compact-question-item global button/label rules.
    ========================================================= */
@@ -15138,7 +15138,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   SUBJECTS → QUESTIONS — DELETE QUESTION
+   SUBJECTS â†’ QUESTIONS â€” DELETE QUESTION
    ========================================================= */
 
 .subject-question-item {
@@ -15425,7 +15425,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   REVIEWER ASSIGNMENT — CLEAN / COMPACT UI FIX
+   REVIEWER ASSIGNMENT â€” CLEAN / COMPACT UI FIX
    ========================================================= */
 
 .reviewer-canvas-assignment-box .reviewer-assign-control {
@@ -15612,7 +15612,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   REVIEWER ASSIGN — SEARCH DROPDOWN SELECTOR
+   REVIEWER ASSIGN â€” SEARCH DROPDOWN SELECTOR
    ========================================================= */
 
 .reviewer-assign-search-control {
@@ -16053,7 +16053,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   ATTEMPTS — RESET / RESTART LAYOUT FIX
+   ATTEMPTS â€” RESET / RESTART LAYOUT FIX
    Keep the control stacked and aligned instead of side-by-side.
    ========================================================= */
 
@@ -16143,7 +16143,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 }
 
 /* =========================================================
-   ADMIN SETTINGS — CLEAN MODERN LAYOUT
+   ADMIN SETTINGS â€” CLEAN MODERN LAYOUT
    ========================================================= */
 
 .settings-modern-page {
@@ -16472,7 +16472,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
   }
 }
 
-/* STUDENT ACCOUNT — READ-ONLY IDENTITY */
+/* STUDENT ACCOUNT â€” READ-ONLY IDENTITY */
 .account-readonly-field {
   display: grid;
   gap: 4px;
@@ -16516,7 +16516,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
   font-size: 13px;
 }
 
-/* ADMIN DASHBOARD — COMPACT 7-STEP WORKFLOW */
+/* ADMIN DASHBOARD â€” COMPACT 7-STEP WORKFLOW */
 @media (min-width: 1100px) {
   .workflow {
     display: grid;
@@ -16543,7 +16543,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
   }
 }
 
-/* ADMIN DASHBOARD — CENTERED PROGRESS WORKFLOW */
+/* ADMIN DASHBOARD â€” CENTERED PROGRESS WORKFLOW */
 .workflow {
   display: flex;
   align-items: flex-start;
@@ -16625,7 +16625,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
   }
 }
 
-/* SETTINGS — RESET DATA / DANGER ZONE */
+/* SETTINGS â€” RESET DATA / DANGER ZONE */
 .settings-modern-tabs {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
@@ -16867,7 +16867,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 }
 
 /* =========================================================
-   STUDENT REVIEWER LIST — BALANCED ROW
+   STUDENT REVIEWER LIST â€” BALANCED ROW
    Spread reviewer information across the available row width.
    ========================================================= */
 
@@ -16968,7 +16968,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 }
 
 /* =========================================================
-   STUDENT REVIEWER LIST — FINAL BALANCED TABLE ROW
+   STUDENT REVIEWER LIST â€” FINAL BALANCED TABLE ROW
    ========================================================= */
 .student-reviewer-list {
   width: 100%;
@@ -17132,7 +17132,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   SIDEBAR — FULL LOGO FIRST
+   SIDEBAR â€” FULL LOGO FIRST
    ========================================================= */
 .sidebar > .brand-logo {
   order: 0 !important;
@@ -17161,7 +17161,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   SIDEBAR BRAND TEXT — CENTERED, NO R MARK
+   SIDEBAR BRAND TEXT â€” CENTERED, NO R MARK
    ========================================================= */
 .sidebar > .sidebar-brand-text {
   display: block !important;
@@ -17756,7 +17756,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   STUDENT DASHBOARD HERO — KEEP WIDER WELCOME COPY
+   STUDENT DASHBOARD HERO â€” KEEP WIDER WELCOME COPY
    ========================================================= */
 @media (min-width: 901px) {
   .student-workspace .hero {
@@ -17779,7 +17779,7 @@ button:not(.ghost):not(.text-button):not(.nav-item):hover:not(:disabled),
 
 
 /* =========================================================
-   PUBLIC LANDING HEADER — CLEAN FINAL OVERRIDE
+   PUBLIC LANDING HEADER â€” CLEAN FINAL OVERRIDE
    ========================================================= */
 .public-landing-header {
   background: rgba(255, 255, 255, 0.94) !important;
@@ -17890,7 +17890,7 @@ img.public-header-logo {
 
 
 /* =========================================================
-   PUBLIC HEADER — FINAL LIGHT LAVENDER TREATMENT
+   PUBLIC HEADER â€” FINAL LIGHT LAVENDER TREATMENT
    ========================================================= */
 .public-landing-shell .public-landing-header {
   background: #ffffff !important;
@@ -17949,7 +17949,7 @@ img.public-header-logo {
 
 
 /* =========================================================
-   PUBLIC HEADER — TRANSPARENT LOGO + MEDIUM VIOLET NAV
+   PUBLIC HEADER â€” TRANSPARENT LOGO + MEDIUM VIOLET NAV
    ========================================================= */
 
 /* Logo/button: fully transparent. */
@@ -18021,7 +18021,7 @@ img.public-header-logo {
 
 
 /* =========================================================
-   PUBLIC NAV LOGO — MATCH SIGN-IN LOGO PRESENTATION
+   PUBLIC NAV LOGO â€” MATCH SIGN-IN LOGO PRESENTATION
    ========================================================= */
 .public-landing-shell .public-landing-header .public-brand-button,
 .public-landing-shell .public-landing-header .public-brand-button.ghost,
@@ -18064,7 +18064,7 @@ img.public-header-logo {
 
 
 /* =========================================================
-   PUBLIC LANDING — MOBILE HERO ORDER
+   PUBLIC LANDING â€” MOBILE HERO ORDER
    Graphic first, then welcome/copy/CTA.
    Desktop layout remains unchanged.
    ========================================================= */
@@ -18086,7 +18086,7 @@ img.public-header-logo {
 }
 
 
-/* MOBILE LANDING — reduce empty space below header before graphic */
+/* MOBILE LANDING â€” reduce empty space below header before graphic */
 @media (max-width: 900px) {
   .public-landing-hero {
     padding-top: 28px !important;
@@ -18100,7 +18100,7 @@ img.public-header-logo {
 
 
 /* =========================================================
-   STUDENT REVIEWERS — TRUE MOBILE LIST LAYOUT
+   STUDENT REVIEWERS â€” TRUE MOBILE LIST LAYOUT
    Keep desktop unchanged. Mobile becomes a stacked list,
    not a compressed desktop grid.
    ========================================================= */
@@ -18243,7 +18243,7 @@ img.public-header-logo {
 
 
 /* =========================================================
-   AUTHENTICATED MOBILE TOPBAR — MASTERYHUB LOGO
+   AUTHENTICATED MOBILE TOPBAR â€” MASTERYHUB LOGO
    ========================================================= */
 @media (max-width: 700px) {
   .student-mobile-brand {
@@ -18296,10 +18296,10 @@ img.public-header-logo {
 
 
 /* =========================================================
-   QUIZ — MOBILE BRAND HEADER
+   QUIZ â€” MOBILE BRAND HEADER
    One centered line each:
    MasteryHub Review
-   Review • Practice • Progress
+   Review â€¢ Practice â€¢ Progress
    Student Quiz
    ========================================================= */
 @media (max-width: 700px) {
@@ -18360,7 +18360,7 @@ img.public-header-logo {
 
 
 /* =========================================================
-   MOBILE SIGN IN — HIDE REVIEW / PRACTICE / PROGRESS PILLS
+   MOBILE SIGN IN â€” HIDE REVIEW / PRACTICE / PROGRESS PILLS
    Sign-in page only; public home and desktop remain unchanged.
    ========================================================= */
 @media (max-width: 700px) {
@@ -18371,7 +18371,7 @@ img.public-header-logo {
 
 
 /* =========================================================
-   STUDENT DASHBOARD — MOBILE REVIEWER ROW LAYOUT
+   STUDENT DASHBOARD â€” MOBILE REVIEWER ROW LAYOUT
    Reviewer title + compact Start button on top.
    Time / Attempts / Status stay in one row underneath.
    ========================================================= */
@@ -18524,7 +18524,7 @@ img.public-header-logo {
 
 
 /* =========================================================
-   STUDENT DASHBOARD — MOBILE REVIEWER FINAL ALIGNMENT
+   STUDENT DASHBOARD â€” MOBILE REVIEWER FINAL ALIGNMENT
    Top row: icon / reviewer / compact Start or Resume
    Second row: Time / Attempts / Status, equal columns
    ========================================================= */
@@ -18629,7 +18629,7 @@ img.public-header-logo {
 
 
 /* =========================================================
-   AUTHENTICATED MOBILE DRAWER — MASTERYHUB LOGO
+   AUTHENTICATED MOBILE DRAWER â€” MASTERYHUB LOGO
    ========================================================= */
 @media (max-width: 700px) {
   .student-mobile-drawer-brand {
@@ -18654,5 +18654,179 @@ img.public-header-logo {
     display: flex !important;
     flex-direction: column !important;
     min-width: 0 !important;
+  }
+}
+
+
+/* =========================================================
+   MOBILE WORKSPACE â€” FINAL BRANDING + REVIEWER ALIGNMENT
+   ========================================================= */
+@media (max-width: 700px) {
+  /* Closed topbar: no floating logo. Keep title centered. */
+  .student-mobile-topbar {
+    display: grid !important;
+    grid-template-columns: 64px minmax(0, 1fr) 64px !important;
+    align-items: center !important;
+  }
+
+  .student-mobile-brand {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    text-align: center !important;
+  }
+
+  .student-mobile-brand-copy {
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  .student-mobile-brand-logo {
+    display: none !important;
+  }
+
+  /* Open drawer: use the logo uploaded by the admin in Branding settings. */
+  .student-mobile-drawer-brand {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+    min-width: 0 !important;
+  }
+
+  .student-mobile-drawer-logo {
+    display: block !important;
+    width: 150px !important;
+    max-width: 65% !important;
+    height: auto !important;
+    min-width: 0 !important;
+  }
+
+  .student-mobile-drawer-logo > * {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .student-mobile-drawer-logo img {
+    display: block !important;
+    width: 100% !important;
+    max-width: 150px !important;
+    height: auto !important;
+    max-height: 72px !important;
+    object-fit: contain !important;
+    object-position: left center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .student-mobile-drawer-copy {
+    display: flex !important;
+    flex-direction: column !important;
+    min-width: 0 !important;
+  }
+
+  /* Reviewer card: explicit areas. No nth-of-type selectors. */
+  .student-reviewer-list-item {
+    display: grid !important;
+    grid-template-columns: 44px minmax(0, 1fr) auto !important;
+    grid-template-areas:
+      "icon main action"
+      "stats stats stats"
+      "extra extra extra" !important;
+    column-gap: 10px !important;
+    row-gap: 12px !important;
+    align-items: center !important;
+    padding: 14px !important;
+  }
+
+  .student-reviewer-list-item > .subject-icon {
+    grid-area: icon !important;
+  }
+
+  .student-reviewer-main {
+    grid-area: main !important;
+    min-width: 0 !important;
+  }
+
+  .student-reviewer-action {
+    grid-area: action !important;
+    justify-self: end !important;
+    align-self: center !important;
+    width: auto !important;
+    margin: 0 !important;
+  }
+
+  .student-reviewer-action button {
+    width: auto !important;
+    min-width: 0 !important;
+    min-height: 36px !important;
+    padding: 8px 12px !important;
+    border-radius: 11px !important;
+    white-space: nowrap !important;
+  }
+
+  .student-reviewer-time,
+  .student-reviewer-attempts,
+  .student-reviewer-status {
+    grid-row: 2 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 8px 2px 0 !important;
+    border: 0 !important;
+    text-align: center !important;
+    align-self: start !important;
+  }
+
+  .student-reviewer-time {
+    grid-column: 1 !important;
+  }
+
+  .student-reviewer-attempts {
+    grid-column: 2 !important;
+  }
+
+  .student-reviewer-status {
+    grid-column: 3 !important;
+  }
+
+  .student-reviewer-time span,
+  .student-reviewer-attempts span,
+  .student-reviewer-status span,
+  .student-reviewer-time strong,
+  .student-reviewer-attempts strong,
+  .student-reviewer-status strong {
+    display: block !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    text-align: center !important;
+  }
+
+  .student-reviewer-time span,
+  .student-reviewer-attempts span,
+  .student-reviewer-status span {
+    font-size: 9px !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+  }
+
+  .student-reviewer-time strong,
+  .student-reviewer-attempts strong,
+  .student-reviewer-status strong {
+    margin-top: 3px !important;
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+    white-space: normal !important;
+  }
+
+  .student-reviewer-extra {
+    grid-area: extra !important;
+    grid-row: 3 !important;
   }
 }

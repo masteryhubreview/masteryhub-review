@@ -559,12 +559,10 @@ export default function Workspace() {
           >
             <div className="student-mobile-drawer-head">
               <div className="student-mobile-drawer-brand">
-                <img
-                  src="/masteryhub-review-logo.png"
-                  alt="MasteryHub Review"
-                  className="student-mobile-drawer-logo"
-                />
-                <div>
+                <div className="student-mobile-drawer-logo">
+                  <ImageAttachment path={branding.logo_path} bucket="branding" />
+                </div>
+                <div className="student-mobile-drawer-copy">
                   <span className="student-mobile-kicker">MASTERYHUB REVIEW</span>
                   <strong>{profile.display_name}</strong>
                   <small>
@@ -660,11 +658,6 @@ export default function Workspace() {
               </button>
 
               <div className="student-mobile-brand">
-                <img
-                  src="/masteryhub-review-logo.png"
-                  alt="MasteryHub Review"
-                  className="student-mobile-brand-logo"
-                />
                 <div className="student-mobile-brand-copy">
                   <strong>{branding.system_name}</strong>
                   <small>{tab}</small>
