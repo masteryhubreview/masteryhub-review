@@ -8,6 +8,7 @@ import { Notice, Pager, errorText } from './shared';
 import Quiz from './Quiz';
 
 const STUDENT_DEVICE_TOKEN_KEY = 'masteryhub:student-device-token';
+const STUDENT_ACTIVE_ATTEMPT_KEY = 'masteryhub:active-attempt';
 
 function studentDeviceToken() {
   if (typeof window === 'undefined') return '';
@@ -96,7 +97,10 @@ export default function Student({
   const [subject, setSubject] = useState('');
   const [reviewerSort, setReviewerSort] = useState<'date-newest' | 'date-oldest' | 'az' | 'za'>('date-newest');
   const [page, setPage] = useState(0);
-  const [attempt, setAttempt] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    return window.localStorage.getItem(STUDENT_ACTIVE_ATTEMPT_KEY);
+  });
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   const [codeReviewer, setCodeReviewer] = useState<Reviewer | null>(null);
@@ -106,8 +110,17 @@ export default function Student({
 
   useEffect(() => {
     setPage(0);
-    setAttempt(null);
   }, [tab]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    if (attempt) {
+      window.localStorage.setItem(STUDENT_ACTIVE_ATTEMPT_KEY, attempt);
+    } else {
+      window.localStorage.removeItem(STUDENT_ACTIVE_ATTEMPT_KEY);
+    }
+  }, [attempt]);
 
   useEffect(() => {
     let live = true;
@@ -229,6 +242,27 @@ export default function Student({
           setNotifications(notificationRows || []);
           setAnnouncements(announcementRows || []);
           setAttemptStatuses(attemptMap);
+
+          // Recover an unfinished quiz after a mobile browser/app reload.
+          // Prefer the locally remembered attempt; otherwise use the backend's
+          // in-progress attempt so returning to Safari does not land on Dashboard.
+          if (!attempt) {
+            const rememberedAttempt =
+              typeof window !== 'undefined'
+                ? window.localStorage.getItem(STUDENT_ACTIVE_ATTEMPT_KEY)
+                : null;
+
+            const serverAttempt =
+              Object.values(attemptMap).find(
+                (status) => !!status?.in_progress_id,
+              )?.in_progress_id || null;
+
+            const resumableAttempt = rememberedAttempt || serverAttempt;
+
+            if (resumableAttempt) {
+              setAttempt(resumableAttempt);
+            }
+          }
         }
       } catch (error) {
         if (live) setMessage(errorText(error));
@@ -243,7 +277,17 @@ export default function Student({
   }, [tab, subject, page, attempt, reviewerSort]);
 
   if (attempt) {
-    return <Quiz id={attempt} onClose={() => setAttempt(null)} />;
+    return (
+      <Quiz
+        id={attempt}
+        onClose={() => {
+          if (typeof window !== 'undefined') {
+            window.localStorage.removeItem(STUDENT_ACTIVE_ATTEMPT_KEY);
+          }
+          setAttempt(null);
+        }}
+      />
+    );
   }
 
   const subjectName = (id: string) =>
