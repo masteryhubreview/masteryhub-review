@@ -18368,3 +18368,156 @@ img.public-header-logo {
     display: none !important;
   }
 }
+
+
+/* =========================================================
+   STUDENT DASHBOARD — MOBILE REVIEWER ROW LAYOUT
+   Reviewer title + compact Start button on top.
+   Time / Attempts / Status stay in one row underneath.
+   ========================================================= */
+@media (max-width: 700px) {
+  .student-reviewer-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .student-reviewer-list-item {
+    display: grid !important;
+    grid-template-columns: 44px minmax(0, 1fr) auto !important;
+    grid-template-areas:
+      "icon main action"
+      "stats stats stats"
+      "extra extra extra" !important;
+    align-items: start !important;
+    gap: 10px 10px !important;
+    padding: 14px !important;
+  }
+
+  .student-reviewer-list-item > .subject-icon {
+    grid-area: icon !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    margin: 0 !important;
+  }
+
+  .student-reviewer-main {
+    grid-area: main !important;
+    min-width: 0 !important;
+    align-self: center !important;
+  }
+
+  .student-reviewer-main h3 {
+    margin: 2px 0 0 !important;
+  }
+
+  .student-reviewer-main p {
+    margin: 4px 0 0 !important;
+  }
+
+  .student-reviewer-action {
+    grid-area: action !important;
+    width: auto !important;
+    align-self: center !important;
+    margin: 0 !important;
+  }
+
+  .student-reviewer-action button {
+    width: auto !important;
+    min-width: 68px !important;
+    padding: 8px 12px !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+    font-size: 13px !important;
+  }
+
+  .student-reviewer-list-item > .student-reviewer-stat {
+    min-width: 0 !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 8px 4px 0 !important;
+    border: 0 !important;
+    text-align: center !important;
+  }
+
+  .student-reviewer-list-item > .student-reviewer-stat:nth-of-type(1) {
+    grid-area: unset !important;
+  }
+
+  .student-reviewer-list-item > .student-reviewer-stat:nth-of-type(2) {
+    grid-area: unset !important;
+  }
+
+  .student-reviewer-list-item > .student-reviewer-stat:nth-of-type(3) {
+    grid-area: unset !important;
+  }
+
+  .student-reviewer-list-item {
+    grid-template-areas:
+      "icon main action"
+      "time time time"
+      "extra extra extra" !important;
+  }
+
+  .student-reviewer-list-item > .student-reviewer-stat:nth-of-type(1) {
+    grid-area: time !important;
+  }
+
+  .student-reviewer-list-item > .student-reviewer-stat:nth-of-type(2),
+  .student-reviewer-list-item > .student-reviewer-stat:nth-of-type(3) {
+    grid-area: time !important;
+  }
+
+  /* Put all three settings in one visual row. */
+  .student-reviewer-list-item {
+    position: relative !important;
+    padding-bottom: 14px !important;
+  }
+
+  .student-reviewer-list-item > .student-reviewer-stat:nth-of-type(1),
+  .student-reviewer-list-item > .student-reviewer-stat:nth-of-type(2),
+  .student-reviewer-list-item > .student-reviewer-stat:nth-of-type(3) {
+    position: static !important;
+  }
+
+  .student-reviewer-list-item {
+    grid-template-columns: 44px minmax(0, 1fr) auto !important;
+  }
+
+  .student-reviewer-list-item > .student-reviewer-stat:nth-of-type(1) {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+  }
+
+  .student-reviewer-list-item > .student-reviewer-stat:nth-of-type(2) {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+  }
+
+  .student-reviewer-list-item > .student-reviewer-stat:nth-of-type(3) {
+    grid-column: 3 !important;
+    grid-row: 2 !important;
+  }
+
+  .student-reviewer-list-item > .student-reviewer-extra {
+    grid-area: extra !important;
+    grid-row: 3 !important;
+    margin-top: 2px !important;
+  }
+
+  .student-reviewer-stat span {
+    display: block !important;
+    font-size: 9px !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+  }
+
+  .student-reviewer-stat strong {
+    display: block !important;
+    margin-top: 2px !important;
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+    white-space: nowrap !important;
+  }
+}
