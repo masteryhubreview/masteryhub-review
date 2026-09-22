@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Profile, Subject, Reviewer } from '@/lib/types';
 import { db, rpc } from '@/lib/supabase';
 import type { Branding } from './Workspace';
@@ -101,6 +101,7 @@ export default function Student({
     if (typeof window === 'undefined') return null;
     return window.localStorage.getItem(STUDENT_ACTIVE_ATTEMPT_KEY);
   });
+  const intentionallyClosedAttemptRef = useRef(false);
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   const [codeReviewer, setCodeReviewer] = useState<Reviewer | null>(null);
@@ -246,7 +247,7 @@ export default function Student({
           // Recover an unfinished quiz after a mobile browser/app reload.
           // Prefer the locally remembered attempt; otherwise use the backend's
           // in-progress attempt so returning to Safari does not land on Dashboard.
-          if (!attempt) {
+          if (!attempt && !intentionallyClosedAttemptRef.current) {
             const rememberedAttempt =
               typeof window !== 'undefined'
                 ? window.localStorage.getItem(STUDENT_ACTIVE_ATTEMPT_KEY)
@@ -281,6 +282,7 @@ export default function Student({
       <Quiz
         id={attempt}
         onClose={() => {
+          intentionallyClosedAttemptRef.current = true;
           if (typeof window !== 'undefined') {
             window.localStorage.removeItem(STUDENT_ACTIVE_ATTEMPT_KEY);
           }
@@ -376,7 +378,8 @@ export default function Student({
       setCodeReviewer(null);
       setAccessCode('');
       setAccessCodeError('');
-      setAttempt(attemptId);
+      intentionallyClosedAttemptRef.current = false;
+    setAttempt(attemptId);
     } catch (error) {
       const text = errorText(error);
 
@@ -398,6 +401,7 @@ export default function Student({
     if (attemptState.exhausted) return;
 
     if (attemptState.inProgressId) {
+      intentionallyClosedAttemptRef.current = false;
       setAttempt(attemptState.inProgressId);
       return;
     }
