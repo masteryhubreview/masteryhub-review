@@ -75,10 +75,12 @@ export default function Student({
   tab,
   profile,
   branding,
+  onTabChange,
 }: {
   tab: string;
   profile: Profile;
   branding: Branding;
+  onTabChange: (tab: string) => void;
 }) {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [reviewers, setReviewers] = useState<Reviewer[]>([]);
@@ -286,7 +288,7 @@ export default function Student({
           if (typeof window !== 'undefined') {
             window.localStorage.removeItem(STUDENT_ACTIVE_ATTEMPT_KEY);
           }
-          setTab('Reviewers');
+          onTabChange('Reviewers');
           setAttempt(null);
         }}
       />

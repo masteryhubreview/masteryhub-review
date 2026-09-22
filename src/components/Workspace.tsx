@@ -699,7 +699,12 @@ export default function Workspace() {
               onBranding={setBranding}
             />
           ) : (
-            <Student tab={tab} profile={profile} branding={branding} />
+            <Student
+              tab={tab}
+              profile={profile}
+              branding={branding}
+              onTabChange={setTab}
+            />
           )}
         </main>
 
