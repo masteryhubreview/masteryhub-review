@@ -18084,3 +18084,16 @@ img.public-header-logo {
     width: 100% !important;
   }
 }
+
+
+/* MOBILE LANDING — reduce empty space below header before graphic */
+@media (max-width: 900px) {
+  .public-landing-hero {
+    padding-top: 28px !important;
+  }
+
+  .public-landing-visual {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+}
