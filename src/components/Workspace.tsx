@@ -653,8 +653,15 @@ export default function Workspace() {
               </button>
 
               <div className="student-mobile-brand">
-                <strong>{branding.system_name}</strong>
-                <small>{tab}</small>
+                <img
+                  src="/masteryhub-review-logo.png"
+                  alt="MasteryHub Review"
+                  className="student-mobile-brand-logo"
+                />
+                <div className="student-mobile-brand-copy">
+                  <strong>{branding.system_name}</strong>
+                  <small>{tab}</small>
+                </div>
               </div>
 
               <span className="student-mobile-avatar">

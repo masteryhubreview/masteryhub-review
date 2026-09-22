@@ -22,11 +22,6 @@ function studentDeviceToken() {
   return token;
 }
 
-function isDeviceReplacementError(error: unknown) {
-  return errorText(error).includes('DEVICE_SESSION_REPLACED');
-}
-
-
 function questionTypeLabel(type: PublicQuestion['type']) {
   switch (type) {
     case 'mc_single':
@@ -153,7 +148,6 @@ export default function Quiz({
   const [dirty, setDirty] = useState(false);
   const [saved, setSaved] = useState('');
   const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
-  const [deviceBlocked, setDeviceBlocked] = useState(false);
   const [gradingComplete, setGradingComplete] = useState(false);
   const lock = useRef(false);
   const autoSubmitLock = useRef(false);
@@ -198,13 +192,6 @@ export default function Quiz({
 
       return data;
     } catch (error) {
-      if (!admin && isDeviceReplacementError(error)) {
-        setDeviceBlocked(true);
-        setMessage(
-          'This quiz was continued on another device. This device can no longer change or submit the attempt.',
-        );
-      }
-
       throw error;
     }
   }
@@ -217,63 +204,31 @@ export default function Quiz({
       throw new Error('Student response editing is unavailable in admin view.');
     }
 
-    try {
-      await rpc('device_save_response', {
-        attempt: id,
-        question: questionId,
-        answer: value,
-        device_token: studentDeviceToken(),
-      });
-    } catch (error) {
-      if (isDeviceReplacementError(error)) {
-        setDeviceBlocked(true);
-        setMessage(
-          'This quiz was continued on another device. Your changes were not saved on this device.',
-        );
-      }
-
-      throw error;
-    }
+    await rpc('device_save_response', {
+      attempt: id,
+      question: questionId,
+      answer: value,
+      device_token: studentDeviceToken(),
+    });
   }
 
   async function submitAttempt() {
     if (admin) return;
 
-    try {
-      await rpc('device_submit_attempt', {
-        attempt: id,
-        device_token: studentDeviceToken(),
-      });
-    } catch (error) {
-      if (isDeviceReplacementError(error)) {
-        setDeviceBlocked(true);
-        setMessage(
-          'This quiz was continued on another device. This device cannot submit the attempt.',
-        );
-      }
-
-      throw error;
-    }
+    await rpc('device_submit_attempt', {
+      attempt: id,
+      device_token: studentDeviceToken(),
+    });
   }
 
   async function savePosition(nextIndex: number) {
-    if (admin || deviceBlocked) return;
+    if (admin) return;
 
-    try {
-      await rpc('device_set_attempt_position', {
-        attempt: id,
-        question_index: nextIndex,
-        device_token: studentDeviceToken(),
-      });
-    } catch (error) {
-      if (isDeviceReplacementError(error)) {
-        setDeviceBlocked(true);
-        setMessage(
-          'This quiz was continued on another device. Continue the quiz on the active device.',
-        );
-        throw error;
-      }
-    }
+    await rpc('device_set_attempt_position', {
+      attempt: id,
+      question_index: nextIndex,
+      device_token: studentDeviceToken(),
+    });
   }
 
   useEffect(() => {
@@ -405,7 +360,6 @@ export default function Quiz({
   const active =
     attempt?.status === 'in_progress' &&
     !admin &&
-    !deviceBlocked &&
     (remainingSeconds === null || remainingSeconds > 0);
   const locked = !active || !!(attempt?.settings.instant && q?.response);
   const instant = attempt?.settings.instant;
@@ -433,7 +387,7 @@ export default function Quiz({
   // Non-feedback mode autosaves drafts after typing settles.
   // Feedback mode uses explicit confirmation.
   useEffect(() => {
-    if (!dirty || !q || !active || instant || deviceBlocked) return;
+    if (!dirty || !q || !active || instant) return;
 
     const timer = setTimeout(async () => {
       if (lock.current) return;
@@ -631,25 +585,6 @@ export default function Quiz({
     }
   }
 
-  if (deviceBlocked && attempt) {
-    return (
-      <div className="quiz-shell">
-        <div className="notice">
-          <strong>Quiz continued on another device</strong>
-          <p>
-            This device is now blocked from changing or submitting this
-            attempt. Your saved answers and original timer remain with the
-            same attempt on the active device.
-          </p>
-        </div>
-
-        <button className="ghost" type="button" onClick={onClose}>
-          Back to Dashboard
-        </button>
-      </div>
-    );
-  }
-
   if (!attempt) {
     return (
       <>
@@ -817,6 +752,7 @@ export default function Quiz({
             }}
           >
             <div
+              className="quiz-brand-header"
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -827,8 +763,9 @@ export default function Quiz({
                 background: 'rgba(255,255,255,0.72)',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+              <div className="quiz-brand-identity" style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
                 <img
+                  className="quiz-brand-logo"
                   src="/masteryhub-review-logo.png"
                   alt="MasteryHub Review"
                   draggable={false}
@@ -841,7 +778,7 @@ export default function Quiz({
                     pointerEvents: 'none',
                   }}
                 />
-                <div style={{ minWidth: 0 }}>
+                <div className="quiz-brand-copy" style={{ minWidth: 0 }}>
                   <strong
                     style={{
                       display: 'block',
@@ -859,6 +796,7 @@ export default function Quiz({
               </div>
 
               <span
+                className="quiz-brand-role"
                 style={{
                   fontSize: 15,
                   fontWeight: 700,
