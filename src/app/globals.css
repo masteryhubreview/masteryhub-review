@@ -18303,13 +18303,11 @@ img.public-header-logo {
 @media (max-width: 700px) {
   .quiz-brand-header {
     display: grid !important;
-    grid-template-columns: 76px minmax(0, 1fr) !important;
-    grid-template-rows: auto auto !important;
-    column-gap: 10px !important;
-    row-gap: 2px !important;
+    grid-template-columns: 120px 1fr 120px !important;
     align-items: center !important;
-    padding: 10px 12px !important;
-    text-align: center !important;
+    min-height: 128px !important;
+    padding: 14px 18px !important;
+    box-sizing: border-box !important;
   }
 
   .quiz-brand-identity {
@@ -18317,52 +18315,74 @@ img.public-header-logo {
   }
 
   .quiz-brand-logo {
-    display: block !important;
     grid-column: 1 !important;
-    grid-row: 1 / span 2 !important;
-    align-self: center !important;
-    justify-self: start !important;
-    width: 68px !important;
-    max-width: 68px !important;
-    height: 68px !important;
-    max-height: 68px !important;
+    grid-row: 1 !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    width: 100% !important;
+    height: 86px !important;
     margin: 0 !important;
+  }
+
+  .quiz-brand-logo > * {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .quiz-brand-logo img {
+    display: block !important;
+    width: auto !important;
+    max-width: 110px !important;
+    height: 78px !important;
+    max-height: 78px !important;
     object-fit: contain !important;
+    margin: 0 auto !important;
   }
 
   .quiz-brand-copy {
     grid-column: 2 !important;
     grid-row: 1 !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+
     width: 100% !important;
     min-width: 0 !important;
-    align-self: end !important;
+    margin: 0 !important;
     text-align: center !important;
   }
 
   .quiz-brand-copy strong {
     display: block !important;
-    white-space: nowrap !important;
+    margin: 0 !important;
     font-size: 15px !important;
-    line-height: 1.2 !important;
+    line-height: 1.15 !important;
+    white-space: nowrap !important;
   }
 
   .quiz-brand-copy small {
     display: block !important;
-    white-space: nowrap !important;
+    margin-top: 3px !important;
     font-size: 12px !important;
-    line-height: 1.25 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
   }
 
   .quiz-brand-role {
     display: block !important;
-    grid-column: 2 !important;
-    grid-row: 2 !important;
-    width: 100% !important;
-    align-self: start !important;
-    white-space: nowrap !important;
-    text-align: center !important;
+    margin-top: 5px !important;
     font-size: 11px !important;
-    line-height: 1.2 !important;
+    line-height: 1.15 !important;
+    text-align: center !important;
+    white-space: nowrap !important;
   }
 }
 
