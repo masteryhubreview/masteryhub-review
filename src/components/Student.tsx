@@ -187,7 +187,7 @@ export default function Student({
           });
         }
 
-        reviewerQuery = reviewerQuery.range(page * 4, page * 4 + 3);
+        reviewerQuery = reviewerQuery.range(page * 15, page * 15 + 14);
 
         const { data: reviewerRows, error: reviewerError } =
           await reviewerQuery;
@@ -1064,7 +1064,7 @@ export default function Student({
           <Pager
             page={page}
             setPage={setPage}
-            more={reviewers.length === 4}
+            more={reviewers.length === 15}
           />
         </>
       ) : (
