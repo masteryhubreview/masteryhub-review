@@ -99,10 +99,7 @@ export default function Student({
   const [subject, setSubject] = useState('');
   const [reviewerSort, setReviewerSort] = useState<'date-newest' | 'date-oldest' | 'az' | 'za'>('date-newest');
   const [page, setPage] = useState(0);
-  const [attempt, setAttempt] = useState<string | null>(() => {
-    if (typeof window === 'undefined') return null;
-    return window.localStorage.getItem(STUDENT_ACTIVE_ATTEMPT_KEY);
-  });
+  const [attempt, setAttempt] = useState<string | null>(null);
   const intentionallyClosedAttemptRef = useRef(false);
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
@@ -282,25 +279,11 @@ export default function Student({
           setAnnouncements(announcementRows || []);
           setAttemptStatuses(attemptMap);
 
-          // Recover an unfinished quiz after a mobile browser/app reload.
-          // Prefer the locally remembered attempt; otherwise use the backend's
-          // in-progress attempt so returning to Safari does not land on Dashboard.
-          if (!attempt && !intentionallyClosedAttemptRef.current) {
-            const rememberedAttempt =
-              typeof window !== 'undefined'
-                ? window.localStorage.getItem(STUDENT_ACTIVE_ATTEMPT_KEY)
-                : null;
-
-            const serverAttempt =
-              Object.values(attemptMap).find(
-                (status) => !!status?.in_progress_id,
-              )?.in_progress_id || null;
-
-            const resumableAttempt = rememberedAttempt || serverAttempt;
-
-            if (resumableAttempt) {
-              setAttempt(resumableAttempt);
-            }
+          // Do not automatically reopen an unfinished quiz after a browser refresh.
+          // The backend attempt remains in progress and is surfaced on Dashboard
+          // so the student can explicitly choose Resume.
+          if (!attempt && typeof window !== 'undefined') {
+            window.localStorage.removeItem(STUDENT_ACTIVE_ATTEMPT_KEY);
           }
         }
       } catch (error) {
