@@ -85,6 +85,28 @@ function questionExplanation(question: PublicQuestion | undefined) {
   )?.explanation?.trim();
 }
 
+function hasCompleteAnswer(
+  question: PublicQuestion | undefined,
+  value: string[],
+) {
+  if (!question) return false;
+
+  if (question.type === 'mc_single' || question.type === 'mc_multi') {
+    return value.length > 0;
+  }
+
+  if (question.type === 'multi_blank') {
+    return (
+      value.length >= question.blanks &&
+      Array.from({ length: question.blanks }, (_, index) => value[index] || '').every(
+        (item) => item.trim().length > 0,
+      )
+    );
+  }
+
+  return (value[0] || '').trim().length > 0;
+}
+
 
 function studentWatermark(current: AttemptView | null) {
   if (!current) return '';
@@ -151,7 +173,10 @@ export default function Quiz({
 
       setAttempt(data);
 
-      if (
+      if (!admin && data.status !== 'in_progress' && !initialPositionLoaded.current) {
+        setIndex(0);
+        initialPositionLoaded.current = true;
+      } else if (
         !admin &&
         !initialPositionLoaded.current &&
         typeof (
@@ -385,6 +410,7 @@ export default function Quiz({
   const locked = !active || !!(attempt?.settings.instant && q?.response);
   const instant = attempt?.settings.instant;
   const explanation = questionExplanation(q);
+  const currentQuestionAnswered = hasCompleteAnswer(q, answer);
 
   useEffect(() => {
     setAnswer(q?.response || []);
@@ -442,6 +468,11 @@ export default function Quiz({
   async function navigate(next: number) {
     if (lock.current) return;
 
+    if (active && next > index && !hasCompleteAnswer(q, answer)) {
+      setMessage('Please answer the current question before continuing.');
+      return;
+    }
+
     lock.current = true;
     setBusy(true);
     setMessage('');
@@ -461,7 +492,9 @@ export default function Quiz({
         Math.min(next, current.questions.length - 1),
       );
 
-      await savePosition(nextIndex);
+      if (current.status === 'in_progress') {
+        await savePosition(nextIndex);
+      }
       setGradingComplete(false);
       setIndex(nextIndex);
     } catch (error) {
@@ -574,6 +607,11 @@ export default function Quiz({
 
   async function finishAttempt() {
     if (!attempt || lock.current) return;
+
+    if (active && !hasCompleteAnswer(q, answer)) {
+      setMessage('Please answer the current question before finishing the quiz.');
+      return;
+    }
 
     if (!confirm('Finish and submit this quiz? Submitted answers cannot be changed.')) return;
 
@@ -795,8 +833,8 @@ export default function Quiz({
                   alt="MasteryHub Review"
                   draggable={false}
                   style={{
-                    width: 34,
-                    height: 34,
+                    width: 68,
+                    height: 68,
                     objectFit: 'contain',
                     flex: '0 0 auto',
                     userSelect: 'none',
@@ -807,14 +845,14 @@ export default function Quiz({
                   <strong
                     style={{
                       display: 'block',
-                      fontSize: 15,
-                      letterSpacing: '0.06em',
+                      fontSize: 17,
+                      letterSpacing: '0.05em',
                       textTransform: 'uppercase',
                     }}
                   >
                     MasteryHub Review
                   </strong>
-                  <small style={{ opacity: 0.68, fontSize: 13 }}>
+                  <small style={{ opacity: 0.68, fontSize: 14 }}>
                     Review • Practice • Progress
                   </small>
                 </div>
@@ -822,7 +860,7 @@ export default function Quiz({
 
               <span
                 style={{
-                  fontSize: 13,
+                  fontSize: 15,
                   fontWeight: 700,
                   opacity: 0.55,
                   whiteSpace: 'nowrap',
@@ -835,15 +873,15 @@ export default function Quiz({
             <div style={{ padding: '18px 22px 22px' }}>
             <div className="quiz-question-topline">
               <div>
-                <span className="quiz-question-count" style={{ fontSize: 15 }}>
+                <span className="quiz-question-count" style={{ fontSize: 17 }}>
                   Question {index + 1} of {totalQuestions}
                 </span>
-                <span className="quiz-question-type" style={{ fontSize: 14 }}>
+                <span className="quiz-question-type" style={{ fontSize: 15 }}>
                   {questionTypeLabel(q.type)}
                 </span>
               </div>
 
-              <span className="quiz-question-points" style={{ fontSize: 14 }}>
+              <span className="quiz-question-points" style={{ fontSize: 15 }}>
                 {saved || pointLabel(q.points)}
               </span>
             </div>
@@ -872,7 +910,7 @@ export default function Quiz({
               </h2>
               <p
                 className="quiz-question-instruction"
-                style={{ margin: 0, opacity: 0.72 }}
+                style={{ margin: 0, opacity: 0.72, fontSize: 'clamp(15px, 3.5vw, 17px)', lineHeight: 1.5 }}
               >
                 {questionInstruction(q.type)}
               </p>
@@ -1075,9 +1113,33 @@ export default function Quiz({
             {q.awarded !== null &&
               q.awarded !== undefined &&
               explanation && (
-                <div className="quiz-answer-explanation">
-                  <b>Explanation</b>
-                  <p>{explanation}</p>
+                <div
+                  className="quiz-answer-explanation"
+                  style={{
+                    fontSize: 22,
+                    lineHeight: 1.65,
+                    padding: '18px 20px',
+                  }}
+                >
+                  <b
+                    style={{
+                      display: 'block',
+                      fontSize: 35,
+                      lineHeight: 1.35,
+                      marginBottom: 8,
+                    }}
+                  >
+                    Explanation
+                  </b>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: 30,
+                      lineHeight: 1.65,
+                    }}
+                  >
+                    {explanation}
+                  </p>
                 </div>
               )}
 
@@ -1152,11 +1214,17 @@ export default function Quiz({
             </button>
 
             {index < totalQuestions - 1 ? (
-              <button disabled={busy} onClick={() => navigate(index + 1)}>
+              <button
+                disabled={busy || (active && !currentQuestionAnswered)}
+                onClick={() => navigate(index + 1)}
+              >
                 Next →
               </button>
             ) : active ? (
-              <button disabled={busy} onClick={finishAttempt}>
+              <button
+                disabled={busy || !currentQuestionAnswered}
+                onClick={finishAttempt}
+              >
                 Finish Quiz
               </button>
             ) : (

@@ -94,6 +94,7 @@ export default function Student({
     Record<string, ReviewerAttemptStatus>
   >({});
   const [subject, setSubject] = useState('');
+  const [reviewerSort, setReviewerSort] = useState<'date-newest' | 'date-oldest' | 'az' | 'za'>('date-newest');
   const [page, setPage] = useState(0);
   const [attempt, setAttempt] = useState<string | null>(null);
   const [message, setMessage] = useState('');
@@ -157,13 +158,23 @@ export default function Student({
 
         let reviewerQuery = db()
           .from('reviewers')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .range(page * 3, page * 3 + 2);
+          .select('*');
 
         if (allowedReviewerIds) {
           reviewerQuery = reviewerQuery.in('id', allowedReviewerIds);
         }
+
+        if (reviewerSort === 'az') {
+          reviewerQuery = reviewerQuery.order('title', { ascending: true });
+        } else if (reviewerSort === 'za') {
+          reviewerQuery = reviewerQuery.order('title', { ascending: false });
+        } else {
+          reviewerQuery = reviewerQuery.order('created_at', {
+            ascending: reviewerSort === 'date-oldest',
+          });
+        }
+
+        reviewerQuery = reviewerQuery.range(page * 4, page * 4 + 3);
 
         const { data: reviewerRows, error: reviewerError } =
           await reviewerQuery;
@@ -229,7 +240,7 @@ export default function Student({
     return () => {
       live = false;
     };
-  }, [tab, subject, page, attempt]);
+  }, [tab, subject, page, attempt, reviewerSort]);
 
   if (attempt) {
     return <Quiz id={attempt} onClose={() => setAttempt(null)} />;
@@ -451,6 +462,8 @@ export default function Student({
     }
   }
 
+  const sortedReviewers = reviewers;
+
   return (
     <>
       <Notice message={message} />
@@ -620,7 +633,7 @@ export default function Student({
         <>
           <section className="hero">
             <div>
-              <span className="eyebrow">YOUR NEXT CHAPTER STARTS HERE</span>
+              <span className="eyebrow">WELCOME TO MASTERYHUB REVIEW! YOUR NEXT CHAPTER STARTS HERE</span>
               <h1>Hello, {profile.display_name.split(' ')[0]}.</h1>
               <p>{branding.welcome}</p>
               <span className="pill">Learn at your own pace</span>
@@ -813,27 +826,64 @@ export default function Student({
               <p>{branding.instructions}</p>
             </div>
 
-            <label>
-              Subject
-              <select
-                value={subject}
-                onChange={(event) => {
-                  setSubject(event.target.value);
-                  setPage(0);
-                }}
-              >
-                <option value="">All enrolled subjects</option>
-                {subjects.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <div
+              style={{
+                display: 'flex',
+                gap: 10,
+                alignItems: 'flex-end',
+                flexWrap: 'wrap',
+              }}
+            >
+              <label style={{ minWidth: 180 }}>
+                Subject
+                <select
+                  value={subject}
+                  onChange={(event) => {
+                    setSubject(event.target.value);
+                    setPage(0);
+                  }}
+                >
+                  <option value="">All enrolled subjects</option>
+                  {subjects.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label style={{ minWidth: 160 }}>
+                Sort
+                <select
+                  value={reviewerSort}
+                  onChange={(event) => {
+                    setReviewerSort(
+                      event.target.value as
+                        | 'date-newest'
+                        | 'date-oldest'
+                        | 'az'
+                        | 'za',
+                    );
+                    setPage(0);
+                  }}
+                >
+                  <option value="date-newest">Newest first</option>
+                  <option value="date-oldest">Oldest first</option>
+                  <option value="az">A–Z</option>
+                  <option value="za">Z–A</option>
+                </select>
+              </label>
+            </div>
           </div>
 
-          <div className="card-grid">
-            {reviewers.map((reviewer, index) => {
+          <div
+            className="student-reviewer-list"
+            style={{
+              display: 'grid',
+              gap: 8,
+            }}
+          >
+            {sortedReviewers.map((reviewer, index) => {
               const linkedIds =
                 reviewerSubjects[reviewer.id] || [reviewer.subject_id];
 
@@ -844,108 +894,94 @@ export default function Student({
               const availability = reviewerAvailability(reviewer.id);
               const attemptState = reviewerAttemptState(reviewer);
 
+              const statusLabel = attemptState.inProgressId
+                ? 'In progress'
+                : attemptState.completedAttempts > 0
+                  ? `${attemptState.completedAttempts} ${
+                      attemptState.completedAttempts === 1
+                        ? 'attempt completed'
+                        : 'attempts completed'
+                    }`
+                  : 'Not started';
+
               return (
-                <article className="review-card" key={reviewer.id}>
+                <article
+                  className="student-reviewer-list-item"
+                  key={reviewer.id}
+                >
                   <div className={`subject-icon tone-${index % 3}`}>
                     {linkedNames[0]?.charAt(0) || 'R'}
                   </div>
 
-                  <span className="eyebrow">
-                    {linkedNames.join(' • ') || 'Reviewer'}
-                  </span>
-
-                  <h3>{reviewer.title}</h3>
-                  <p>
-                    {reviewer.description ||
-                      'Build confidence with focused practice.'}
-                  </p>
-
-                  <div
-                    className="meta"
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-                      gap: 6,
-                      alignItems: 'stretch',
-                      marginTop: 8,
-                      marginBottom: 10,
-                    }}
-                  >
-                    {rules?.time_limit_minutes ? (
-                      <span
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          minHeight: 30,
-                        }}
-                      >
-                        Time limit: {rules.time_limit_minutes} min
-                      </span>
-                    ) : null}
-
-                    {rules?.due_at ? (
-                      <span
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          minHeight: 30,
-                        }}
-                      >
-                        Due:{' '}
-                        {new Date(rules.due_at).toLocaleDateString([], {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric',
-                        })}{' '}
-                        {new Date(rules.due_at).toLocaleTimeString([], {
-                          hour: 'numeric',
-                          minute: '2-digit',
-                        })}
-                      </span>
-                    ) : null}
-
-                    <span
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        minHeight: 30,
-                      }}
-                    >
-                      Allowed attempts:{' '}
-                      {reviewer.settings.max_attempts === null
-                        ? 'Unlimited'
-                        : reviewer.settings.max_attempts}
+                  <div className="student-reviewer-main">
+                    <span className="eyebrow">
+                      {linkedNames.join(' • ') || 'Reviewer'}
                     </span>
-
-                    {rules?.access_code_enabled ? (
-                      <span
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          minHeight: 30,
-                        }}
-                      >
-                        Access code needed
-                      </span>
+                    <h3>{reviewer.title}</h3>
+                    {reviewer.description ? (
+                      <p>{reviewer.description}</p>
                     ) : null}
                   </div>
 
-                  <button
-                    disabled={
-                      busy ||
-                      availability.blocked ||
-                      attemptState.exhausted
-                    }
-                    onClick={() => void startReviewer(reviewer)}
-                  >
-                    {attemptState.exhausted
-                      ? 'Attempt limit reached'
-                      : availability.blocked
-                        ? availability.label
-                        : attemptState.label}{' '}
-                    {!availability.blocked &&
-                      !attemptState.exhausted && <span>→</span>}
-                  </button>
+                  <div className="student-reviewer-stat">
+                    <span>TIME</span>
+                    <strong>
+                      {rules?.time_limit_minutes
+                        ? `${rules.time_limit_minutes} min`
+                        : 'No limit'}
+                    </strong>
+                  </div>
+
+                  <div className="student-reviewer-stat">
+                    <span>ATTEMPTS</span>
+                    <strong>
+                      {reviewer.settings.max_attempts === null
+                        ? 'Unlimited'
+                        : `${attemptState.completedAttempts}/${reviewer.settings.max_attempts}`}
+                    </strong>
+                  </div>
+
+                  <div className="student-reviewer-stat">
+                    <span>STATUS</span>
+                    <strong>{statusLabel}</strong>
+                  </div>
+
+                  <div className="student-reviewer-action">
+                    <button
+                      disabled={
+                        busy ||
+                        availability.blocked ||
+                        attemptState.exhausted
+                      }
+                      onClick={() => void startReviewer(reviewer)}
+                    >
+                      {attemptState.exhausted
+                        ? 'Attempt limit reached'
+                        : availability.blocked
+                          ? availability.label
+                          : attemptState.label}{' '}
+                      {!availability.blocked &&
+                        !attemptState.exhausted && <span>→</span>}
+                    </button>
+                  </div>
+
+                  {(rules?.due_at || rules?.access_code_enabled) && (
+                    <div className="student-reviewer-extra">
+                      {rules?.due_at ? (
+                        <span>
+                          Due{' '}
+                          {new Date(rules.due_at).toLocaleDateString([], {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                          })}
+                        </span>
+                      ) : null}
+                      {rules?.access_code_enabled ? (
+                        <span>Access code required</span>
+                      ) : null}
+                    </div>
+                  )}
                 </article>
               );
             })}
@@ -960,7 +996,7 @@ export default function Student({
           <Pager
             page={page}
             setPage={setPage}
-            more={reviewers.length === 3}
+            more={reviewers.length === 4}
           />
         </>
       ) : (

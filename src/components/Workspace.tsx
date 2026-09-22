@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { db, rpc } from '@/lib/supabase';
 import type { Profile } from '@/lib/types';
 import Admin from './admin/Admin';
@@ -48,23 +48,6 @@ function withTimeout<T>(promise: PromiseLike<T>, ms = 7000): Promise<T> {
 
 const ADMIN_PHONE_MAX_WIDTH = 700;
 const LAST_WORKSPACE_TAB_KEY = 'masteryhub:last-workspace-tab';
-const STUDENT_DEVICE_TOKEN_KEY = 'masteryhub:student-device-token';
-
-function studentDeviceToken() {
-  if (typeof window === 'undefined') return '';
-
-  const existing = window.localStorage.getItem(STUDENT_DEVICE_TOKEN_KEY);
-  if (existing) return existing;
-
-  const token =
-    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
-      ? crypto.randomUUID()
-      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-
-  window.localStorage.setItem(STUDENT_DEVICE_TOKEN_KEY, token);
-  return token;
-}
-
 function storedWorkspaceTab() {
   if (typeof window === 'undefined') return 'Dashboard';
   return window.sessionStorage.getItem(LAST_WORKSPACE_TAB_KEY) || 'Dashboard';
@@ -85,8 +68,6 @@ export default function Workspace() {
   const [authView, setAuthView] = useState<'home' | 'signin'>('home');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [isPhone, setIsPhone] = useState(() => isPhoneViewport());
-  const [deviceConflict, setDeviceConflict] = useState(false);
-  const forcedDeviceSignOutRef = useRef(false);
 
   useEffect(() => {
     const syncPhone = () => setIsPhone(isPhoneViewport());
@@ -132,26 +113,14 @@ export default function Workspace() {
           return;
         }
 
-        if (data.role === 'student') {
-          const deviceStatus = await withTimeout(
-            rpc<string>('claim_student_device', {
-              device_token: studentDeviceToken(),
-              force_takeover: false,
-            }),
-          );
-
-          if (!live) return;
-
-          if (deviceStatus === 'conflict') {
-            setProfile(null);
-            setDeviceConflict(true);
-            setMessage('');
-            return;
-          }
-        }
-
-        setDeviceConflict(false);
         setProfile(data);
+
+        const { data: b } = await withTimeout(
+          db().from('settings').select('*').eq('id', 1).single(),
+        );
+
+        if (!live) return;
+        if (b) setBranding(b);
 
         const allowedTabs =
           data.role === 'admin'
@@ -166,12 +135,6 @@ export default function Workspace() {
         setTab(restoredTab);
         window.sessionStorage.setItem(LAST_WORKSPACE_TAB_KEY, restoredTab);
 
-        const { data: b } = await withTimeout(
-          db().from('settings').select('*').eq('id', 1).single(),
-        );
-
-        if (!live) return;
-        if (b) setBranding(b);
       } catch (e) {
         if (!live) return;
         setProfile(null);
@@ -189,21 +152,10 @@ export default function Workspace() {
       if (!live) return;
 
       if (event === 'SIGNED_OUT') {
-        const forcedByAnotherDevice = forcedDeviceSignOutRef.current;
-        forcedDeviceSignOutRef.current = false;
-
         setProfile(null);
-        setDeviceConflict(false);
         setTab('Dashboard');
         window.sessionStorage.removeItem(LAST_WORKSPACE_TAB_KEY);
-        setAuthView(forcedByAnotherDevice ? 'signin' : 'home');
-
-        if (forcedByAnotherDevice) {
-          setMessage(
-            'This student account was continued on another device. Please sign in again if you want to use this device.',
-          );
-        }
-
+        setAuthView('home');
         setLoading(false);
         return;
       }
@@ -224,92 +176,6 @@ export default function Workspace() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!profile || profile.role !== 'student') return;
-
-    let active = true;
-    let checking = false;
-
-    const forceLocalDeviceSignOut = async () => {
-      if (!active || forcedDeviceSignOutRef.current) return;
-
-      forcedDeviceSignOutRef.current = true;
-      await db().auth.signOut({ scope: 'local' });
-    };
-
-    const validateDevice = async () => {
-      if (!active || checking) return;
-      checking = true;
-
-      try {
-        const status = await rpc<string>('claim_student_device', {
-          device_token: studentDeviceToken(),
-          force_takeover: false,
-        });
-
-        if (!active) return;
-
-        if (status === 'conflict') {
-          await forceLocalDeviceSignOut();
-        }
-      } catch {
-        // Keep the current page during a temporary network/database error.
-      } finally {
-        checking = false;
-      }
-    };
-
-    // Validate immediately instead of waiting for the first interval.
-    void validateDevice();
-
-    const channel = db()
-      .channel(`student-device-${profile.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'student_device_sessions',
-          filter: `student_id=eq.${profile.id}`,
-        },
-        (payload) => {
-          const row = (payload.new || {}) as {
-            device_token?: string;
-          };
-
-          if (
-            row.device_token &&
-            row.device_token !== studentDeviceToken()
-          ) {
-            void forceLocalDeviceSignOut();
-          }
-        },
-      )
-      .subscribe();
-
-    const onFocus = () => void validateDevice();
-    const onVisibility = () => {
-      if (document.visibilityState === 'visible') {
-        void validateDevice();
-      }
-    };
-
-    // Fallback in case Realtime is temporarily unavailable.
-    const timer = window.setInterval(() => {
-      void validateDevice();
-    }, 10000);
-
-    window.addEventListener('focus', onFocus);
-    document.addEventListener('visibilitychange', onVisibility);
-
-    return () => {
-      active = false;
-      window.clearInterval(timer);
-      window.removeEventListener('focus', onFocus);
-      document.removeEventListener('visibilitychange', onVisibility);
-      void db().removeChannel(channel);
-    };
-  }, [profile?.id, profile?.role]);
 
   if (loading) {
     return (
@@ -319,380 +185,258 @@ export default function Workspace() {
     );
   }
 
-  if (deviceConflict) {
-    return (
-      <>
-        <main className="auth-wrap auth-responsive-shell">
-          <section className="auth-card">
-            <div className="auth-logo-wrap">
-              <img
-                className="auth-logo"
-                src="/masteryhub-review-logo.png"
-                alt="MasteryHub Review"
-              />
-            </div>
-
-            <span className="eyebrow">STUDENT ACCOUNT</span>
-            <h2>Already signed in on another device</h2>
-
-            <p>
-              This student account currently has another active device.
-              Only one device can use a student account at a time.
-            </p>
-
-            <button
-              type="button"
-              disabled={busy}
-              onClick={async () => {
-                setBusy(true);
-                setMessage('');
-
-                try {
-                  const status = await withTimeout(
-                    rpc<string>('claim_student_device', {
-                      device_token: studentDeviceToken(),
-                      force_takeover: true,
-                    }),
-                  );
-
-                  if (
-                    status !== 'taken_over' &&
-                    status !== 'active' &&
-                    status !== 'claimed'
-                  ) {
-                    throw new Error(
-                      'Unable to continue on this device. Please try again.',
-                    );
-                  }
-
-                  setDeviceConflict(false);
-                  window.location.reload();
-                } catch (e) {
-                  setMessage(errorText(e));
-                } finally {
-                  setBusy(false);
-                }
-              }}
-            >
-              {busy ? 'Switching device…' : 'Continue on this device'}
-            </button>
-
-            <button
-              type="button"
-              className="ghost"
-              disabled={busy}
-              onClick={async () => {
-                await db().auth.signOut({ scope: 'local' });
-                setDeviceConflict(false);
-                setProfile(null);
-                setAuthView('signin');
-              }}
-            >
-              Go back
-            </button>
-
-            <Notice message={message} />
-
-            <p className="caption">
-              Continuing here will sign out the previous device automatically.
-            </p>
-          </section>
-        </main>
-
-        <footer className="public-auth-footer">
-          <span className="footer-watermark">
-            <span className="footer-powered-by">Powered by</span>{' '}
-            <span className="footer-brand-name">
-              TCL Systems &amp; Digitals PH
-            </span>
-          </span>
-        </footer>
-      </>
-    );
-  }
-
   if (!profile) {
+    const openPublicHome = () => {
+      setMessage('');
+      setMobileNavOpen(false);
+      setAuthView('home');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const openPublicSignIn = () => {
+      setMessage('');
+      setMobileNavOpen(false);
+      setAuthView('signin');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const signInForm = (
+      <form
+        className="auth-card public-signin-card"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setBusy(true);
+          setMessage('');
+
+          const f = new FormData(e.currentTarget);
+
+          try {
+            const { error } = await withTimeout(
+              db().auth.signInWithPassword({
+                email: String(f.get('email')),
+                password: String(f.get('password')),
+              }),
+            );
+
+            if (error) throw error;
+          } catch (e) {
+            setMessage(errorText(e));
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        <div className="auth-logo-wrap">
+          <img
+            className="auth-logo"
+            src="/masteryhub-review-logo.png"
+            alt="MasteryHub Review"
+          />
+        </div>
+
+        <span className="eyebrow">WELCOME BACK</span>
+        <h2>Sign in to continue.</h2>
+        <p>Access your assigned reviewers, quizzes, scores, and learning history.</p>
+
+        <label>
+          Email address
+          <input
+            type="email"
+            name="email"
+            autoComplete="username"
+            required
+          />
+        </label>
+
+        <label>
+          Password
+          <input
+            type="password"
+            name="password"
+            autoComplete="current-password"
+            required
+          />
+        </label>
+
+        <button disabled={busy}>
+          {busy ? 'Signing in...' : 'Sign in'}
+        </button>
+
+        <button
+          type="button"
+          className="text-button"
+          onClick={async (e) => {
+            const form = e.currentTarget.form!;
+            const email = String(new FormData(form).get('email'));
+
+            if (!email) {
+              setMessage('Enter your email address first.');
+              return;
+            }
+
+            try {
+              const { error } = await withTimeout(
+                db().auth.resetPasswordForEmail(email, {
+                  redirectTo: location.origin + '/reset',
+                }),
+              );
+
+              if (error) throw error;
+
+              setMessage(
+                'If the account exists, a reset link will arrive by email.',
+              );
+            } catch (e) {
+              setMessage(errorText(e));
+            }
+          }}
+        >
+          Forgot password?
+        </button>
+
+        <Notice message={message} />
+
+        <p className="caption">
+          Accounts are provided by your administrator. Public registration is not
+          available.
+        </p>
+      </form>
+    );
+
     return (
-      <>
-        <main className="auth-wrap auth-responsive-shell">
-          {/* DESKTOP: original all-in-one layout */}
-          <section className="auth-story desktop-auth-only">
-            <span className="eyebrow">YOUR SPACE TO GROW</span>
-
-            <h1>
-              Small steps.
-              <br />
-              Brighter futures.
-            </h1>
-
-            <p>
-              A focused place to learn, practice, and build confidence. One
-              question at a time.
-            </p>
-
-            <div className="orbit">
-              <span>Learn</span>
-              <span>Practice</span>
-              <span>Improve</span>
-            </div>
-
-            <p className="caption">REVIEW HUB / STUDENT LEARNING SPACE</p>
-          </section>
-
-          <form
-            className="auth-card desktop-auth-only"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              setBusy(true);
-              setMessage('');
-
-              const f = new FormData(e.currentTarget);
-
-              try {
-                const { error } = await withTimeout(
-                  db().auth.signInWithPassword({
-                    email: String(f.get('email')),
-                    password: String(f.get('password')),
-                  }),
-                );
-
-                if (error) throw error;
-              } catch (e) {
-                setMessage(errorText(e));
-              } finally {
-                setBusy(false);
-              }
-            }}
+      <div className="public-landing-shell">
+        <header className="public-landing-header">
+          <button
+            type="button"
+            className="public-brand-button ghost"
+            onClick={openPublicHome}
+            aria-label="MasteryHub Review home"
           >
-            <div className="auth-logo-wrap">
-              <img
-                className="auth-logo"
-                src="/masteryhub-review-logo.png"
-                alt="MasteryHub Review"
-              />
-            </div>
+            <img
+              src="/masteryhub-review-logo.png"
+              alt="MasteryHub Review"
+              className="public-header-logo"
+            />
+          </button>
 
-            <h2>Welcome back.</h2>
-            <p>Sign in to your learning space.</p>
-
-            <label>
-              Email address
-              <input
-                type="email"
-                name="email"
-                autoComplete="username"
-                required
-              />
-            </label>
-
-            <label>
-              Password
-              <input
-                type="password"
-                name="password"
-                autoComplete="current-password"
-                required
-              />
-            </label>
-
-            <button disabled={busy}>
-              {busy ? 'Signing in...' : 'Sign in'}
-            </button>
-
+          <nav className="public-desktop-nav" aria-label="Public navigation">
             <button
               type="button"
-              className="text-button"
-              onClick={async (e) => {
-                const form = e.currentTarget.form!;
-                const email = String(new FormData(form).get('email'));
-
-                if (!email) {
-                  setMessage('Enter your email address first.');
-                  return;
-                }
-
-                try {
-                  const { error } = await withTimeout(
-                    db().auth.resetPasswordForEmail(email, {
-                      redirectTo: location.origin + '/reset',
-                    }),
-                  );
-
-                  if (error) throw error;
-
-                  setMessage(
-                    'If the account exists, a reset link will arrive by email.',
-                  );
-                } catch (e) {
-                  setMessage(errorText(e));
-                }
-              }}
+              className={`ghost ${authView === 'home' ? 'active' : ''}`}
+              onClick={openPublicHome}
             >
-              Forgot password?
+              Home
             </button>
+            <button
+              type="button"
+              className={`ghost ${authView === 'signin' ? 'active' : ''}`}
+              onClick={openPublicSignIn}
+            >
+              Sign In
+            </button>
+          </nav>
 
-            <Notice message={message} />
+          <button
+            type="button"
+            className="public-mobile-menu-button ghost"
+            aria-label="Open menu"
+            aria-expanded={mobileNavOpen}
+            onClick={() => setMobileNavOpen((open) => !open)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
 
-            <p className="caption">
-              Accounts are provided by your administrator. Public registration
-              is not available.
-            </p>
-          </form>
+          {mobileNavOpen && (
+            <nav className="public-mobile-nav" aria-label="Mobile public navigation">
+              <button
+                type="button"
+                className={`ghost ${authView === 'home' ? 'active' : ''}`}
+                onClick={openPublicHome}
+              >
+                Home
+              </button>
+              <button
+                type="button"
+                className={`ghost ${authView === 'signin' ? 'active' : ''}`}
+                onClick={openPublicSignIn}
+              >
+                Sign In
+              </button>
+            </nav>
+          )}
+        </header>
 
-          {/* MOBILE: public homepage first */}
-          {authView === 'home' ? (
-            <section className="auth-card public-home-card mobile-auth-only">
-              <span className="eyebrow public-home-eyebrow">
-                WELCOME TO MASTERYHUB REVIEW
-              </span>
+        {authView === 'home' ? (
+          <main className="public-landing-main">
+            <section className="public-landing-hero">
+              <div className="public-landing-copy">
+                <span className="eyebrow">WELCOME TO MASTERYHUB REVIEW</span>
 
-              <h2 className="public-home-title">
-                Ready to continue learning?
-              </h2>
+                <h1>
+                  Review smarter.
+                  <br />
+                  Progress with confidence.
+                </h1>
 
-              <p className="public-home-copy">
-                Access your assigned subjects, reviewers, quizzes, scores, and
-                learning history using the account provided by your
-                administrator.
+                <p>
+                  Your focused learning space for assigned reviewers, practice
+                  quizzes, results, and progress — all in one place.
+                </p>
+
+                <button
+                  type="button"
+                  className="public-start-review"
+                  onClick={openPublicSignIn}
+                >
+                  Start Your Review <span aria-hidden="true">→</span>
+                </button>
+
+                <div className="public-landing-words" aria-label="Review Practice Progress">
+                  <span>Review</span>
+                  <span>Practice</span>
+                  <span>Progress</span>
+                </div>
+              </div>
+
+              <div className="public-landing-visual" aria-hidden="true">
+                <div className="public-landing-orbit public-orbit-one" />
+                <div className="public-landing-orbit public-orbit-two" />
+                <div className="public-landing-note">
+                  <span>YOUR LEARNING SPACE</span>
+                  <strong>
+                    A little practice.
+                    <br />
+                    A lot of possibility.
+                  </strong>
+                  <small>Learn at your own pace.</small>
+                </div>
+              </div>
+            </section>
+          </main>
+        ) : (
+          <main className="public-signin-main">
+            <section className="public-signin-intro">
+              <span className="eyebrow">MASTERYHUB REVIEW</span>
+              <h1>Welcome back.</h1>
+              <p>
+                Sign in using the account provided by your administrator to
+                continue your review.
               </p>
 
-              <div className="orbit public-home-orbit">
+              <div className="public-landing-words">
                 <span>Review</span>
                 <span>Practice</span>
                 <span>Progress</span>
               </div>
-
-              <button
-                type="button"
-                className="public-home-student-signin"
-                onClick={() => {
-                  setMessage('');
-                  setAuthView('signin');
-                }}
-              >
-                Student Sign In
-              </button>
-
-              <p className="caption public-home-note">
-                Private learning access only. Accounts are created by the
-                administrator.
-              </p>
             </section>
-          ) : (
-            <form
-              className="auth-card mobile-auth-only mobile-signin-card"
-              onSubmit={async (e) => {
-                e.preventDefault();
-                setBusy(true);
-                setMessage('');
 
-                const f = new FormData(e.currentTarget);
+            {signInForm}
+          </main>
+        )}
 
-                try {
-                  const { error } = await withTimeout(
-                    db().auth.signInWithPassword({
-                      email: String(f.get('email')),
-                      password: String(f.get('password')),
-                    }),
-                  );
-
-                  if (error) throw error;
-                } catch (e) {
-                  setMessage(errorText(e));
-                } finally {
-                  setBusy(false);
-                }
-              }}
-            >
-              <div className="auth-logo-wrap">
-                <img
-                  className="auth-logo"
-                  src="/masteryhub-review-logo.png"
-                  alt="MasteryHub Review"
-                />
-              </div>
-
-              <h2>Welcome back.</h2>
-              <p>Sign in to your learning space.</p>
-
-              <label>
-                Email address
-                <input
-                  type="email"
-                  name="email"
-                  autoComplete="username"
-                  required
-                />
-              </label>
-
-              <label>
-                Password
-                <input
-                  type="password"
-                  name="password"
-                  autoComplete="current-password"
-                  required
-                />
-              </label>
-
-              <button disabled={busy}>
-                {busy ? 'Signing in...' : 'Sign in'}
-              </button>
-
-              <button
-                type="button"
-                className="text-button"
-                onClick={async (e) => {
-                  const form = e.currentTarget.form!;
-                  const email = String(new FormData(form).get('email'));
-
-                  if (!email) {
-                    setMessage('Enter your email address first.');
-                    return;
-                  }
-
-                  try {
-                    const { error } = await withTimeout(
-                      db().auth.resetPasswordForEmail(email, {
-                        redirectTo: location.origin + '/reset',
-                      }),
-                    );
-
-                    if (error) throw error;
-
-                    setMessage(
-                      'If the account exists, a reset link will arrive by email.',
-                    );
-                  } catch (e) {
-                    setMessage(errorText(e));
-                  }
-                }}
-              >
-                Forgot password?
-              </button>
-
-              <button
-                type="button"
-                className="text-button"
-                onClick={() => {
-                  setMessage('');
-                  setAuthView('home');
-                }}
-              >
-                ← Back to Home
-              </button>
-
-              <Notice message={message} />
-
-              <p className="caption">
-                Accounts are provided by your administrator. Public registration
-                is not available.
-              </p>
-            </form>
-          )}
-        </main>
-
-        <footer className="public-auth-footer">
+        <footer className="public-auth-footer public-landing-footer">
           <span className="footer-watermark">
             <span className="footer-powered-by">Powered by</span>{' '}
             <span className="footer-brand-name">
@@ -700,7 +444,7 @@ export default function Workspace() {
             </span>
           </span>
         </footer>
-      </>
+      </div>
     );
   }
 
@@ -738,20 +482,8 @@ export default function Workspace() {
 
   const signOut = async () => {
     setMobileNavOpen(false);
-
-    if (profile.role === 'student') {
-      try {
-        await rpc('release_student_device', {
-          device_token: studentDeviceToken(),
-        });
-      } catch {
-        // Sign out locally even if the release request cannot be completed.
-      }
-    }
-
     await db().auth.signOut({ scope: 'local' });
     setProfile(null);
-    setDeviceConflict(false);
     setTab('Dashboard');
     window.sessionStorage.removeItem(LAST_WORKSPACE_TAB_KEY);
     setAuthView('home');
@@ -771,11 +503,9 @@ export default function Workspace() {
       }`}
     >
       <aside className="sidebar">
-        <div className="brand">
-          <div className="brand-mark small">
-            R<span>h</span>
-          </div>
+        <ImageAttachment path={branding.logo_path} bucket="branding" />
 
+        <div className="brand sidebar-brand-text">
           <div>
             <strong>{branding.system_name}</strong>
             <small>
@@ -785,8 +515,6 @@ export default function Workspace() {
             </small>
           </div>
         </div>
-
-        <ImageAttachment path={branding.logo_path} bucket="branding" />
 
         <nav aria-label="Main navigation">
           {tabs.map((t, i) => (
