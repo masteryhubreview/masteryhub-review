@@ -288,7 +288,7 @@ export default function Student({
           if (typeof window !== 'undefined') {
             window.localStorage.removeItem(STUDENT_ACTIVE_ATTEMPT_KEY);
           }
-          onTabChange('Reviewers');
+          onTabChange('Dashboard');
           setAttempt(null);
         }}
       />
