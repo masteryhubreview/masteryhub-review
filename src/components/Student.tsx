@@ -197,8 +197,7 @@ export default function Student({
 
         if (reviewerError) throw reviewerError;
 
-        const currentReviewers = (reviewerRows || []) as Reviewer[];
-        const ids = currentReviewers.map((item) => item.id);
+        let currentReviewers = (reviewerRows || []) as Reviewer[];
 
         const [ruleRows, notificationRows, announcementRows, attemptStatusRows] =
           await Promise.all([
@@ -219,6 +218,43 @@ export default function Student({
         for (const status of attemptStatusRows || []) {
           attemptMap[status.reviewer_id] = status;
         }
+
+        // Always surface unfinished reviewers on the current Dashboard page.
+        // This keeps a reviewer with an active attempt visible immediately after
+        // "Back to Workspace", even if normal sorting/pagination placed it later.
+        const inProgressReviewerIds = Object.values(attemptMap)
+          .filter((status) => !!status?.in_progress_id)
+          .map((status) => status.reviewer_id);
+
+        const missingInProgressIds = inProgressReviewerIds.filter(
+          (reviewerId) =>
+            !currentReviewers.some((reviewer) => reviewer.id === reviewerId),
+        );
+
+        if (missingInProgressIds.length) {
+          const { data: inProgressRows, error: inProgressError } = await db()
+            .from('reviewers')
+            .select('*')
+            .in('id', missingInProgressIds);
+
+          if (inProgressError) throw inProgressError;
+
+          currentReviewers = [
+            ...((inProgressRows || []) as Reviewer[]),
+            ...currentReviewers,
+          ];
+        }
+
+        currentReviewers = [
+          ...currentReviewers.filter(
+            (reviewer) => !!attemptMap[reviewer.id]?.in_progress_id,
+          ),
+          ...currentReviewers.filter(
+            (reviewer) => !attemptMap[reviewer.id]?.in_progress_id,
+          ),
+        ];
+
+        const ids = currentReviewers.map((item) => item.id);
 
         let links: { reviewer_id: string; subject_id: string }[] = [];
 
