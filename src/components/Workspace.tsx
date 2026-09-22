@@ -160,13 +160,16 @@ export default function Workspace() {
         return;
       }
 
-      if (
-        event === 'SIGNED_IN' ||
-        event === 'TOKEN_REFRESHED' ||
-        event === 'USER_UPDATED'
-      ) {
+      if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
         setLoading(true);
         window.setTimeout(load, 0);
+      }
+
+      // A normal Supabase token refresh must not remount the workspace.
+      // Remounting destroys Student's local active-attempt state and sends
+      // an in-progress quiz back to the dashboard when the app/tab resumes.
+      if (event === 'TOKEN_REFRESHED') {
+        return;
       }
     });
 

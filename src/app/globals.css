@@ -19139,3 +19139,61 @@ img.public-header-logo {
     padding: 0 !important;
   }
 }
+
+
+/* =========================================================
+   MOBILE DRAWER LOGO — ALIGN WITH CLOSE BUTTON + ROUNDED CARD
+   ========================================================= */
+@media (max-width: 700px) {
+  .student-mobile-drawer-head {
+    align-items: flex-start !important;
+  }
+
+  .student-mobile-drawer-brand {
+    width: calc(100% - 76px) !important;
+    min-width: 0 !important;
+  }
+
+  .student-mobile-drawer-logo {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: 104px !important;
+    min-height: 104px !important;
+    margin: 0 0 16px 0 !important;
+    padding: 10px 14px !important;
+    border: 1px solid rgba(91, 60, 112, 0.12) !important;
+    border-radius: 20px !important;
+    background: rgba(255, 255, 255, 0.72) !important;
+    overflow: hidden !important;
+  }
+
+  .student-mobile-drawer-logo > * {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .student-mobile-drawer-logo img {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 82px !important;
+    max-height: 82px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+}
