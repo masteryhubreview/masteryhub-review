@@ -706,6 +706,28 @@ export default function Student({
         </div>
       )}
 
+      <style>{`
+        @media (max-width: 600px) {
+          .student-reviewer-filters {
+            width: 100% !important;
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+            gap: 8px !important;
+            align-items: end !important;
+          }
+
+          .student-reviewer-filter {
+            min-width: 0 !important;
+            width: 100% !important;
+          }
+
+          .student-reviewer-filter select {
+            width: 100% !important;
+            min-width: 0 !important;
+          }
+        }
+      `}</style>
+
       {tab === 'Dashboard' ? (
         <>
           <section className="hero">
@@ -904,6 +926,7 @@ export default function Student({
             </div>
 
             <div
+              className="student-reviewer-filters"
               style={{
                 display: 'flex',
                 gap: 10,
@@ -911,7 +934,7 @@ export default function Student({
                 flexWrap: 'wrap',
               }}
             >
-              <label style={{ minWidth: 180 }}>
+              <label className="student-reviewer-filter" style={{ minWidth: 180 }}>
                 Subject
                 <select
                   value={subject}
@@ -929,7 +952,7 @@ export default function Student({
                 </select>
               </label>
 
-              <label style={{ minWidth: 160 }}>
+              <label className="student-reviewer-filter" style={{ minWidth: 160 }}>
                 Sort
                 <select
                   value={reviewerSort}

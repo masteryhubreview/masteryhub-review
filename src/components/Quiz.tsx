@@ -152,6 +152,7 @@ export default function Quiz({
   const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
   const [gradingComplete, setGradingComplete] = useState(false);
   const [listReview, setListReview] = useState(false);
+  const [reviewMode, setReviewMode] = useState(false);
   const lock = useRef(false);
   const autoSubmitLock = useRef(false);
   const initialPositionLoaded = useRef(false);
@@ -656,6 +657,9 @@ export default function Quiz({
       if (dirty) await save();
       await submitAttempt();
       await refresh();
+      setIndex(0);
+      setListReview(false);
+      setReviewMode(false);
     } catch (error) {
       setMessage(errorText(error));
     } finally {
@@ -882,9 +886,9 @@ export default function Quiz({
           .quiz-brand-logo img,
           .quiz-brand-logo img.brand-logo,
           .quiz-brand-logo picture img {
-            width: 260px !important;
-            min-width: 260px !important;
-            transform: translateY(7px) scale(1.45) !important;
+            width: 250px !important;
+            min-width: 250px !important;
+            transform: translateY(5px) scale(1.25) !important;
           }
 
           .quiz-reference-actions > button {
@@ -1004,19 +1008,51 @@ export default function Quiz({
       >
         <span><b>Question:</b> {index + 1}/{totalQuestions}</span>
         <span><b>Progress:</b> {progressPercent}%</span>
-        <span><b>Started:</b> {new Date(attempt.started_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span>
         {!!(attempt.settings as AttemptView['settings'] & { time_limit_minutes?: number | null }).time_limit_minutes && (
           <span><b>Time:</b> {remainingSeconds !== null ? formatRemaining(remainingSeconds) : `${(attempt.settings as AttemptView['settings'] & { time_limit_minutes?: number | null }).time_limit_minutes} min`}</span>
         )}
-        <span><b>Status:</b> {attempt.status.replaceAll('_', ' ')}</span>
       </section>
 
-      {attempt.status !== 'in_progress' && (
+      {attempt.status !== 'in_progress' && !admin && (
         <section className="result-banner quiz-result-banner">
-          <div>
-            <span className="eyebrow">
-              {attempt.pending ? 'PROVISIONAL RESULT' : 'YOUR RESULT'}
-            </span>
+          <div style={{ width: '100%' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 12,
+              }}
+            >
+              <span className="eyebrow">
+                {attempt.pending ? 'PROVISIONAL RESULT' : 'YOUR RESULT'}
+              </span>
+
+              <button
+                type="button"
+                className="ghost"
+                disabled={busy}
+                onClick={() => {
+                  setIndex(0);
+                  setReviewMode(true);
+                  setListReview(true);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                style={{
+                  minHeight: 34,
+                  height: 34,
+                  minWidth: 0,
+                  padding: '0 13px',
+                  borderRadius: 999,
+                  fontSize: 12,
+                  fontWeight: 800,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                List View
+              </button>
+            </div>
+
             <h2>
               {attempt.pending
                 ? 'Awaiting manual review'
@@ -1027,11 +1063,27 @@ export default function Quiz({
                 ? `${attempt.score} points awarded so far. ${attempt.pending} response(s) still need review.`
                 : 'Completed and saved to attempt history.'}
             </p>
+
+            {!reviewMode && !listReview && (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => {
+                  setIndex(0);
+                  setReviewMode(true);
+                  setListReview(false);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                style={{ marginTop: 12 }}
+              >
+                Review Answers
+              </button>
+            )}
           </div>
         </section>
       )}
 
-      {listReview ? (
+      {!active && !admin && !reviewMode && !listReview ? null : listReview ? (
         <>
           <section
             style={{
@@ -1357,7 +1409,11 @@ export default function Quiz({
               type="button"
               className="ghost"
               disabled={busy}
-              onClick={() => setListReview(false)}
+              onClick={() => {
+                setIndex(0);
+                setReviewMode(true);
+                setListReview(false);
+              }}
             >
               Back to Question
             </button>
@@ -1810,15 +1866,6 @@ export default function Quiz({
               Back
             </button>
 
-            <button
-              type="button"
-              className="ghost"
-              disabled={busy}
-              onClick={() => void openListReview()}
-            >
-              {active ? 'Review Answers' : 'List View'}
-            </button>
-
             {active ? (
               index < totalQuestions - 1 ? (
                 <button
@@ -1849,22 +1896,24 @@ export default function Quiz({
                   </button>
                 )}
 
-                <button
-                  className="ghost"
-                  disabled={busy}
-                  onClick={onClose}
-                  style={{
-                    minHeight: 72,
-                    minWidth: 190,
-                    padding: '0 40px',
-                    fontSize: 21,
-                    fontWeight: 800,
-                    borderRadius: 16,
-                    marginLeft: 'auto',
-                  }}
-                >
-                  Finish Review
-                </button>
+                {index === totalQuestions - 1 && (
+                  <button
+                    className="ghost"
+                    disabled={busy}
+                    onClick={onClose}
+                    style={{
+                      minHeight: 72,
+                      minWidth: 190,
+                      padding: '0 40px',
+                      fontSize: 21,
+                      fontWeight: 800,
+                      borderRadius: 16,
+                      marginLeft: 'auto',
+                    }}
+                  >
+                    Finish Review
+                  </button>
+                )}
               </>
             )}
           </div>
