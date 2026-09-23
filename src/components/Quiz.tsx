@@ -135,10 +135,12 @@ export default function Quiz({
   id,
   onClose,
   admin = false,
+  logoPath,
 }: {
   id: string;
   onClose: () => void;
   admin?: boolean;
+  logoPath?: string | null;
 }) {
   const [attempt, setAttempt] = useState<AttemptView | null>(null);
   const [index, setIndex] = useState(0);
@@ -149,9 +151,11 @@ export default function Quiz({
   const [saved, setSaved] = useState('');
   const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
   const [gradingComplete, setGradingComplete] = useState(false);
+  const [listReview, setListReview] = useState(false);
   const lock = useRef(false);
   const autoSubmitLock = useRef(false);
   const initialPositionLoaded = useRef(false);
+  const openReviewCard = useRef<HTMLDetailsElement | null>(null);
 
   async function refresh() {
     try {
@@ -559,6 +563,81 @@ export default function Quiz({
     setIndex(nextAfterCurrent ?? pendingManualIndexes[0]);
   }
 
+  function responseText(question: PublicQuestion) {
+    const response = question.response || [];
+
+    if (!response.length || !response.some((item) => item.trim())) {
+      return 'Not answered';
+    }
+
+    if (question.type === 'mc_single' || question.type === 'mc_multi') {
+      const labels = response
+        .map((choiceId) => question.choices.find((choice) => choice.id === choiceId)?.text)
+        .filter((value): value is string => !!value);
+
+      return labels.length ? labels.join(', ') : 'Not answered';
+    }
+
+    return response.filter((item) => item.trim()).join(' • ');
+  }
+
+  function answerStatus(question: PublicQuestion) {
+    if (!hasCompleteAnswer(question, question.response || [])) return 'Unanswered';
+    if (question.pending) return 'Pending review';
+
+    if (
+      question.awarded !== null &&
+      question.awarded !== undefined
+    ) {
+      if (question.awarded === question.points) return 'Correct';
+      if (question.awarded > 0) return 'Partial credit';
+      return 'Incorrect';
+    }
+
+    return 'Answered';
+  }
+
+  async function openListReview() {
+    if (lock.current) return;
+
+    lock.current = true;
+    setBusy(true);
+    setMessage('');
+
+    try {
+      if (dirty) {
+        if (instant) {
+          if (!confirm('Leave this unconfirmed answer? It will not be saved.')) return;
+        } else {
+          await save();
+        }
+      }
+
+      await refresh();
+      setListReview(true);
+    } catch (error) {
+      setMessage(errorText(error));
+    } finally {
+      setBusy(false);
+      lock.current = false;
+    }
+  }
+
+  async function openQuestionFromList(questionIndex: number) {
+    if (attempt?.status === 'in_progress') {
+      try {
+        await savePosition(questionIndex);
+      } catch (error) {
+        setMessage(errorText(error));
+        return;
+      }
+    }
+
+    setIndex(questionIndex);
+    setListReview(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   async function finishAttempt() {
     if (!attempt || lock.current) return;
 
@@ -611,6 +690,212 @@ export default function Quiz({
 
   return (
     <>
+      <style>{`
+        /* Keep the existing logo row height, but let the uploaded logo itself fill it. */
+        .quiz-brand-header {
+          height: 124px !important;
+          min-height: 124px !important;
+          padding: 0 18px !important;
+          border: 0 !important;
+          background: transparent !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          overflow: hidden !important;
+          position: relative !important;
+        }
+
+        .quiz-brand-logo {
+          position: absolute !important;
+          inset: 0 !important;
+          width: 100% !important;
+          height: 100% !important;
+          min-height: 0 !important;
+          max-width: none !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          border: 0 !important;
+          border-radius: 0 !important;
+          box-shadow: none !important;
+          background: transparent !important;
+          overflow: hidden !important;
+        }
+
+        .quiz-brand-logo *,
+        .quiz-brand-logo > *,
+        .quiz-brand-logo div,
+        .quiz-brand-logo span,
+        .quiz-brand-logo picture {
+          margin: 0 !important;
+          padding: 0 !important;
+          border: 0 !important;
+          border-radius: 0 !important;
+          box-shadow: none !important;
+          background: transparent !important;
+        }
+
+        .quiz-brand-logo img,
+        .quiz-brand-logo img.brand-logo,
+        .quiz-brand-logo picture img {
+          display: block !important;
+          position: static !important;
+          width: 360px !important;
+          height: 100px !important;
+          min-width: 360px !important;
+          min-height: 100px !important;
+          max-width: none !important;
+          max-height: none !important;
+          object-fit: contain !important;
+          object-position: center center !important;
+          margin: 0 auto !important;
+          padding: 0 !important;
+          border: 0 !important;
+          border-radius: 0 !important;
+          box-shadow: none !important;
+          background: transparent !important;
+          transform: translateY(4px) scale(1.75) !important;
+          transform-origin: center center !important;
+        }
+
+        .quiz-brand-logo > p {
+          margin: 0 !important;
+          text-align: center !important;
+        }
+
+        /* Override the existing global button rules that were keeping these small. */
+        .quiz-reference-actions {
+          gap: 16px !important;
+          margin-top: 16px !important;
+        }
+
+        .quiz-reference-actions > button {
+          min-width: 120px !important;
+          width: auto !important;
+          height: 45px !important;
+          min-height: 45px !important;
+          padding: 0 24px !important;
+          border-radius: 15px !important;
+          font-size: 16px !important;
+          font-weight: 800 !important;
+          line-height: 1 !important;
+        }
+
+        .quiz-reference-actions > button:last-child {
+          min-width: 130px !important;
+        }
+
+        .quiz-list-review {
+          display: grid;
+          gap: 14px;
+        }
+
+        .quiz-list-review-card {
+          width: 100%;
+          text-align: left;
+          padding: 18px 20px;
+          border-radius: 18px;
+          border: 1px solid rgba(74, 48, 83, 0.12);
+          background: rgba(255, 255, 255, 0.92);
+          box-shadow: 0 8px 24px rgba(74, 48, 83, 0.05);
+        }
+
+        .quiz-list-review-card:hover {
+          border-color: rgba(74, 48, 83, 0.28);
+        }
+
+        details.quiz-list-review-card {
+          padding: 0;
+          overflow: hidden;
+        }
+
+        .quiz-list-review-summary {
+          list-style: none;
+          cursor: pointer;
+          padding: 15px 17px;
+        }
+
+        .quiz-list-review-summary::-webkit-details-marker {
+          display: none;
+        }
+
+        .quiz-list-review-summary::marker {
+          display: none;
+          content: '';
+        }
+
+        .quiz-list-review-details {
+          padding: 0 17px 17px;
+          border-top: 1px solid rgba(74, 48, 83, 0.08);
+        }
+
+        .quiz-list-review-number {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          margin-bottom: 9px;
+          font-size: 12px;
+          font-weight: 800;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+          opacity: 0.72;
+        }
+
+        .quiz-list-review-question {
+          margin: 0 0 12px;
+          font-size: 17px;
+          line-height: 1.45;
+          font-weight: 800;
+        }
+
+        .quiz-list-review-answer {
+          margin: 0;
+          font-size: 15px;
+          line-height: 1.5;
+        }
+
+        .quiz-list-review-answer b {
+          display: block;
+          margin-bottom: 3px;
+          font-size: 12px;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          opacity: 0.65;
+        }
+
+        .quiz-list-review-status {
+          flex: 0 0 auto;
+          padding: 5px 9px;
+          border-radius: 999px;
+          background: rgba(74, 48, 83, 0.07);
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0;
+          text-transform: none;
+          opacity: 1;
+        }
+
+        @media (max-width: 600px) {
+          .quiz-brand-logo img,
+          .quiz-brand-logo img.brand-logo,
+          .quiz-brand-logo picture img {
+            width: 260px !important;
+            min-width: 260px !important;
+            transform: translateY(7px) scale(1.45) !important;
+          }
+
+          .quiz-reference-actions > button {
+            min-width: 112px !important;
+            height: 45px !important;
+            min-height: 45px !important;
+            padding: 0 22px !important;
+            font-size: 16px !important;
+          }
+        }
+      `}</style>
       {!admin && (
         <div
           className="quiz-print-protected"
@@ -703,6 +988,29 @@ export default function Quiz({
 
       <Notice message={message} />
 
+      <section
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          gap: '10px 18px',
+          marginBottom: 14,
+          padding: '12px 16px',
+          borderRadius: 16,
+          background: 'rgba(255,255,255,0.75)',
+          border: '1px solid rgba(74,48,83,0.10)',
+          fontSize: 13,
+        }}
+      >
+        <span><b>Question:</b> {index + 1}/{totalQuestions}</span>
+        <span><b>Progress:</b> {progressPercent}%</span>
+        <span><b>Started:</b> {new Date(attempt.started_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span>
+        {!!(attempt.settings as AttemptView['settings'] & { time_limit_minutes?: number | null }).time_limit_minutes && (
+          <span><b>Time:</b> {remainingSeconds !== null ? formatRemaining(remainingSeconds) : `${(attempt.settings as AttemptView['settings'] & { time_limit_minutes?: number | null }).time_limit_minutes} min`}</span>
+        )}
+        <span><b>Status:</b> {attempt.status.replaceAll('_', ' ')}</span>
+      </section>
+
       {attempt.status !== 'in_progress' && (
         <section className="result-banner quiz-result-banner">
           <div>
@@ -723,7 +1031,375 @@ export default function Quiz({
         </section>
       )}
 
-      {!q ? (
+      {listReview ? (
+        <>
+          <section
+            style={{
+              marginBottom: 16,
+              padding: '18px 20px',
+              borderRadius: 20,
+              background: 'rgba(255,255,255,0.78)',
+              border: '1px solid rgba(74,48,83,0.10)',
+            }}
+          >
+            <span className="eyebrow">
+              {active ? 'BEFORE YOU SUBMIT' : 'ANSWER REVIEW'}
+            </span>
+            <h2 style={{ margin: '5px 0 6px' }}>
+              {active ? 'Review your answers' : 'Review all answers'}
+            </h2>
+            <p style={{ margin: 0, opacity: 0.72, lineHeight: 1.5 }}>
+              {active
+                ? 'Check every question below. Select a card to return to that question and change your answer.'
+                : 'All questions and your submitted answers are shown below. Select a card to open the full question review.'}
+            </p>
+          </section>
+
+          <div className="quiz-list-review">
+            {attempt.questions.map((question, questionIndex) => {
+              const questionRevealed =
+                !!question.correct &&
+                (attempt.status !== 'in_progress' ||
+                  (!!attempt.settings.instant && !!question.response));
+
+              const explanationText = questionExplanation(question);
+
+              return (
+                <details
+                  key={question.id}
+                  className="question-panel quiz-reference-card quiz-list-review-card"
+                  onToggle={(event) => {
+                    const current = event.currentTarget;
+
+                    if (!current.open) {
+                      if (openReviewCard.current === current) {
+                        openReviewCard.current = null;
+                      }
+                      return;
+                    }
+
+                    if (
+                      openReviewCard.current &&
+                      openReviewCard.current !== current
+                    ) {
+                      openReviewCard.current.open = false;
+                    }
+
+                    openReviewCard.current = current;
+                  }}
+                  style={{
+                    borderRadius: 18,
+                    position: 'relative',
+                  }}
+                >
+                  <summary className="quiz-list-review-summary">
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 12,
+                        marginBottom: 7,
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 800,
+                          letterSpacing: '0.08em',
+                          textTransform: 'uppercase',
+                          opacity: 0.65,
+                        }}
+                      >
+                        Question {questionIndex + 1} of {totalQuestions}
+                      </span>
+
+                      <span
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 10,
+                          flex: '0 0 auto',
+                        }}
+                      >
+                        {!active &&
+                          question.awarded !== null &&
+                          question.awarded !== undefined && (
+                            <span
+                              style={{
+                                fontSize: 12,
+                                fontWeight: 800,
+                                color:
+                                  question.awarded === question.points
+                                    ? '#18864b'
+                                    : '#d53b45',
+                              }}
+                            >
+                              {question.awarded === question.points
+                                ? '✓ Correct'
+                                : question.awarded > 0
+                                  ? 'Partial credit'
+                                  : '✕ Incorrect'}
+                            </span>
+                          )}
+                        <span aria-hidden="true" style={{ fontSize: 16, opacity: 0.55 }}>
+                          ▾
+                        </span>
+                      </span>
+                    </div>
+
+                    <h2
+                      className="question-text quiz-reference-question"
+                      style={{
+                        margin: 0,
+                        lineHeight: 1.35,
+                        fontSize: 'clamp(15px, 3.5vw, 18px)',
+                      }}
+                    >
+                      {question.text}
+                    </h2>
+                  </summary>
+
+                  <div className="quiz-list-review-details">
+                    <p
+                      className="quiz-question-instruction"
+                      style={{
+                        margin: '14px 0 16px',
+                        opacity: 0.72,
+                        fontSize: 'clamp(13px, 3vw, 15px)',
+                        lineHeight: 1.45,
+                      }}
+                    >
+                      {questionInstruction(question.type)}
+                    </p>
+
+                    <ImageAttachment path={question.image_path} />
+
+                  {question.type.startsWith('mc_') ? (
+                    <div className="choices quiz-reference-choices">
+                      {question.choices.map((choice, choiceIndex) => {
+                        const selected = (question.response || []).includes(choice.id);
+                        const correctChoice = !!question.correct?.includes(choice.id);
+                        const wrongSelected =
+                          questionRevealed && selected && !correctChoice;
+
+                        const classNames = [
+                          'choice',
+                          'quiz-reference-choice',
+                          selected ? 'selected' : '',
+                          questionRevealed && correctChoice ? 'is-correct' : '',
+                          wrongSelected ? 'is-incorrect' : '',
+                        ]
+                          .filter(Boolean)
+                          .join(' ');
+
+                        return (
+                          <div key={choice.id} className={classNames}>
+                            <span className="choice-letter">
+                              {String.fromCharCode(65 + choiceIndex)}
+                            </span>
+
+                            <span
+                              className="quiz-choice-content"
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                width: '100%',
+                                gap: 12,
+                                minWidth: 0,
+                              }}
+                            >
+                              <span
+                                className="quiz-choice-text"
+                                style={{
+                                  flex: '1 1 auto',
+                                  minWidth: 0,
+                                  fontSize: 'clamp(14px, 3.4vw, 16px)',
+                                  lineHeight: 1.4,
+                                }}
+                              >
+                                {choice.text}
+                              </span>
+
+                              {questionRevealed && correctChoice && (
+                                <span
+                                  aria-label="Correct answer"
+                                  title="Correct answer"
+                                  style={{
+                                    marginLeft: 'auto',
+                                    flex: '0 0 auto',
+                                    color: '#18864b',
+                                    fontSize: 22,
+                                    fontWeight: 800,
+                                    lineHeight: 1,
+                                  }}
+                                >
+                                  ✓
+                                </span>
+                              )}
+
+                              {wrongSelected && (
+                                <span
+                                  aria-label="Incorrect answer"
+                                  title="Your answer is incorrect"
+                                  style={{
+                                    marginLeft: 'auto',
+                                    flex: '0 0 auto',
+                                    color: '#d53b45',
+                                    fontSize: 22,
+                                    fontWeight: 800,
+                                    lineHeight: 1,
+                                  }}
+                                >
+                                  ×
+                                </span>
+                              )}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div
+                      style={{
+                        padding: '14px 16px',
+                        borderRadius: 14,
+                        border: '1px solid rgba(74,48,83,0.12)',
+                        background: 'rgba(255,255,255,0.72)',
+                        lineHeight: 1.55,
+                      }}
+                    >
+                      <b
+                        style={{
+                          display: 'block',
+                          marginBottom: 5,
+                          fontSize: 12,
+                          letterSpacing: '0.05em',
+                          textTransform: 'uppercase',
+                          opacity: 0.65,
+                        }}
+                      >
+                        Your answer
+                      </b>
+                      {responseText(question)}
+                    </div>
+                  )}
+
+                  {!active &&
+                    question.correct &&
+                    !question.type.startsWith('mc_') && (
+                      <div className="answer-key quiz-answer-key">
+                        <b>Accepted answer</b>
+                        <p>
+                          {question.accepted
+                            ?.map((accepted) => accepted.join(' / '))
+                            .join('; ') || 'Manually reviewed response'}
+                        </p>
+                      </div>
+                    )}
+
+                  {!active &&
+                    question.awarded !== null &&
+                    question.awarded !== undefined &&
+                    explanationText && (
+                      <div
+                        className="quiz-answer-explanation"
+                        style={{
+                          marginTop: 12,
+                          padding: '12px 14px',
+                          fontSize: 14,
+                          lineHeight: 1.5,
+                        }}
+                      >
+                        <b
+                          style={{
+                            display: 'block',
+                            marginBottom: 4,
+                            fontSize: 16,
+                          }}
+                        >
+                          Explanation
+                        </b>
+                        <p style={{ margin: 0 }}>{explanationText}</p>
+                      </div>
+                    )}
+
+                  {question.pending && (
+                    <div className="notice" style={{ marginTop: 16 }}>
+                      This response requires manual review; it has not been marked incorrect.
+                    </div>
+                  )}
+
+                    {question.notes &&
+                      (question.awarded === null ||
+                        question.awarded === undefined) && (
+                        <p className="quiz-admin-feedback">
+                          Administrator feedback: {question.notes}
+                        </p>
+                      )}
+                  </div>
+                </details>
+              );
+            })}
+          </div>
+
+          <div
+            className="quiz-actions quiz-reference-actions"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              flexWrap: 'wrap',
+              marginTop: 18,
+            }}
+          >
+            <button
+              type="button"
+              className="ghost"
+              disabled={busy}
+              onClick={() => setListReview(false)}
+            >
+              Back to Question
+            </button>
+
+            {active ? (
+              <button
+                type="button"
+                disabled={
+                  busy ||
+                  attempt.questions.some(
+                    (question) =>
+                      !hasCompleteAnswer(question, question.response || []),
+                  )
+                }
+                onClick={finishAttempt}
+                style={{ marginLeft: 'auto' }}
+              >
+                Finish Quiz
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="ghost"
+                disabled={busy}
+                onClick={onClose}
+                style={{ marginLeft: 'auto' }}
+              >
+                Finish Review
+              </button>
+            )}
+          </div>
+
+          {active &&
+            attempt.questions.some(
+              (question) => !hasCompleteAnswer(question, question.response || []),
+            ) && (
+              <p className="caption quiz-save-caption">
+                Answer all unanswered questions before submitting.
+              </p>
+            )}
+        </>
+      ) : !q ? (
         <div className="empty">Answer review is not enabled for this attempt.</div>
       ) : (
         <>
@@ -756,86 +1432,60 @@ export default function Quiz({
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 16,
-                padding: '12px 18px',
-                borderBottom: '1px solid rgba(74, 48, 83, 0.10)',
-                background: 'rgba(255,255,255,0.72)',
+                justifyContent: 'center',
+                padding: '10px 18px',
+                border: 'none',
+                background: 'transparent',
               }}
             >
-              <div className="quiz-brand-identity" style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                <img
+              {logoPath ? (
+                <div
                   className="quiz-brand-logo"
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: 0,
+                    padding: 0,
+                    border: 0,
+                    background: 'transparent',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <ImageAttachment path={logoPath} bucket="branding" />
+                </div>
+              ) : (
+                <img
                   src="/masteryhub-review-logo.png"
                   alt="MasteryHub Review"
                   draggable={false}
                   style={{
-                    width: 68,
-                    height: 68,
+                    display: 'block',
+                    width: 360,
+                    height: 100,
+                    maxWidth: 'none',
+                    maxHeight: 'none',
+                    transform: 'translateY(4px) scale(1.75)',
+                    transformOrigin: 'center center',
                     objectFit: 'contain',
-                    flex: '0 0 auto',
+                    objectPosition: 'center center',
+                    margin: 0,
+                    padding: 0,
+                    border: 0,
+                    borderRadius: 0,
+                    boxShadow: 'none',
+                    background: 'transparent',
                     userSelect: 'none',
                     pointerEvents: 'none',
                   }}
                 />
-                <div className="quiz-brand-copy" style={{ minWidth: 0 }}>
-                  <strong
-                    style={{
-                      display: 'block',
-                      fontSize: 17,
-                      letterSpacing: '0.05em',
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    MasteryHub Review
-                  </strong>
-                  <small style={{ opacity: 0.68, fontSize: 14 }}>
-                    Review • Practice • Progress
-                  </small>
-                </div>
-              </div>
-
-              <span
-                className="quiz-brand-role"
-                style={{
-                  fontSize: 15,
-                  fontWeight: 700,
-                  opacity: 0.55,
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {admin ? 'ADMIN REVIEW' : 'STUDENT QUIZ'}
-              </span>
+              )}
             </div>
 
-            <div style={{ padding: '18px 22px 22px' }}>
-            <div className="quiz-question-topline">
-              <div>
-                <span className="quiz-question-count" style={{ fontSize: 17 }}>
-                  Question {index + 1} of {totalQuestions}
-                </span>
-                <span className="quiz-question-type" style={{ fontSize: 15 }}>
-                  {questionTypeLabel(q.type)}
-                </span>
-              </div>
-
-              <span className="quiz-question-points" style={{ fontSize: 15 }}>
-                {saved || pointLabel(q.points)}
-              </span>
-            </div>
-
-            <div
-              className="quiz-thin-progress"
-              role="progressbar"
-              aria-label="Quiz progress"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={progressPercent}
-            >
-              <span style={{ width: `${progressPercent}%` }} />
-            </div>
-
-            <div style={{ marginTop: 18, marginBottom: 16 }}>
+            <div style={{ padding: '6px 22px 22px' }}>
+            <div style={{ marginTop: 4, marginBottom: 16 }}>
               <h2
                 className="question-text quiz-reference-question"
                 style={{
@@ -1142,33 +1792,80 @@ export default function Quiz({
             </div>
           </section>
 
-          <div className="quiz-actions quiz-reference-actions">
+          <div
+            className="quiz-actions quiz-reference-actions"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              flexWrap: 'wrap',
+            }}
+          >
             <button
               disabled={busy || index === 0}
               className="ghost"
               onClick={() => navigate(index - 1)}
+              style={{ minHeight: 72, minWidth: 150, padding: '0 38px', fontSize: 21, fontWeight: 800, borderRadius: 16 }}
             >
               Back
             </button>
 
-            {index < totalQuestions - 1 ? (
-              <button
-                disabled={busy || (active && !currentQuestionAnswered)}
-                onClick={() => navigate(index + 1)}
-              >
-                Next →
-              </button>
-            ) : active ? (
-              <button
-                disabled={busy || !currentQuestionAnswered}
-                onClick={finishAttempt}
-              >
-                Finish Quiz
-              </button>
+            <button
+              type="button"
+              className="ghost"
+              disabled={busy}
+              onClick={() => void openListReview()}
+            >
+              {active ? 'Review Answers' : 'List View'}
+            </button>
+
+            {active ? (
+              index < totalQuestions - 1 ? (
+                <button
+                  disabled={busy || !currentQuestionAnswered}
+                  onClick={() => navigate(index + 1)}
+                  style={{ minHeight: 72, minWidth: 160, padding: '0 40px', fontSize: 21, fontWeight: 800, borderRadius: 16 }}
+                >
+                  Next →
+                </button>
+              ) : (
+                <button
+                  disabled={busy || !currentQuestionAnswered}
+                  onClick={finishAttempt}
+                  style={{ minHeight: 72, minWidth: 160, padding: '0 40px', fontSize: 21, fontWeight: 800, borderRadius: 16 }}
+                >
+                  Finish Quiz
+                </button>
+              )
             ) : (
-              <button className="ghost" onClick={onClose}>
-                Finish review
-              </button>
+              <>
+                {index < totalQuestions - 1 && (
+                  <button
+                    disabled={busy}
+                    onClick={() => navigate(index + 1)}
+                    style={{ minHeight: 72, minWidth: 160, padding: '0 40px', fontSize: 21, fontWeight: 800, borderRadius: 16 }}
+                  >
+                    Next →
+                  </button>
+                )}
+
+                <button
+                  className="ghost"
+                  disabled={busy}
+                  onClick={onClose}
+                  style={{
+                    minHeight: 72,
+                    minWidth: 190,
+                    padding: '0 40px',
+                    fontSize: 21,
+                    fontWeight: 800,
+                    borderRadius: 16,
+                    marginLeft: 'auto',
+                  }}
+                >
+                  Finish Review
+                </button>
+              </>
             )}
           </div>
 

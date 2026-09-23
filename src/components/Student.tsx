@@ -99,7 +99,10 @@ export default function Student({
   const [subject, setSubject] = useState('');
   const [reviewerSort, setReviewerSort] = useState<'date-newest' | 'date-oldest' | 'az' | 'za'>('date-newest');
   const [page, setPage] = useState(0);
-  const [attempt, setAttempt] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    return window.localStorage.getItem(STUDENT_ACTIVE_ATTEMPT_KEY);
+  });
   const intentionallyClosedAttemptRef = useRef(false);
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
@@ -279,12 +282,6 @@ export default function Student({
           setAnnouncements(announcementRows || []);
           setAttemptStatuses(attemptMap);
 
-          // Do not automatically reopen an unfinished quiz after a browser refresh.
-          // The backend attempt remains in progress and is surfaced on Dashboard
-          // so the student can explicitly choose Resume.
-          if (!attempt && typeof window !== 'undefined') {
-            window.localStorage.removeItem(STUDENT_ACTIVE_ATTEMPT_KEY);
-          }
         }
       } catch (error) {
         if (live) setMessage(errorText(error));
@@ -302,6 +299,7 @@ export default function Student({
     return (
       <Quiz
         id={attempt}
+        logoPath={branding.logo_path}
         onClose={() => {
           intentionallyClosedAttemptRef.current = true;
           if (typeof window !== 'undefined') {
@@ -316,6 +314,15 @@ export default function Student({
 
   const subjectName = (id: string) =>
     subjects.find((item) => item.id === id)?.name;
+
+  const subjectLabel = (id: string) => {
+    const item = subjects.find((subjectItem) => subjectItem.id === id) as
+      | (Subject & { code?: string | null })
+      | undefined;
+
+    if (!item) return '';
+    return item.code ? `${item.name} - ${item.code}` : item.name;
+  };
 
   function reviewerAvailability(reviewerId: string) {
     const rules = reviewerRules[reviewerId];
@@ -946,114 +953,127 @@ export default function Student({
             </div>
           </div>
 
-          <div
-            className="student-reviewer-list"
-            style={{
-              display: 'grid',
-              gap: 8,
-            }}
-          >
-            {sortedReviewers.map((reviewer, index) => {
-              const linkedIds =
-                reviewerSubjects[reviewer.id] || [reviewer.subject_id];
+          {!!sortedReviewers.length && (
+            <div
+              className="student-reviewer-list"
+              style={{
+                display: 'block',
+                overflow: 'hidden',
+                border: '1px solid rgba(74, 48, 83, 0.12)',
+                borderRadius: 18,
+                background: '#fff',
+              }}
+            >
+              {sortedReviewers.map((reviewer, index) => {
+                const linkedIds =
+                  reviewerSubjects[reviewer.id] || [reviewer.subject_id];
 
-              const linkedNames = linkedIds
-                .map(subjectName)
-                .filter(Boolean) as string[];
-              const rules = reviewerRules[reviewer.id];
-              const availability = reviewerAvailability(reviewer.id);
-              const attemptState = reviewerAttemptState(reviewer);
+                const linkedNames = linkedIds
+                  .map(subjectName)
+                  .filter(Boolean) as string[];
 
-              const statusLabel = attemptState.inProgressId
-                ? 'In progress'
-                : attemptState.completedAttempts > 0
-                  ? `${attemptState.completedAttempts} ${
-                      attemptState.completedAttempts === 1
-                        ? 'attempt completed'
-                        : 'attempts completed'
-                    }`
-                  : 'Not started';
+                const linkedLabels = linkedIds
+                  .map(subjectLabel)
+                  .filter(Boolean);
 
-              return (
-                <article
-                  className="student-reviewer-list-item"
-                  key={reviewer.id}
-                >
-                  <div className={`subject-icon tone-${index % 3}`}>
-                    {linkedNames[0]?.charAt(0) || 'R'}
-                  </div>
+                const availability = reviewerAvailability(reviewer.id);
+                const attemptState = reviewerAttemptState(reviewer);
 
-                  <div className="student-reviewer-main">
-                    <span className="eyebrow">
-                      {linkedNames.join(' • ') || 'Reviewer'}
-                    </span>
-                    <h3>{reviewer.title}</h3>
-                    {reviewer.description ? (
-                      <p>{reviewer.description}</p>
-                    ) : null}
-                  </div>
-
-                  <div className="student-reviewer-settings">
-                    <div className="student-reviewer-stat student-reviewer-time">
-                      <span>TIME</span>
-                      <strong>
-                        {rules?.time_limit_minutes
-                          ? `${rules.time_limit_minutes} min`
-                          : 'No limit'}
-                      </strong>
-                    </div>
-
-                    <div className="student-reviewer-stat student-reviewer-attempts">
-                      <span>ATTEMPTS</span>
-                      <strong>
-                        {reviewer.settings.max_attempts === null
-                          ? 'Unlimited'
-                          : `${attemptState.completedAttempts}/${reviewer.settings.max_attempts}`}
-                      </strong>
-                    </div>
-
-                    <div className="student-reviewer-stat student-reviewer-status">
-                      <span>STATUS</span>
-                      <strong>{statusLabel}</strong>
-                    </div>
-                  </div>
-
-                  <div className="student-reviewer-action">
-                    <button
-                      disabled={
-                        busy ||
-                        availability.blocked ||
-                        attemptState.exhausted
-                      }
-                      onClick={() => void startReviewer(reviewer)}
+                return (
+                  <article
+                    key={reviewer.id}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '44px minmax(0, 1fr) max-content',
+                      alignItems: 'center',
+                      columnGap: 12,
+                      width: '100%',
+                      boxSizing: 'border-box',
+                      margin: 0,
+                      padding: '14px 16px',
+                      border: 0,
+                      borderBottom:
+                        index < sortedReviewers.length - 1
+                          ? '1px solid rgba(74, 48, 83, 0.10)'
+                          : 'none',
+                      borderRadius: 0,
+                      boxShadow: 'none',
+                      background: 'transparent',
+                    }}
+                  >
+                    <div
+                      className={`subject-icon tone-${index % 3}`}
+                      style={{ margin: 0 }}
                     >
-                      {attemptState.inProgressId ? 'Resume' : 'Start'}{' '}
-                      {!availability.blocked &&
-                        !attemptState.exhausted && <span>→</span>}
-                    </button>
-                  </div>
-
-                  {(rules?.due_at || rules?.access_code_enabled) && (
-                    <div className="student-reviewer-extra">
-                      {rules?.due_at ? (
-                        <span>
-                          Due{' '}
-                          {new Date(rules.due_at).toLocaleDateString([], {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric',
-                          })}
-                        </span>
-                      ) : null}
-                      {rules?.access_code_enabled ? (
-                        <span>Access code required</span>
-                      ) : null}
+                      {linkedNames[0]?.charAt(0) || 'R'}
                     </div>
-                  )}
-                </article>
-              );
-            })}
-          </div>
+
+                    <div style={{ minWidth: 0, margin: 0 }}>
+                      <h3
+                        style={{
+                          margin: 0,
+                          lineHeight: 1.25,
+                          overflowWrap: 'anywhere',
+                        }}
+                      >
+                        {reviewer.title}
+                      </h3>
+
+                      <span
+                        style={{
+                          display: 'block',
+                          marginTop: 4,
+                          color: 'rgba(74, 48, 83, 0.68)',
+                          fontSize: 11,
+                          fontWeight: 700,
+                          lineHeight: 1.35,
+                          letterSpacing: '0.04em',
+                          textTransform: 'uppercase',
+                          overflowWrap: 'anywhere',
+                        }}
+                      >
+                        {linkedLabels.join(' • ') || 'Reviewer'}
+                      </span>
+                    </div>
+
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'flex-end',
+                        justifySelf: 'end',
+                        marginLeft: 'auto',
+                        paddingLeft: 12,
+                      }}
+                    >
+                      <button
+                        disabled={
+                          busy ||
+                          availability.blocked ||
+                          attemptState.exhausted
+                        }
+                        onClick={() => void startReviewer(reviewer)}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: 'auto',
+                          minWidth: 0,
+                          minHeight: 38,
+                          padding: '0 13px',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {attemptState.inProgressId ? 'Resume' : 'Start'}{' '}
+                        {!availability.blocked &&
+                          !attemptState.exhausted && <span>→</span>}
+                      </button>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
 
           {!reviewers.length && (
             <div className="empty">
