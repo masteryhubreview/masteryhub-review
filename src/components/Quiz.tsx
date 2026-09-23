@@ -883,12 +883,16 @@ export default function Quiz({
         }
 
         @media (max-width: 600px) {
+          .quiz-brand-header {
+            margin-bottom: 5px !important;
+          }
+
           .quiz-brand-logo img,
           .quiz-brand-logo img.brand-logo,
           .quiz-brand-logo picture img {
             width: 250px !important;
             min-width: 250px !important;
-            transform: translateY(9px) scale(1.25) !important;
+            transform: translateY(5px) scale(1.25) !important;
           }
 
           .quiz-reference-actions > button {
