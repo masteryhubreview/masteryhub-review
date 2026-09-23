@@ -888,7 +888,7 @@ export default function Quiz({
           .quiz-brand-logo picture img {
             width: 250px !important;
             min-width: 250px !important;
-            transform: translateY(5px) scale(1.25) !important;
+            transform: translateY(9px) scale(1.25) !important;
           }
 
           .quiz-reference-actions > button {
@@ -1028,29 +1028,30 @@ export default function Quiz({
                 {attempt.pending ? 'PROVISIONAL RESULT' : 'YOUR RESULT'}
               </span>
 
-              <button
-                type="button"
-                className="ghost"
-                disabled={busy}
-                onClick={() => {
-                  setIndex(0);
-                  setReviewMode(true);
-                  setListReview(true);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                style={{
-                  minHeight: 34,
-                  height: 34,
-                  minWidth: 0,
-                  padding: '0 13px',
-                  borderRadius: 999,
-                  fontSize: 12,
-                  fontWeight: 800,
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                List View
-              </button>
+              {reviewMode && (
+                <button
+                  type="button"
+                  className="ghost"
+                  disabled={busy}
+                  onClick={() => {
+                    setIndex(0);
+                    setListReview(true);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  style={{
+                    minHeight: 34,
+                    height: 34,
+                    minWidth: 0,
+                    padding: '0 13px',
+                    borderRadius: 999,
+                    fontSize: 12,
+                    fontWeight: 800,
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  List View
+                </button>
+              )}
             </div>
 
             <h2>
