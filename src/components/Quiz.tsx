@@ -890,9 +890,9 @@ export default function Quiz({
           .quiz-brand-logo img,
           .quiz-brand-logo img.brand-logo,
           .quiz-brand-logo picture img {
-            width: 250px !important;
-            min-width: 250px !important;
-            transform: translateY(5px) scale(1.25) !important;
+            width: 245px !important;
+            min-width: 245px !important;
+            transform: translateY(5px) scale(1.18) !important;
           }
 
           .quiz-reference-actions > button {
