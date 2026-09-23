@@ -884,7 +884,7 @@ export default function Quiz({
 
         @media (max-width: 600px) {
           .quiz-brand-header {
-            margin-bottom: 5px !important;
+            margin-bottom: 10px !important;
           }
 
           .quiz-brand-logo img,
