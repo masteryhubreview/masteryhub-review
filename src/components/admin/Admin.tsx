@@ -187,7 +187,7 @@ export default function Admin({
           </p>
         </section>
 
-        <Results />
+        <Results branding={branding} />
       </>
     );
   }
@@ -291,8 +291,9 @@ export default function Admin({
               <b>{String(index + 1).padStart(2, '0')}</b>
               <p>{step}</p>
             </div>
-          ))}
-        </div>
+          ),
+        )}
+      </div>
       </section>
     </>
   );

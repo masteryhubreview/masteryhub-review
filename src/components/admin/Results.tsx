@@ -5,6 +5,7 @@ import { db } from '@/lib/supabase';
 import { download, makeCSV } from '@/lib/csv';
 import * as XLSX from 'xlsx';
 import { Notice, Pager, errorText } from '../shared';
+import type { Branding } from '../Workspace';
 import Quiz from '../Quiz';
 import RemoteSelect from './RemoteSelect';
 
@@ -24,7 +25,11 @@ type Result = {
   subjects: { name: string };
 };
 
-export default function Results() {
+export default function Results({
+  branding,
+}: {
+  branding: Branding;
+}) {
   const [rows, setRows] = useState<Result[]>([]);
   const [page, setPage] = useState(0);
   const [status, setStatus] = useState('');
@@ -550,7 +555,14 @@ export default function Results() {
   }
 
   if (detail) {
-    return <Quiz admin id={detail} onClose={() => setDetail(null)} />;
+    return (
+      <Quiz
+        admin
+        id={detail}
+        logoPath={branding.logo_path}
+        onClose={() => setDetail(null)}
+      />
+    );
   }
 
   const pendingCount = latestRows.filter(

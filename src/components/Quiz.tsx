@@ -945,53 +945,55 @@ export default function Quiz({
       >
         <h1 style={{ marginBottom: 6 }}>{attempt.title}</h1>
 
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            flexWrap: 'nowrap',
-            gap: '0 8px',
-            fontSize: 12,
-            opacity: 0.78,
-            whiteSpace: 'nowrap',
-            overflowX: 'auto',
-            scrollbarWidth: 'none',
-          }}
-        >
-          <span>
-            <b>Started:</b>{' '}
-            {new Date(attempt.started_at).toLocaleTimeString([], {
-              hour: 'numeric',
-              minute: '2-digit',
-            })}
-          </span>
+        {!admin && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              flexWrap: 'nowrap',
+              gap: '0 8px',
+              fontSize: 12,
+              opacity: 0.78,
+              whiteSpace: 'nowrap',
+              overflowX: 'auto',
+              scrollbarWidth: 'none',
+            }}
+          >
+            <span>
+              <b>Started:</b>{' '}
+              {new Date(attempt.started_at).toLocaleTimeString([], {
+                hour: 'numeric',
+                minute: '2-digit',
+              })}
+            </span>
 
-          {!!(
-            attempt.settings as AttemptView['settings'] & {
-              time_limit_minutes?: number | null;
-            }
-          ).time_limit_minutes && (
-            <>
-              <span aria-hidden="true">•</span>
-              <span>
-                <b>Time:</b>{' '}
-                {remainingSeconds !== null
-                  ? formatRemaining(remainingSeconds)
-                  : `${(
-                      attempt.settings as AttemptView['settings'] & {
-                        time_limit_minutes?: number | null;
-                      }
-                    ).time_limit_minutes} min`}
-              </span>
-            </>
-          )}
+            {!!(
+              attempt.settings as AttemptView['settings'] & {
+                time_limit_minutes?: number | null;
+              }
+            ).time_limit_minutes && (
+              <>
+                <span aria-hidden="true">•</span>
+                <span>
+                  <b>Time:</b>{' '}
+                  {remainingSeconds !== null
+                    ? formatRemaining(remainingSeconds)
+                    : `${(
+                        attempt.settings as AttemptView['settings'] & {
+                          time_limit_minutes?: number | null;
+                        }
+                      ).time_limit_minutes} min`}
+                </span>
+              </>
+            )}
 
-          <span aria-hidden="true">•</span>
+            <span aria-hidden="true">•</span>
 
-          <span>
-            <b>Status:</b> {attempt.status.replaceAll('_', ' ')}
-          </span>
-        </div>
+            <span>
+              <b>Status:</b> {attempt.status.replaceAll('_', ' ')}
+            </span>
+          </div>
+        )}
       </div>
 
       <Notice message={message} />
@@ -1014,6 +1016,31 @@ export default function Quiz({
         <span><b>Progress:</b> {progressPercent}%</span>
         {!!(attempt.settings as AttemptView['settings'] & { time_limit_minutes?: number | null }).time_limit_minutes && (
           <span><b>Time:</b> {remainingSeconds !== null ? formatRemaining(remainingSeconds) : `${(attempt.settings as AttemptView['settings'] & { time_limit_minutes?: number | null }).time_limit_minutes} min`}</span>
+        )}
+
+        {admin && attempt.status !== 'in_progress' && (
+          <button
+            type="button"
+            className="ghost"
+            disabled={busy}
+            onClick={() => {
+              setListReview((current) => !current);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            style={{
+              marginLeft: 'auto',
+              minHeight: 34,
+              height: 34,
+              minWidth: 0,
+              padding: '0 13px',
+              borderRadius: 999,
+              fontSize: 12,
+              fontWeight: 800,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {listReview ? 'Question View' : 'List View'}
+          </button>
         )}
       </section>
 
@@ -1415,8 +1442,10 @@ export default function Quiz({
               className="ghost"
               disabled={busy}
               onClick={() => {
-                setIndex(0);
-                setReviewMode(true);
+                if (!admin) {
+                  setIndex(0);
+                  setReviewMode(true);
+                }
                 setListReview(false);
               }}
             >
@@ -1437,6 +1466,16 @@ export default function Quiz({
                 style={{ marginLeft: 'auto' }}
               >
                 Finish Quiz
+              </button>
+            ) : admin ? (
+              <button
+                type="button"
+                className="ghost"
+                disabled={busy}
+                onClick={onClose}
+                style={{ marginLeft: 'auto' }}
+              >
+                Back to Results
               </button>
             ) : (
               <button
@@ -1516,6 +1555,20 @@ export default function Quiz({
                   }}
                 >
                   <ImageAttachment path={logoPath} bucket="branding" />
+                </div>
+              ) : admin ? (
+                <div
+                  style={{
+                    minHeight: 100,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 13,
+                    fontWeight: 700,
+                    opacity: 0.55,
+                  }}
+                >
+                  No uploaded logo
                 </div>
               ) : (
                 <img
@@ -1730,7 +1783,7 @@ export default function Quiz({
               </div>
             )}
 
-            {q.awarded !== null && q.awarded !== undefined && (
+            {!admin && q.awarded !== null && q.awarded !== undefined && (
               <div
                 className={[
                   'feedback',
@@ -1764,28 +1817,49 @@ export default function Quiz({
               explanation && (
                 <div
                   className="quiz-answer-explanation"
-                  style={{
-                    fontSize: 22,
-                    lineHeight: 1.65,
-                    padding: '18px 20px',
-                  }}
+                  style={
+                    admin
+                      ? {
+                          marginTop: 12,
+                          padding: '12px 14px',
+                          fontSize: 14,
+                          lineHeight: 1.5,
+                        }
+                      : {
+                          fontSize: 22,
+                          lineHeight: 1.65,
+                          padding: '18px 20px',
+                        }
+                  }
                 >
                   <b
-                    style={{
-                      display: 'block',
-                      fontSize: 35,
-                      lineHeight: 1.35,
-                      marginBottom: 8,
-                    }}
+                    style={
+                      admin
+                        ? {
+                            display: 'block',
+                            marginBottom: 4,
+                            fontSize: 16,
+                          }
+                        : {
+                            display: 'block',
+                            fontSize: 35,
+                            lineHeight: 1.35,
+                            marginBottom: 8,
+                          }
+                    }
                   >
                     Explanation
                   </b>
                   <p
-                    style={{
-                      margin: 0,
-                      fontSize: 30,
-                      lineHeight: 1.65,
-                    }}
+                    style={
+                      admin
+                        ? { margin: 0 }
+                        : {
+                            margin: 0,
+                            fontSize: 30,
+                            lineHeight: 1.65,
+                          }
+                    }
                   >
                     {explanation}
                   </p>
