@@ -224,7 +224,11 @@ export default function Student({
         // "Back to Workspace", even if normal sorting/pagination placed it later.
         const inProgressReviewerIds = Object.values(attemptMap)
           .filter((status) => !!status?.in_progress_id)
-          .map((status) => status.reviewer_id);
+          .map((status) => status.reviewer_id)
+          .filter(
+            (reviewerId) =>
+              !allowedReviewerIds || allowedReviewerIds.includes(reviewerId),
+          );
 
         const missingInProgressIds = inProgressReviewerIds.filter(
           (reviewerId) =>
