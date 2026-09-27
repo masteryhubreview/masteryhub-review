@@ -654,7 +654,14 @@ export default function Quiz({
     setMessage('');
 
     try {
-      if (dirty) await save();
+      // Save the answer currently shown in the UI before submitting.
+      // This prevents Finish Quiz from racing the delayed autosave.
+      if (active && q) {
+        await saveResponse(q.id, answer);
+        setDirty(false);
+        setSaved('Saved');
+      }
+
       await submitAttempt();
       await refresh();
       setIndex(0);
@@ -1457,10 +1464,11 @@ export default function Quiz({
                 type="button"
                 disabled={
                   busy ||
-                  attempt.questions.some(
-                    (question) =>
-                      !hasCompleteAnswer(question, question.response || []),
-                  )
+                  attempt.questions.some((question, questionIndex) => {
+                    const response =
+                      questionIndex === index ? answer : question.response || [];
+                    return !hasCompleteAnswer(question, response);
+                  })
                 }
                 onClick={finishAttempt}
                 style={{ marginLeft: 'auto' }}
@@ -1491,9 +1499,11 @@ export default function Quiz({
           </div>
 
           {active &&
-            attempt.questions.some(
-              (question) => !hasCompleteAnswer(question, question.response || []),
-            ) && (
+            attempt.questions.some((question, questionIndex) => {
+              const response =
+                questionIndex === index ? answer : question.response || [];
+              return !hasCompleteAnswer(question, response);
+            }) && (
               <p className="caption quiz-save-caption">
                 Answer all unanswered questions before submitting.
               </p>
