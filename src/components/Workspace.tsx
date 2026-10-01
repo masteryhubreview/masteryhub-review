@@ -245,22 +245,32 @@ export default function Workspace() {
 
 
 
-        if (data.role === 'student') {
-          const claimResult = await rpc<string>('claim_student_device', {
-            device_token: studentDeviceToken(),
-            force_takeover: false,
-          });
+      if (data.role === 'student') {
+  const debug = await rpc<{
+    auth_uid: string | null;
+    profile_role: string | null;
+    profile_active: boolean | null;
+  }>('debug_student_device');
 
-          if (!live) return;
+  console.log('DEVICE DEBUG:', debug);
 
-          if (claimResult === 'conflict') {
-            setProfile(null);
-            setDeviceConflict(true);
-            setAuthView('signin');
-            setMessage('');
-            return;
-          }
-        }
+  const claimResult = await rpc<string>('claim_student_device', {
+    device_token: studentDeviceToken(),
+    force_takeover: false,
+  });
+
+  console.log('DEVICE CLAIM RESULT:', claimResult);
+
+  if (!live) return;
+
+  if (claimResult === 'conflict') {
+    setProfile(null);
+    setDeviceConflict(true);
+    setAuthView('signin');
+    setMessage('');
+    return;
+  }
+}
 
         setDeviceConflict(false);
         setProfile(data);
