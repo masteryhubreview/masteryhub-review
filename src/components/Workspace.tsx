@@ -1,7 +1,5 @@
 'use client';
 
-
-
 import { useEffect, useState } from 'react';
 
 import { db, rpc } from '@/lib/supabase';
@@ -16,8 +14,6 @@ import Account from './Account';
 
 import { ImageAttachment, Notice, errorText } from './shared';
 
-
-
 export type Branding = {
 
   system_name: string;
@@ -31,8 +27,6 @@ export type Branding = {
   logo_path: string | null;
 
 };
-
-
 
 export const initialBranding: Branding = {
 
@@ -52,8 +46,6 @@ export const initialBranding: Branding = {
 
 };
 
-
-
 function withTimeout<T>(promise: PromiseLike<T>, ms = 7000): Promise<T> {
 
   return new Promise((resolve, reject) => {
@@ -65,8 +57,6 @@ function withTimeout<T>(promise: PromiseLike<T>, ms = 7000): Promise<T> {
       ms,
 
     );
-
-
 
     promise.then(
 
@@ -92,25 +82,32 @@ function withTimeout<T>(promise: PromiseLike<T>, ms = 7000): Promise<T> {
 
 }
 
-
-
 const ADMIN_PHONE_MAX_WIDTH = 700;
 
 const LAST_WORKSPACE_TAB_KEY = 'masteryhub:last-workspace-tab';
+
 const STUDENT_DEVICE_TOKEN_KEY = 'masteryhub:student-device-token';
 
 function studentDeviceToken() {
+
   if (typeof window === 'undefined') return '';
+
   const existing = window.localStorage.getItem(STUDENT_DEVICE_TOKEN_KEY);
+
   if (existing) return existing;
 
   const token =
+
     typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+
       ? crypto.randomUUID()
+
       : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
   window.localStorage.setItem(STUDENT_DEVICE_TOKEN_KEY, token);
+
   return token;
+
 }
 
 function storedWorkspaceTab() {
@@ -121,8 +118,6 @@ function storedWorkspaceTab() {
 
 }
 
-
-
 function isPhoneViewport() {
 
   if (typeof window === 'undefined') return false;
@@ -130,8 +125,6 @@ function isPhoneViewport() {
   return window.innerWidth <= ADMIN_PHONE_MAX_WIDTH;
 
 }
-
-
 
 export default function Workspace() {
 
@@ -152,10 +145,10 @@ export default function Workspace() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const [isPhone, setIsPhone] = useState(() => isPhoneViewport());
+
   const [deviceConflict, setDeviceConflict] = useState(false);
+
   const [deviceConflictBusy, setDeviceConflictBusy] = useState(false);
-
-
 
   useEffect(() => {
 
@@ -169,19 +162,13 @@ export default function Workspace() {
 
   }, []);
 
-
-
   useEffect(() => {
 
     let live = true;
 
-
-
     async function load() {
 
       if (!live) return;
-
-
 
       try {
 
@@ -193,13 +180,9 @@ export default function Workspace() {
 
         } = await withTimeout(db().auth.getSession());
 
-
-
         if (!live) return;
 
         if (sessionError) throw sessionError;
-
-
 
         if (!session?.user) {
 
@@ -211,21 +194,15 @@ export default function Workspace() {
 
         }
 
-
-
         const { data, error } = await withTimeout(
 
           db().from('profiles').select('*').eq('id', session.user.id).single(),
 
         );
 
-
-
         if (!live) return;
 
         if (error) throw error;
-
-
 
         if (!data.is_active) {
 
@@ -243,20 +220,26 @@ export default function Workspace() {
 
         }
 
-
-
       if (data.role === 'student') {
+
   const debug = await rpc<{
+
     auth_uid: string | null;
+
     profile_role: string | null;
+
     profile_active: boolean | null;
+
   }>('debug_student_device');
 
   console.log('DEVICE DEBUG:', debug);
 
 const claimResult = await rpc<string>('claim_student_device', {
+
   p_device_token: studentDeviceToken(),
+
   p_force_takeover: false,
+
 });
 
   console.log('DEVICE CLAIM RESULT:', claimResult);
@@ -264,18 +247,24 @@ const claimResult = await rpc<string>('claim_student_device', {
   if (!live) return;
 
   if (claimResult === 'conflict') {
+
     setProfile(null);
+
     setDeviceConflict(true);
+
     setAuthView('signin');
+
     setMessage('');
+
     return;
+
   }
+
 }
 
         setDeviceConflict(false);
+
         setProfile(data);
-
-
 
         const { data: b } = await withTimeout(
 
@@ -283,13 +272,9 @@ const claimResult = await rpc<string>('claim_student_device', {
 
         );
 
-
-
         if (!live) return;
 
         if (b) setBranding(b);
-
-
 
         const allowedTabs =
 
@@ -299,8 +284,6 @@ const claimResult = await rpc<string>('claim_student_device', {
 
             : ['Dashboard', 'History', 'Account'];
 
-
-
         const savedTab = storedWorkspaceTab();
 
         const restoredTab = allowedTabs.includes(savedTab)
@@ -309,13 +292,9 @@ const claimResult = await rpc<string>('claim_student_device', {
 
           : 'Dashboard';
 
-
-
         setTab(restoredTab);
 
         window.sessionStorage.setItem(LAST_WORKSPACE_TAB_KEY, restoredTab);
-
-
 
       } catch (e) {
 
@@ -333,11 +312,7 @@ const claimResult = await rpc<string>('claim_student_device', {
 
     }
 
-
-
     load();
-
-
 
     const {
 
@@ -347,11 +322,10 @@ const claimResult = await rpc<string>('claim_student_device', {
 
       if (!live) return;
 
-
-
       if (event === 'SIGNED_OUT') {
 
         setProfile(null);
+
         setDeviceConflict(false);
 
         setTab('Dashboard');
@@ -366,8 +340,6 @@ const claimResult = await rpc<string>('claim_student_device', {
 
       }
 
-
-
       if (event === 'SIGNED_IN') {
 
         setLoading(true);
@@ -377,8 +349,6 @@ const claimResult = await rpc<string>('claim_student_device', {
         return;
 
       }
-
-
 
       // Routine background auth events must never tear down the active workspace.
 
@@ -392,8 +362,6 @@ const claimResult = await rpc<string>('claim_student_device', {
 
     });
 
-
-
     return () => {
 
       live = false;
@@ -405,15 +373,68 @@ const claimResult = await rpc<string>('claim_student_device', {
   }, []);
 
   useEffect(() => {
+
     if (!profile || profile.role !== 'student') return;
 
+    const client = db();
     const currentDeviceToken = studentDeviceToken();
-    const channel = db()
+    let disposed = false;
+    let signingOut = false;
+
+    const forceDeviceSignOut = async () => {
+
+      if (disposed || signingOut) return;
+      signingOut = true;
+
+      setProfile(null);
+      setDeviceConflict(false);
+      setTab('Dashboard');
+      window.sessionStorage.removeItem(LAST_WORKSPACE_TAB_KEY);
+      setAuthView('signin');
+      setMessage(
+        'This account was continued on another device. Please sign in again to use this device.',
+      );
+
+      try {
+        await client.auth.signOut({ scope: 'local' });
+      } catch {
+        // The workspace is already blocked locally even if auth sign-out fails.
+      }
+
+    };
+
+    const verifyDeviceOwnership = async () => {
+
+      if (disposed || signingOut) return;
+
+      const { data: deviceSession, error } = await client
+        .from('student_device_sessions')
+        .select('device_token')
+        .eq('student_id', profile.id)
+        .maybeSingle();
+
+      if (disposed || signingOut) return;
+
+      if (error) {
+        console.warn('DEVICE OWNERSHIP CHECK FAILED:', error.message);
+        return;
+      }
+
+      if (
+        deviceSession?.device_token &&
+        deviceSession.device_token !== currentDeviceToken
+      ) {
+        await forceDeviceSignOut();
+      }
+
+    };
+
+    const channel = client
       .channel(`student-device-session-${profile.id}`)
       .on(
         'postgres_changes',
         {
-          event: 'UPDATE',
+          event: '*',
           schema: 'public',
           table: 'student_device_sessions',
           filter: `student_id=eq.${profile.id}`,
@@ -422,25 +443,43 @@ const claimResult = await rpc<string>('claim_student_device', {
           const nextRow = (payload.new || {}) as { device_token?: string };
 
           if (nextRow.device_token && nextRow.device_token !== currentDeviceToken) {
-            setProfile(null);
-            setTab('Dashboard');
-            window.sessionStorage.removeItem(LAST_WORKSPACE_TAB_KEY);
-            setAuthView('signin');
-            setMessage(
-              'This account was continued on another device. Please sign in again to use this device.',
-            );
-            void db().auth.signOut({ scope: 'local' });
+            void forceDeviceSignOut();
+            return;
           }
+
+          void verifyDeviceOwnership();
         },
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('DEVICE REALTIME STATUS:', status);
+        if (status === 'SUBSCRIBED') void verifyDeviceOwnership();
+      });
+
+    const ownershipInterval = window.setInterval(() => {
+      void verifyDeviceOwnership();
+    }, 3000);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') void verifyDeviceOwnership();
+    };
+
+    const handleFocus = () => {
+      void verifyDeviceOwnership();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+    void verifyDeviceOwnership();
 
     return () => {
-      void db().removeChannel(channel);
+      disposed = true;
+      window.clearInterval(ownershipInterval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+      void client.removeChannel(channel);
     };
-  }, [profile]);
 
-
+  }, [profile?.id, profile?.role]);
 
   if (loading) {
 
@@ -456,84 +495,140 @@ const claimResult = await rpc<string>('claim_student_device', {
 
   }
 
-
-
   if (deviceConflict) {
+
     const continueOnThisDevice = async () => {
+
       setDeviceConflictBusy(true);
+
       setMessage('');
 
       try {
+
         const result = await rpc<string>('claim_student_device', {
+
   p_device_token: studentDeviceToken(),
+
   p_force_takeover: true,
+
 });
 
         if (
+
           result !== 'taken_over' &&
+
           result !== 'active' &&
+
           result !== 'claimed'
+
         ) {
+
           throw new Error('Unable to continue on this device. Please try again.');
+
         }
 
         setDeviceConflict(false);
+
         window.location.reload();
+
       } catch (e) {
+
         setMessage(errorText(e));
+
         setDeviceConflictBusy(false);
+
       }
+
     };
 
     const cancelDeviceConflict = async () => {
+
       setDeviceConflictBusy(true);
+
       await db().auth.signOut({ scope: 'local' });
+
       setProfile(null);
+
       setDeviceConflict(false);
+
       setAuthView('signin');
+
       setLoading(false);
+
       setDeviceConflictBusy(false);
+
     };
 
     return (
+
       <main className="auth-wrap">
+
         <section className="auth-card public-signin-card">
+
           <div className="auth-logo-wrap">
+
             <img
+
               className="auth-logo"
+
               src="/masteryhub-review-logo.png"
+
               alt="MasteryHub Review"
+
             />
+
           </div>
 
           <span className="eyebrow">DEVICE ALREADY IN USE</span>
+
           <h2>This account is active on another device.</h2>
+
           <p>
+
             One student account can only be active on one device at a time. If you
+
             continue here, the previous device will be signed out.
+
           </p>
 
           <button
+
             type="button"
+
             disabled={deviceConflictBusy}
+
             onClick={continueOnThisDevice}
+
           >
+
             {deviceConflictBusy ? 'Please wait...' : 'Continue on this device'}
+
           </button>
 
           <button
+
             type="button"
+
             className="text-button"
+
             disabled={deviceConflictBusy}
+
             onClick={cancelDeviceConflict}
+
           >
+
             Cancel
+
           </button>
 
           <Notice message={message} />
+
         </section>
+
       </main>
+
     );
+
   }
 
   if (!profile) {
@@ -550,8 +645,6 @@ const claimResult = await rpc<string>('claim_student_device', {
 
     };
 
-
-
     const openPublicSignIn = () => {
 
       setMessage('');
@@ -563,8 +656,6 @@ const claimResult = await rpc<string>('claim_student_device', {
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
     };
-
-
 
     const signInForm = (
 
@@ -580,11 +671,7 @@ const claimResult = await rpc<string>('claim_student_device', {
 
           setMessage('');
 
-
-
           const f = new FormData(e.currentTarget);
-
-
 
           try {
 
@@ -599,8 +686,6 @@ const claimResult = await rpc<string>('claim_student_device', {
               }),
 
             );
-
-
 
             if (error) throw error;
 
@@ -632,15 +717,11 @@ const claimResult = await rpc<string>('claim_student_device', {
 
         </div>
 
-
-
         <span className="eyebrow">WELCOME BACK</span>
 
         <h2>Sign in to continue.</h2>
 
         <p>Access your assigned reviewers, quizzes, scores, and learning history.</p>
-
-
 
         <label>
 
@@ -660,8 +741,6 @@ const claimResult = await rpc<string>('claim_student_device', {
 
         </label>
 
-
-
         <label>
 
           Password
@@ -680,15 +759,11 @@ const claimResult = await rpc<string>('claim_student_device', {
 
         </label>
 
-
-
         <button disabled={busy}>
 
           {busy ? 'Signing in...' : 'Sign in'}
 
         </button>
-
-
 
         <button
 
@@ -702,8 +777,6 @@ const claimResult = await rpc<string>('claim_student_device', {
 
             const email = String(new FormData(form).get('email'));
 
-
-
             if (!email) {
 
               setMessage('Enter your email address first.');
@@ -711,8 +784,6 @@ const claimResult = await rpc<string>('claim_student_device', {
               return;
 
             }
-
-
 
             try {
 
@@ -726,11 +797,7 @@ const claimResult = await rpc<string>('claim_student_device', {
 
               );
 
-
-
               if (error) throw error;
-
-
 
               setMessage(
 
@@ -752,11 +819,7 @@ const claimResult = await rpc<string>('claim_student_device', {
 
         </button>
 
-
-
         <Notice message={message} />
-
-
 
         <p className="caption">
 
@@ -769,8 +832,6 @@ const claimResult = await rpc<string>('claim_student_device', {
       </form>
 
     );
-
-
 
     return (
 
@@ -801,8 +862,6 @@ const claimResult = await rpc<string>('claim_student_device', {
             />
 
           </button>
-
-
 
           <nav className="public-desktop-nav" aria-label="Public navigation">
 
@@ -836,8 +895,6 @@ const claimResult = await rpc<string>('claim_student_device', {
 
           </nav>
 
-
-
           <button
 
             type="button"
@@ -859,8 +916,6 @@ const claimResult = await rpc<string>('claim_student_device', {
             <span />
 
           </button>
-
-
 
           {mobileNavOpen && (
 
@@ -900,8 +955,6 @@ const claimResult = await rpc<string>('claim_student_device', {
 
         </header>
 
-
-
         {authView === 'home' ? (
 
           <main className="public-landing-main">
@@ -911,8 +964,6 @@ const claimResult = await rpc<string>('claim_student_device', {
               <div className="public-landing-copy">
 
                 <span className="eyebrow">WELCOME TO MASTERYHUB REVIEW</span>
-
-
 
                 <h1>
 
@@ -924,8 +975,6 @@ const claimResult = await rpc<string>('claim_student_device', {
 
                 </h1>
 
-
-
                 <p>
 
                   Your focused learning space for assigned reviewers, practice
@@ -933,8 +982,6 @@ const claimResult = await rpc<string>('claim_student_device', {
                   quizzes, results, and progress — all in one place.
 
                 </p>
-
-
 
                 <button
 
@@ -950,8 +997,6 @@ const claimResult = await rpc<string>('claim_student_device', {
 
                 </button>
 
-
-
                 <div className="public-landing-words" aria-label="Review Practice Progress">
 
                   <span>Review</span>
@@ -963,8 +1008,6 @@ const claimResult = await rpc<string>('claim_student_device', {
                 </div>
 
               </div>
-
-
 
               <div className="public-landing-visual" aria-hidden="true">
 
@@ -1014,8 +1057,6 @@ const claimResult = await rpc<string>('claim_student_device', {
 
               </p>
 
-
-
               <div className="public-landing-words">
 
                 <span>Review</span>
@@ -1028,15 +1069,11 @@ const claimResult = await rpc<string>('claim_student_device', {
 
             </section>
 
-
-
             {signInForm}
 
           </main>
 
         )}
-
-
 
         <footer className="public-auth-footer public-landing-footer">
 
@@ -1059,8 +1096,6 @@ const claimResult = await rpc<string>('claim_student_device', {
     );
 
   }
-
-
 
   if (profile.role === 'admin' && isPhone) {
 
@@ -1114,8 +1149,6 @@ const claimResult = await rpc<string>('claim_student_device', {
 
   }
 
-
-
   const tabs =
 
     profile.role === 'admin'
@@ -1124,20 +1157,26 @@ const claimResult = await rpc<string>('claim_student_device', {
 
       : ['Dashboard', 'History', 'Account'];
 
-
-
   const signOut = async () => {
 
     setMobileNavOpen(false);
 
     if (profile.role === 'student') {
+
       try {
+
         await rpc<boolean>('release_student_device', {
+
           device_token: studentDeviceToken(),
+
         });
+
       } catch {
+
         // Still sign out locally if releasing the device session fails.
+
       }
+
     }
 
     await db().auth.signOut({ scope: 'local' });
@@ -1152,8 +1191,6 @@ const claimResult = await rpc<string>('claim_student_device', {
 
   };
 
-
-
   const chooseTab = (nextTab: string) => {
 
     setTab(nextTab);
@@ -1165,8 +1202,6 @@ const claimResult = await rpc<string>('claim_student_device', {
     setMobileNavOpen(false);
 
   };
-
-
 
   return (
 
@@ -1183,8 +1218,6 @@ const claimResult = await rpc<string>('claim_student_device', {
       <aside className="sidebar">
 
         <ImageAttachment path={branding.logo_path} bucket="branding" />
-
-
 
         <div className="brand sidebar-brand-text">
 
@@ -1205,8 +1238,6 @@ const claimResult = await rpc<string>('claim_student_device', {
           </div>
 
         </div>
-
-
 
         <nav aria-label="Main navigation">
 
@@ -1236,8 +1267,6 @@ const claimResult = await rpc<string>('claim_student_device', {
 
         </nav>
 
-
-
         <div className="sidebar-foot">
 
           <p>{branding.tagline}</p>
@@ -1256,8 +1285,6 @@ const claimResult = await rpc<string>('claim_student_device', {
 
       </aside>
 
-
-
       <>
 
           <div
@@ -1273,8 +1300,6 @@ const claimResult = await rpc<string>('claim_student_device', {
             onClick={() => setMobileNavOpen(false)}
 
           />
-
-
 
           <aside
 
@@ -1316,8 +1341,6 @@ const claimResult = await rpc<string>('claim_student_device', {
 
               </div>
 
-
-
               <button
 
                 type="button"
@@ -1335,8 +1358,6 @@ const claimResult = await rpc<string>('claim_student_device', {
               </button>
 
             </div>
-
-
 
             <nav
 
@@ -1372,8 +1393,6 @@ const claimResult = await rpc<string>('claim_student_device', {
 
                 };
 
-
-
                 const icons: Record<string, string> = {
 
                   Dashboard: '⌂',
@@ -1391,8 +1410,6 @@ const claimResult = await rpc<string>('claim_student_device', {
                   Account: '○',
 
                 };
-
-
 
                 return (
 
@@ -1426,8 +1443,6 @@ const claimResult = await rpc<string>('claim_student_device', {
 
             </nav>
 
-
-
             <div className="student-mobile-drawer-foot">
 
               <button
@@ -1444,8 +1459,6 @@ const claimResult = await rpc<string>('claim_student_device', {
 
               </button>
 
-
-
               <span>
 
                 Powered by <b>TCL Systems & Digitals PH</b>
@@ -1457,8 +1470,6 @@ const claimResult = await rpc<string>('claim_student_device', {
           </aside>
 
         </>
-
-
 
       <div className="main">
 
@@ -1488,8 +1499,6 @@ const claimResult = await rpc<string>('claim_student_device', {
 
               </button>
 
-
-
               <div className="student-mobile-brand">
 
                 <div className="student-mobile-brand-copy">
@@ -1502,8 +1511,6 @@ const claimResult = await rpc<string>('claim_student_device', {
 
               </div>
 
-
-
               <span className="student-mobile-avatar">
 
                 {profile.display_name.charAt(0)}
@@ -1512,23 +1519,17 @@ const claimResult = await rpc<string>('claim_student_device', {
 
             </div>
 
-
-
           <span className="breadcrumb">
 
             Workspace / <b>{tab}</b>
 
           </span>
 
-
-
           <div className="user">
 
             <span className="avatar">{profile.display_name.charAt(0)}</span>
 
             <span>{profile.display_name}</span>
-
-
 
             <button className="ghost" onClick={signOut}>
 
@@ -1540,13 +1541,9 @@ const claimResult = await rpc<string>('claim_student_device', {
 
         </header>
 
-
-
         <main className="content">
 
           <Notice message={message} />
-
-
 
           {tab === 'Account' ? (
 
@@ -1583,8 +1580,6 @@ const claimResult = await rpc<string>('claim_student_device', {
           )}
 
         </main>
-
-
 
         <footer>
 
