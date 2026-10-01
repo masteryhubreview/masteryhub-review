@@ -254,10 +254,10 @@ export default function Workspace() {
 
   console.log('DEVICE DEBUG:', debug);
 
-  const claimResult = await rpc<string>('claim_student_device', {
-    device_token: studentDeviceToken(),
-    force_takeover: false,
-  });
+const claimResult = await rpc<string>('claim_student_device', {
+  p_device_token: studentDeviceToken(),
+  p_force_takeover: false,
+});
 
   console.log('DEVICE CLAIM RESULT:', claimResult);
 
@@ -465,9 +465,9 @@ export default function Workspace() {
 
       try {
         const result = await rpc<string>('claim_student_device', {
-          device_token: studentDeviceToken(),
-          force_takeover: true,
-        });
+  p_device_token: studentDeviceToken(),
+  p_force_takeover: true,
+});
 
         if (
           result !== 'taken_over' &&
