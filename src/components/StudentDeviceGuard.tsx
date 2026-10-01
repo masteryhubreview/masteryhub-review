@@ -3,15 +3,27 @@
 import { useEffect } from 'react';
 import { db } from '@/lib/supabase';
 
-const DEVICE_TOKEN_KEY = 'reviewhub_student_device_token';
+const STUDENT_DEVICE_TOKEN_KEY = 'masteryhub:student-device-token';
 
-function getDeviceToken() {
-  let token = localStorage.getItem(DEVICE_TOKEN_KEY);
+function studentDeviceToken() {
+  if (typeof window === 'undefined') return '';
 
-  if (!token) {
-    token = crypto.randomUUID();
-    localStorage.setItem(DEVICE_TOKEN_KEY, token);
-  }
+  const existing = window.localStorage.getItem(
+    STUDENT_DEVICE_TOKEN_KEY,
+  );
+
+  if (existing) return existing;
+
+  const token =
+    typeof crypto !== 'undefined' &&
+    typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+  window.localStorage.setItem(
+    STUDENT_DEVICE_TOKEN_KEY,
+    token,
+  );
 
   return token;
 }
@@ -31,9 +43,6 @@ export default function StudentDeviceGuard() {
       signingOut = true;
 
       try {
-        // IMPORTANT:
-        // Only sign out THIS browser/device.
-        // Do not invalidate the new device that took ownership.
         await client.auth.signOut({ scope: 'local' });
       } catch (error) {
         console.warn('Local device sign-out failed:', error);
@@ -41,9 +50,7 @@ export default function StudentDeviceGuard() {
 
       if (disposed) return;
 
-      window.location.replace(
-        '/?device_signed_out=1',
-      );
+      window.location.replace('/?device_signed_out=1');
     };
 
     const startGuard = async () => {
@@ -55,12 +62,12 @@ export default function StudentDeviceGuard() {
 
       const userId = session.user.id;
 
-      // Confirm this account is actually an active student.
-      const { data: profile, error: profileError } = await client
-        .from('profiles')
-        .select('role, is_active')
-        .eq('id', userId)
-        .maybeSingle();
+      const { data: profile, error: profileError } =
+        await client
+          .from('profiles')
+          .select('role, is_active')
+          .eq('id', userId)
+          .maybeSingle();
 
       if (
         disposed ||
@@ -72,7 +79,7 @@ export default function StudentDeviceGuard() {
         return;
       }
 
-      const myDeviceToken = getDeviceToken();
+      const myDeviceToken = studentDeviceToken();
 
       const verifyOwnership = async () => {
         if (disposed || signingOut) return;
@@ -89,11 +96,12 @@ export default function StudentDeviceGuard() {
           return;
         }
 
-        const { data: deviceSession, error } = await client
-          .from('student_device_sessions')
-          .select('device_token')
-          .eq('student_id', userId)
-          .maybeSingle();
+        const { data: deviceSession, error } =
+          await client
+            .from('student_device_sessions')
+            .select('device_token')
+            .eq('student_id', userId)
+            .maybeSingle();
 
         if (disposed || signingOut) return;
 
@@ -105,17 +113,19 @@ export default function StudentDeviceGuard() {
           return;
         }
 
-        // No row yet = don't kick the student out.
         if (!deviceSession?.device_token) return;
 
-        if (deviceSession.device_token !== myDeviceToken) {
+        if (
+          deviceSession.device_token !== myDeviceToken
+        ) {
           await signOutOldDevice();
         }
       };
 
-      // REALTIME — fastest path.
       channel = client
-        .channel(`global-student-device-${userId}-${myDeviceToken}`)
+        .channel(
+          `global-student-device-${userId}-${myDeviceToken}`,
+        )
         .on(
           'postgres_changes',
           {
@@ -136,7 +146,6 @@ export default function StudentDeviceGuard() {
           }
         });
 
-      // FALLBACK — ensures takeover still works if Realtime misses an event.
       interval = setInterval(() => {
         void verifyOwnership();
       }, 3000);
@@ -152,16 +161,17 @@ export default function StudentDeviceGuard() {
       };
 
       window.addEventListener('focus', onFocus);
+
       document.addEventListener(
         'visibilitychange',
         onVisibilityChange,
       );
 
-      // Run immediately.
       await verifyOwnership();
 
       return () => {
         window.removeEventListener('focus', onFocus);
+
         document.removeEventListener(
           'visibilitychange',
           onVisibilityChange,
