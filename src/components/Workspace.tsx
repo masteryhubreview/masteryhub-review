@@ -1009,31 +1009,13 @@ const claimResult = await rpc<string>('claim_student_device', {
 
               </div>
 
-              <div className="public-landing-visual" aria-hidden="true">
-
-                <div className="public-landing-orbit public-orbit-one" />
-
-                <div className="public-landing-orbit public-orbit-two" />
-
-                <div className="public-landing-note">
-
-                  <span>YOUR LEARNING SPACE</span>
-
-                  <strong>
-
-                    A little practice.
-
-                    <br />
-
-                    A lot of possibility.
-
-                  </strong>
-
-                  <small>Learn at your own pace.</small>
-
-                </div>
-
-              </div>
+              <div className="public-landing-visual public-landing-photo-wrap">
+  <img
+    className="public-landing-photo"
+    src="/masteryhub-computer-lab.png"
+    alt="MasteryHub Review learning space"
+  />
+</div>
 
             </section>
 
