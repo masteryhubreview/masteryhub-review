@@ -959,65 +959,41 @@ const claimResult = await rpc<string>('claim_student_device', {
 
           <main className="public-landing-main">
 
-            <section className="public-landing-hero">
+            <section className="public-landing-hero public-landing-hero-photo">
+  <div className="public-landing-overlay" />
 
-              <div className="public-landing-copy">
+  <div className="public-landing-copy public-landing-copy-over-photo">
+    <span className="eyebrow">WELCOME TO MASTERYHUB REVIEW</span>
 
-                <span className="eyebrow">WELCOME TO MASTERYHUB REVIEW</span>
+    <h1>
+      Review smarter.
+      <br />
+      Progress with confidence.
+    </h1>
 
-                <h1>
+    <p>
+      Your focused learning space for assigned reviewers, practice
+      quizzes, results, and progress — all in one place.
+    </p>
 
-                  Review smarter.
+    <button
+      type="button"
+      className="public-start-review"
+      onClick={openPublicSignIn}
+    >
+      Start Your Review <span aria-hidden="true">→</span>
+    </button>
 
-                  <br />
-
-                  Progress with confidence.
-
-                </h1>
-
-                <p>
-
-                  Your focused learning space for assigned reviewers, practice
-
-                  quizzes, results, and progress — all in one place.
-
-                </p>
-
-                <button
-
-                  type="button"
-
-                  className="public-start-review"
-
-                  onClick={openPublicSignIn}
-
-                >
-
-                  Start Your Review <span aria-hidden="true">→</span>
-
-                </button>
-
-                <div className="public-landing-words" aria-label="Review Practice Progress">
-
-                  <span>Review</span>
-
-                  <span>Practice</span>
-
-                  <span>Progress</span>
-
-                </div>
-
-              </div>
-
-              <div className="public-landing-visual public-landing-photo-wrap">
-  <img
-    className="public-landing-photo"
-    src="/masteryhub-computer-lab.png"
-    alt="MasteryHub Review learning space"
-  />
-</div>
-
-            </section>
+    <div
+      className="public-landing-words"
+      aria-label="Review Practice Progress"
+    >
+      <span>Review</span>
+      <span>Practice</span>
+      <span>Progress</span>
+    </div>
+  </div>
+</section>
 
           </main>
 
